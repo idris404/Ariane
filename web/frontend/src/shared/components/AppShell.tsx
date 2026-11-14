@@ -37,8 +37,8 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
   const { logout, isPending, errorMessage } = useLogout()
 
   return (
-    <div className="flex min-h-screen bg-canvas font-sans text-ink">
-      <aside className="flex w-[232px] shrink-0 flex-col bg-sidebar px-4 py-5 text-sidebar-text">
+    <div className="min-h-screen bg-canvas font-sans text-ink">
+      <aside className="fixed inset-y-0 left-0 z-20 flex h-dvh w-sidebar flex-col overflow-y-auto bg-sidebar px-4 py-5 text-sidebar-text">
         <NavLink to={ROUTES.dashboard} className="flex items-center gap-3 px-2">
           <span className="grid size-9 place-items-center rounded-lg bg-mint text-lg font-semibold text-teal-deep">
             +
@@ -78,7 +78,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
         <p className="mt-4 px-1 text-sm text-sidebar-strong">CHU Saint-Louis</p>
         <p className="px-1 text-xs text-sidebar-muted">Unité de greffe rénale</p>
       </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-col pl-sidebar">
         <header className="flex h-16 items-center justify-between border-b border-line bg-white px-8">
           <p className="text-sm whitespace-nowrap text-muted">
             Transplantation rénale <span className="px-2 text-line">/</span> {section}

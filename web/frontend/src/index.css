@@ -3,6 +3,7 @@
 /* Charte web/DESIGN.md — fiche patient. */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --spacing-sidebar: 232px;
   --color-canvas: #f4f7f8;
   --color-ink: #183b40;
   --color-muted: #687d82;
