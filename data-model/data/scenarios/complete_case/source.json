@@ -1,0 +1,74 @@
+{
+  "case_id": "SYN-CASE-001",
+  "synthetic": true,
+  "schema_version": "0.2.0",
+  "phase": "pre_transplant",
+  "evaluation_time": "2026-11-14T09:00:00Z",
+  "patient_profile": {
+    "age": {"availability": "known", "value": 52},
+    "sex_at_birth": {"availability": "known", "value": "female"},
+    "pregnancy_history": {"availability": "known", "status": "none", "count": 0, "dates": []},
+    "transfusion_history": {"availability": "known", "count": 0, "dates": [], "frequency": "none"},
+    "diabetes": {"availability": "known", "value": false},
+    "hypertension": {"availability": "known", "value": false},
+    "autoimmune_disease": {"availability": "known", "value": false},
+    "initial_kidney_disease": {"availability": "known", "value": "Synthetic chronic kidney disease"},
+    "dialysis": {"availability": "known", "status": "on_dialysis", "started_at": "2024-03-10"},
+    "rejection_suspicion": {"availability": "not_applicable", "value": null, "observed_at": null},
+    "organ_context": {"availability": "known", "target_organ": "kidney", "status": "waiting_list", "registration_date": "2025-01-20"},
+    "previous_transplants": {"availability": "known", "events": []},
+    "car_t_treatments": {"availability": "known", "events": []},
+    "therapeutic_antibody_treatments": {"availability": "known", "events": []}
+  },
+  "serums": [
+    {
+      "serum_id": "SER-001",
+      "collected_at": "2026-10-15T08:30:00Z",
+      "assays": [
+        {
+          "assay_id": "ASSAY-001",
+          "test_type": "screening",
+          "manufacturer": "Immucor",
+          "result_availability": "present",
+          "source_result": "negative",
+          "performed_at": "2026-10-15T13:00:00Z",
+          "kit_reference": "SYN-IMM-SCREEN-A",
+          "lot": "SYN-LOT-001",
+          "quality_status": "pending_review"
+        },
+        {
+          "assay_id": "ASSAY-002",
+          "test_type": "single_antigen",
+          "manufacturer": "Immucor",
+          "result_availability": "present",
+          "source_result": "negative",
+          "performed_at": "2026-10-15T14:00:00Z",
+          "kit_reference": "SYN-IMM-SA-A",
+          "lot": "SYN-LOT-002",
+          "quality_status": "pending_review"
+        }
+      ]
+    },
+    {
+      "serum_id": "SER-002",
+      "collected_at": "2026-11-10T08:30:00Z",
+      "assays": [
+        {
+          "assay_id": "ASSAY-003",
+          "test_type": "screening",
+          "manufacturer": "Immucor",
+          "result_availability": "present",
+          "source_result": "negative",
+          "performed_at": "2026-11-10T12:00:00Z",
+          "kit_reference": "SYN-IMM-SCREEN-A",
+          "lot": "SYN-LOT-003",
+          "quality_status": "pending_review"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "source_record_copied": false,
+    "generator_version": "manual-fixture-v1"
+  }
+}

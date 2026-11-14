@@ -1,0 +1,11 @@
+.env
+frontend/node_modules
+backend/.venv
+.venv
+__pycache__
+dependencies/volumes
+.claude/settings.json
+.pytest_cache
+.coverage
+web/frontend/dist
+web/frontend/node_modules

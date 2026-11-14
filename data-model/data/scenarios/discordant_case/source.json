@@ -1,0 +1,34 @@
+{
+  "case_id": "SYN-CASE-004",
+  "synthetic": true,
+  "schema_version": "0.2.0",
+  "phase": "pre_transplant",
+  "evaluation_time": "2026-11-14T09:00:00Z",
+  "patient_profile": {
+    "age": {"availability": "known", "value": 59},
+    "sex_at_birth": {"availability": "known", "value": "male"},
+    "pregnancy_history": {"availability": "known", "status": "none", "count": 0, "dates": []},
+    "transfusion_history": {"availability": "known", "count": 0, "dates": [], "frequency": "none"},
+    "diabetes": {"availability": "known", "value": false},
+    "hypertension": {"availability": "known", "value": false},
+    "autoimmune_disease": {"availability": "known", "value": false},
+    "initial_kidney_disease": {"availability": "known", "value": "Synthetic chronic kidney disease"},
+    "dialysis": {"availability": "known", "status": "not_on_dialysis", "started_at": null},
+    "rejection_suspicion": {"availability": "not_applicable", "value": null, "observed_at": null},
+    "organ_context": {"availability": "known", "target_organ": "kidney", "status": "waiting_list", "registration_date": "2025-06-01"},
+    "previous_transplants": {"availability": "known", "events": []},
+    "car_t_treatments": {"availability": "known", "events": []},
+    "therapeutic_antibody_treatments": {"availability": "known", "events": []}
+  },
+  "serums": [
+    {
+      "serum_id": "SER-006",
+      "collected_at": "2026-11-12T08:00:00Z",
+      "assays": [
+        {"assay_id": "ASSAY-007", "test_type": "screening", "manufacturer": "Immucor", "result_availability": "present", "source_result": "negative", "performed_at": "2026-11-12T12:00:00Z", "kit_reference": "SYN-IMM-SCREEN-A", "lot": "SYN-LOT-006", "quality_status": "pending_review"},
+        {"assay_id": "ASSAY-008", "test_type": "single_antigen", "manufacturer": "Immucor", "result_availability": "present", "source_result": "positive", "performed_at": "2026-11-12T13:00:00Z", "kit_reference": "SYN-IMM-SA-A", "lot": "SYN-LOT-007", "quality_status": "pending_review"}
+      ]
+    }
+  ],
+  "provenance": {"source_record_copied": false, "generator_version": "manual-fixture-v1"}
+}
