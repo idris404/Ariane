@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hla-twin.local/schemas/source-case.schema.json",
+  "title": "HLA Twin synthetic source case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "synthetic",
+    "schema_version",
+    "phase",
+    "evaluation_time",
+    "patient_profile",
+    "serums",
+    "provenance"
+  ],
+  "properties": {
+    "case_id": {"type": "string", "pattern": "^SYN-(CASE-[0-9]{3}|PROFILE-[0-9]{4,5})$"},
+    "synthetic": {"const": true},
+    "schema_version": {"const": "0.2.0"},
+    "phase": {"enum": ["pre_transplant", "post_transplant"]},
+    "evaluation_time": {"type": "string", "format": "date-time"},
+    "patient_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "age",
+        "sex_at_birth",
+        "pregnancy_history",
+        "transfusion_history",
+        "diabetes",
+        "hypertension",
+        "autoimmune_disease",
+        "initial_kidney_disease",
+        "dialysis",
+        "rejection_suspicion",
+        "organ_context",
+        "previous_transplants",
+        "car_t_treatments",
+        "therapeutic_antibody_treatments"
+      ],
+      "properties": {
+        "age": {"$ref": "#/$defs/nullableNonNegativeIntegerObservation"},
+        "sex_at_birth": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "value"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "value": {"enum": ["female", "male", "intersex", null]}
+          }
+        },
+        "pregnancy_history": {
+          "allOf": [
+            {"$ref": "#/$defs/countObservation"},
+            {
+              "type": "object",
+              "properties": {
+                "status": {"enum": ["none", "one", "multiple", "unknown"]}
+              }
+            }
+          ]
+        },
+        "transfusion_history": {
+          "allOf": [
+            {"$ref": "#/$defs/countObservation"},
+            {
+              "type": "object",
+              "properties": {
+                "frequency": {"enum": ["none", "single", "multiple", "regular", "unknown", null]}
+              }
+            }
+          ]
+        },
+        "diabetes": {"$ref": "#/$defs/nullableBooleanObservation"},
+        "hypertension": {"$ref": "#/$defs/nullableBooleanObservation"},
+        "autoimmune_disease": {"$ref": "#/$defs/nullableBooleanObservation"},
+        "initial_kidney_disease": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "value"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "value": {"type": ["string", "null"]}
+          }
+        },
+        "dialysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "status", "started_at"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "status": {"enum": ["not_on_dialysis", "on_dialysis", "unknown"]},
+            "started_at": {"type": ["string", "null"], "format": "date"}
+          }
+        },
+        "rejection_suspicion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "value", "observed_at"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "value": {"type": ["boolean", "null"]},
+            "observed_at": {"type": ["string", "null"], "format": "date-time"}
+          }
+        },
+        "organ_context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "target_organ", "status", "registration_date"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "target_organ": {"const": "kidney"},
+            "status": {"enum": ["pre_registration", "waiting_list", "suspended", "transplanted", "follow_up", "unknown"]},
+            "registration_date": {"type": ["string", "null"], "format": "date"}
+          }
+        },
+        "previous_transplants": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "events"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "events": {"type": "array", "items": {"type": "object"}},
+            "rejection_history": {"enum": ["yes", "no", "unknown", "not_applicable"]}
+          }
+        },
+        "car_t_treatments": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "events"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "events": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "therapeutic_antibody_treatments": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["availability", "events"],
+          "properties": {
+            "availability": {"$ref": "#/$defs/availability"},
+            "events": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "source_context": {
+          "type": "object",
+          "description": "Optional source facts preserved for display and explicitly excluded from scoring."
+        }
+      }
+    },
+    "serums": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["serum_id", "collected_at", "assays"],
+        "properties": {
+          "serum_id": {"type": "string", "pattern": "^SER-[0-9]{3}$"},
+          "collected_at": {"type": "string", "format": "date-time"},
+          "assays": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assay_id",
+                "test_type",
+                "manufacturer",
+                "result_availability",
+                "source_result",
+                "performed_at",
+                "kit_reference",
+                "lot",
+                "quality_status"
+              ],
+              "properties": {
+                "assay_id": {"type": "string", "pattern": "^ASSAY-[0-9]{3}$"},
+                "test_type": {"enum": ["screening", "single_antigen"]},
+                "manufacturer": {"const": "Immucor"},
+                "result_availability": {"enum": ["present", "missing"]},
+                "source_result": {"enum": ["negative", "positive", "doubtful", null]},
+                "performed_at": {"type": ["string", "null"], "format": "date-time"},
+                "kit_reference": {"type": ["string", "null"]},
+                "lot": {"type": ["string", "null"]},
+                "quality_status": {"enum": ["passed", "failed", "unknown", "pending_review"]}
+              }
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_record_copied", "generator_version"],
+      "properties": {
+        "source_record_copied": {"const": false},
+        "generator_version": {"enum": ["manual-fixture-v1", "deterministic-generator-v1", "balanced-generator-v1", "profile-csv-importer-v1", "profile-csv-importer-v2", "profile-csv-importer-v3", "profile-history-generator-v1"]},
+        "simulation_scenario": {"type": "string", "minLength": 1},
+        "source_dataset": {"type": "string", "minLength": 1},
+        "source_patient_id": {"type": "string", "minLength": 1},
+        "profile_importer_version": {"type": "string", "minLength": 1},
+        "source_partition": {"enum": ["historique", "actuel"]}
+      }
+    }
+  },
+  "$defs": {
+    "availability": {"enum": ["known", "missing", "not_applicable", "contradictory"]},
+    "nullableNonNegativeIntegerObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability", "value"],
+      "properties": {
+        "availability": {"$ref": "#/$defs/availability"},
+        "value": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "countObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability", "count", "dates"],
+      "properties": {
+        "availability": {"$ref": "#/$defs/availability"},
+        "count": {"type": ["integer", "null"], "minimum": 0},
+        "dates": {"type": "array", "items": {"type": "string", "format": "date"}},
+        "frequency": {"type": ["string", "null"]},
+        "status": {"type": "string"}
+      }
+    },
+    "nullableBooleanObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability", "value"],
+      "properties": {
+        "availability": {"$ref": "#/$defs/availability"},
+        "value": {"type": ["boolean", "null"]},
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "recorded_at"],
+            "properties": {
+              "value": {"type": "boolean"},
+              "recorded_at": {"type": "string", "format": "date-time"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
