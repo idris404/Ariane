@@ -11,7 +11,7 @@ import { detailsRowId } from '../utils'
 // montrer les tests sériques.
 export function ConsultTable({ table }: { table: LegacyReactTable<PatientCase> }) {
   return (
-    <div className="data-scroll" role="region" aria-label="Liste des cas à consulter" tabIndex={0}>
+    <div className="data-scroll lg:min-h-0 lg:flex-1" role="region" aria-label="Liste des cas à consulter" tabIndex={0}>
       <table className="w-full text-left text-sm">
         <caption className="sr-only">Cas au suivi sérique fluctuant à consulter</caption>
         <thead className="bg-background text-xs text-muted-foreground">

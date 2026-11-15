@@ -4,7 +4,7 @@ export const consultKeys = {
 }
 
 // Cas par page de la liste « À consulter » (maximum côté serveur : backend/app/constants/pagination.py).
-export const CONSULT_PAGE_SIZE = 10
+export const CONSULT_PAGE_SIZE = 5
 // La barre latérale ne lit que le total : une page d'un seul cas suffit.
 export const CONSULT_COUNT_PAGE_SIZE = 1
 export const FIRST_PAGE = 1

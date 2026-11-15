@@ -18,14 +18,22 @@ function itemClass(active: boolean): string {
   }`
 }
 
-export function AppShell({ children, section }: { children: ReactNode; section: string }) {
+type AppShellProps = {
+  children: ReactNode
+  section: string
+  // Sur grand écran, la page occupe exactement la hauteur de la fenêtre : le contenu prend la place
+  // restante et défile lui-même s'il est trop haut. Sans effet sur mobile (défilement normal).
+  fitWindow?: boolean
+}
+
+export function AppShell({ children, section, fitWindow = false }: AppShellProps) {
   const { data: user } = useCurrentUser()
   const { data: signQueue } = useSignQueue()
   const consultCount = useConsultCount()
   const { logout, isPending, errorMessage } = useLogout()
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground lg:flex">
+    <div className={`min-h-screen bg-background font-sans text-foreground lg:flex ${fitWindow ? 'lg:h-dvh lg:overflow-hidden' : ''}`}>
       <a href="#main-content" className="skip-link">
         Aller au contenu
       </a>
@@ -84,7 +92,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
           HLA Twin · Démonstrateur
         </p>
       </aside>
-      <div className="min-w-0 flex-1">
+      <div className={`min-w-0 flex-1 ${fitWindow ? 'lg:flex lg:flex-col lg:overflow-y-auto' : ''}`}>
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-4 sm:px-8">
           <p className="text-sm text-muted-foreground">
             Revue immunologique{' '}
@@ -114,10 +122,10 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto max-w-[1440px] px-4 py-5 sm:px-8 sm:py-7"
+          className={`mx-auto max-w-[1440px] px-4 py-5 sm:px-8 sm:py-7 ${fitWindow ? 'lg:flex lg:min-h-0 lg:w-full lg:flex-1 lg:flex-col' : ''}`}
         >
           <HumanValidationBanner />
-          <div className="mt-8">{children}</div>
+          <div className={`mt-8 ${fitWindow ? 'lg:flex lg:min-h-0 lg:flex-1 lg:flex-col' : ''}`}>{children}</div>
           <footer className="mt-10 border-t border-border py-5 text-xs text-muted-foreground">
             HLA Twin · Transplantation rénale · Données synthétiques, revue humaine requise
           </footer>

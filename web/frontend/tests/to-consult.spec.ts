@@ -185,3 +185,51 @@ test('a page beyond the last one falls back to the last page', async ({ page }) 
   ).toBeVisible()
   await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
 })
+
+// Grand écran (≥ lg) : la page occupe exactement la hauteur de la fenêtre.
+const FIT_WIDTH = 1440
+
+async function pageScrolls(page: Page) {
+  return page.evaluate(() => document.documentElement.scrollHeight > innerHeight)
+}
+
+test.describe('on a tall window', () => {
+  test.use({ viewport: { width: FIT_WIDTH, height: 1000 } })
+
+  test('the five cases and the pagination fit without any scrolling', async ({ page }) => {
+    await mockApi(page)
+    await openConsultPage(page)
+    const region = page.getByRole('region', { name: 'Liste des cas à consulter' })
+
+    await expect(page.getByRole('row').filter({ hasText: 'Fluctuant' })).toHaveCount(
+      CONSULT_PAGE_SIZE,
+    )
+    expect(CONSULT_PAGE_SIZE).toBe(5)
+    expect(await pageScrolls(page)).toBe(false)
+    expect(await region.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true)
+    await expect(page.getByRole('button', { name: 'Suivant' })).toBeInViewport()
+  })
+})
+
+test.describe('on a short window', () => {
+  test.use({ viewport: { width: FIT_WIDTH, height: 800 } })
+
+  test('the page does not scroll: the table does, and the pagination stays in view', async ({
+    page,
+  }) => {
+    await mockApi(page)
+    await openConsultPage(page)
+    const region = page.getByRole('region', { name: 'Liste des cas à consulter' })
+    const next = page.getByRole('button', { name: 'Suivant' })
+
+    expect(await pageScrolls(page)).toBe(false)
+    await expect(next).toBeInViewport()
+
+    // Une ligne dépliée allonge le tableau, pas la page.
+    await page.getByRole('button', { name: 'Voir les tests' }).first().click()
+    await expect(page.getByRole('region', { name: 'Résultats sériques par année' })).toBeAttached()
+    expect(await pageScrolls(page)).toBe(false)
+    expect(await region.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true)
+    await expect(next).toBeInViewport()
+  })
+})
