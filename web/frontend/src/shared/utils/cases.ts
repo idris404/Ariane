@@ -1,7 +1,16 @@
 import type { PatientCaseResponse } from '../schemas/patientCase'
 import type { SerumEvolution } from '../schemas/serum'
-import { ageInYears } from './dates'
+import { ageInYears, formatLongDate } from './dates'
 import { buildFichePath } from './routes'
+
+// Un événement d'historique, prêt à afficher : date ISO (pour `<time>`) et date lisible.
+export type HistoryEventRow = {
+  id: string
+  dateIso: string
+  dateLabel: string
+  title: string
+  detail: string
+}
 
 // Une ligne des files de cas (« À signer », « À consulter »), prête à afficher.
 export type PatientCase = {
@@ -10,6 +19,7 @@ export type PatientCase = {
   name: string
   detail: string
   historyLabel: string
+  events: HistoryEventRow[]
   evolution: SerumEvolution
   href: string
 }
@@ -29,6 +39,13 @@ export function toPatientCase(item: PatientCaseResponse, today: Date): PatientCa
     name: `${item.firstname} ${item.lastname}`,
     detail: age === null ? testsLabel : `${age} · ${testsLabel}`,
     historyLabel: historyLabel(item.history.length),
+    events: item.history.map((event) => ({
+      id: event.id,
+      dateIso: event.occurred_on,
+      dateLabel: formatLongDate(event.occurred_on),
+      title: event.title,
+      detail: event.detail,
+    })),
     evolution: item.serum_evolution,
     href: buildFichePath(item.id),
   }

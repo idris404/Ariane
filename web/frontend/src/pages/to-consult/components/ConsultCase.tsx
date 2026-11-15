@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import { SerumGrid, SerumLegend } from '../../../shared/components/SerumEvolution'
 import type { PatientCase } from '../../../shared/utils/cases'
 import { profileLabel } from '../utils'
+import { EventsDialog } from './EventsDialog'
 
 export function ConsultCase({
   item,
@@ -33,9 +34,17 @@ export function ConsultCase({
               {profile}
             </span>
           )}
-          <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
-            {item.historyLabel}
-          </span>
+          {item.events.length === 0 ? (
+            <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+              {item.historyLabel}
+            </span>
+          ) : (
+            <EventsDialog
+              patientName={item.name}
+              label={item.historyLabel}
+              events={item.events}
+            />
+          )}
         </div>
         <div className="flex items-center gap-2 md:justify-end">
           <Button

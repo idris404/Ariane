@@ -113,3 +113,40 @@ test('a server error is shown instead of an empty list', async ({ page }) => {
   await expect(page.getByRole('alert').filter({ hasText: TO_CONSULT_ERRORS.queue })).toBeVisible()
   await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
 })
+
+test('the events pill opens a dialog listing the essentials of each event', async ({ page }) => {
+  await mockApi(page)
+  await openConsultPage(page)
+
+  const trigger = page.getByRole('button', { name: '2 événements de Cas Fluctuant 2' })
+  await expect(trigger).toBeVisible()
+  await trigger.click()
+
+  const dialog = page.getByRole('dialog', { name: 'Événements de Cas Fluctuant 2' })
+  await expect(dialog).toBeVisible()
+  const events = dialog.getByRole('list', { name: 'Événements' }).getByRole('listitem')
+  await expect(events).toHaveCount(2)
+  await expect(events.first()).toContainText('18 août 2015')
+  await expect(events.first()).toContainText('Greffe rénale')
+  await expect(events.first()).toContainText('Donneur décédé · ABO compatible · exemple fictif')
+  await expect(events.last()).toContainText('25 août 2015')
+  await expect(events.last()).toContainText('Suivi postopératoire')
+  const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze()
+  expect(accessibility.violations).toEqual([])
+
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(trigger).toBeFocused()
+})
+
+test('a single event is singular and a case without event has no button', async ({ page }) => {
+  await mockApi(page)
+  await openConsultPage(page)
+
+  await expect(
+    page.getByRole('button', { name: '1 événement de Cas Fluctuant 1', exact: true }),
+  ).toBeVisible()
+  const withoutEvent = page.getByRole('listitem').filter({ hasText: /Cas Fluctuant 3(?!\d)/ })
+  await expect(withoutEvent.getByText('Aucun événement')).toBeVisible()
+  await expect(withoutEvent.getByRole('button', { name: /événement/ })).toHaveCount(0)
+})

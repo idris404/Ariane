@@ -48,12 +48,26 @@ export const patient = {
 // Cas au profil fluctuant de la file « À consulter » : une page pleine et deux cas de plus. Le
 // premier est le patient détaillé ci-dessus, pour que « Voir la fiche » mène à une fiche existante.
 export const consultCaseCount = CONSULT_PAGE_SIZE + 2
+// Historique : 1 événement (le patient détaillé), 2 pour le deuxième cas, aucun pour le troisième.
+const secondEvent = {
+  id: '33333333-3333-4333-8333-333333333333',
+  patient_id: 'SYN-UI-001',
+  kind: 'postop',
+  title: 'Suivi postopératoire',
+  detail: 'Contrôle à sept jours · exemple fictif',
+  occurred_on: '2015-08-25',
+}
+function consultHistory(index: number) {
+  if (index === 1) return [...patient.history, secondEvent]
+  return index === 2 ? [] : patient.history
+}
 export const consultPatients = Array.from({ length: consultCaseCount }, (_, index) => ({
   ...patient,
   id: index === 0 ? patientId : `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
   patient_id: `SYN-UI-C${String(index + 1).padStart(2, '0')}`,
   firstname: 'Cas',
   lastname: `Fluctuant ${index + 1}`,
+  history: consultHistory(index),
 }))
 
 const user = {
