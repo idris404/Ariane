@@ -11,8 +11,6 @@ PATIENT_ALREADY_SIGNED_CODE: Final = "PATIENT_ALREADY_SIGNED"
 # Table `patient_signatures` : une validation clinique par patient.
 PATIENT_SIGNATURES_TABLE_NAME: Final = "patient_signatures"
 
-# File « À signer » : les cas simples que l'algorithme traite seul et que le soignant valide.
-# Un cas simple : profil sérique constant et un historique court.
+# File « À signer » : cas synthétiques constants proposés à la validation humaine.
 SIGN_QUEUE_SIZE: Final = 5
-SIGN_QUEUE_MAX_HISTORY_EVENTS: Final = 3
 SIGN_QUEUE_PROFILE: Final = SerumProfile.CONSTANT

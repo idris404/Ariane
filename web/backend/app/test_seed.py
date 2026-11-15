@@ -23,8 +23,8 @@ from app.core.database import Base
 from app.patient_history.seed import HistorySeedReport
 from app.patients.seed import PatientSeedReport, patient_uuid_for
 from app.seed import (
+    PERSISTENT_TABLES,
     TABLES,
-    USER_TABLES,
     SeedReport,
     describe,
     find_outdated_tables,
@@ -347,9 +347,9 @@ async def test_only_the_outdated_tables_are_reported() -> None:
     assert outdated == ["patients_synthetiques"]
 
 
-def test_reset_never_drops_the_user_table() -> None:
-    # `--reset` supprime `TABLES` : y mettre `user` effacerait les comptes et casserait les sessions.
-    assert not set(USER_TABLES) & set(TABLES)
+def test_reset_never_drops_persistent_tables() -> None:
+    # Accounts and human signatures must survive regeneration of synthetic data.
+    assert not set(PERSISTENT_TABLES) & set(TABLES)
 
 
 def test_reset_recreates_both_tables_so_it_cannot_be_combined_with_only(

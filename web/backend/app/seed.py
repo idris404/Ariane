@@ -50,6 +50,7 @@ from app.patients.services import PatientService
 from app.serum_tests.entity import SerumTest
 from app.serum_tests.repository import SerumTestRepository
 from app.serum_tests.seed import SerumSeedReport, seed_serum_tests
+from app.signatures.entity import PatientSignature
 from app.synthetic_patients.entity import SyntheticPatient
 from app.synthetic_patients.repository import SyntheticPatientRepository
 from app.synthetic_patients.seed import SyntheticSeedReport, seed_synthetic_patients
@@ -65,8 +66,8 @@ TABLES: Sequence[Table] = (
     PatientHistory.__table__,
 )
 
-# Créée si absente, mais jamais supprimée par `--reset` : elle porte les comptes et leurs sessions.
-USER_TABLES: Sequence[Table] = (User.__table__,)
+# Créées si absentes mais jamais supprimées par `--reset` : comptes et signatures humaines.
+PERSISTENT_TABLES: Sequence[Table] = (User.__table__, PatientSignature.__table__)
 
 
 @dataclass(frozen=True)
@@ -133,7 +134,7 @@ async def prepare_tables(reset: bool) -> None:
                 "patient_history ; leurs données se régénèrent depuis les CSV et les "
                 "événements fictifs)"
             )
-        await connection.run_sync(Base.metadata.create_all, tables=(*TABLES, *USER_TABLES))
+        await connection.run_sync(Base.metadata.create_all, tables=(*TABLES, *PERSISTENT_TABLES))
 
 
 async def main(

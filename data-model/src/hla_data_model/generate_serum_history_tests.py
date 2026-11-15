@@ -6,11 +6,9 @@ démonstrations. Ce ne sont pas des mesures biologiques cliniques.
 
 Fichier source observé
 ----------------------
-``2_patient_greffé_synthetiques_v3.csv`` ne contient que trois colonnes :
-
-- ``patient_id``
-- ``statut_parcours`` (tous les patients sont « Greffé »)
-- ``date_greffe_actuelle`` au format ISO ``AAAA-MM-JJ``
+Le générateur lit ``data/patients_synthetiques_v3.csv``, conserve les mille
+premières lignes possédant une ``date_greffe_actuelle`` et utilise leur
+``patient_id`` stable.
 
 Aucune valeur de B12, B13, DR53, DR51 ou DQ10 n'est présente. La date de
 greffe utilisée est donc ``date_greffe_actuelle``, recopiée en sortie dans
@@ -35,7 +33,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 # ---------------------------------------------------------------------------
 # Paramètres de génération. Modifier ces constantes, pas le reste du script.
 # ---------------------------------------------------------------------------
@@ -48,9 +45,9 @@ POSITIVITY_THRESHOLD = 500
 # Parts des trois profils. La somme doit valoir 100.
 # Défaut de démonstration, sans signification clinique.
 PROFILE_DISTRIBUTION = {
-    "A": 50,  # stabilité complète : les cinq antigènes restent fixes
-    "B": 30,  # fluctuations partielles : 1 ou 2 antigènes évoluent
-    "C": 20,  # très fluctuant : 3 antigènes sautent, 2 restent fixes
+    "A": 71.4,  # 714 cas simples sur la cohorte sérique de démonstration
+    "B": 18.6,  # fluctuations partielles : 1 ou 2 antigènes évoluent
+    "C": 10.0,  # très fluctuant : 3 antigènes sautent, 2 restent fixes
 }
 
 # Nombre d'antigènes autorisés à changer, selon le profil.
@@ -81,8 +78,9 @@ C_NEGATIVE_PROBABILITY = 0.35
 C_HIGH_MAX = 12_000
 C_MIN_RANGE = 3_000
 
-SOURCE_CSV = Path(__file__).resolve().parent / "2_patient_greffé_synthetiques_v3.csv"
-OUTPUT_CSV = Path(__file__).resolve().parent / "historique_tests_seriques.csv"
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+SOURCE_CSV = DATA_DIR / "patients_synthetiques_v3.csv"
+OUTPUT_CSV = DATA_DIR / "serum_test_history.csv"
 
 SOURCE_ID_COLUMN = "patient_id"
 SOURCE_GRAFT_COLUMN = "date_greffe_actuelle"
@@ -318,7 +316,7 @@ def antigene_fluctuants(profil: str, rng: random.Random) -> set[str]:
 def charger_patients() -> pd.DataFrame:
     if not SOURCE_CSV.is_file():
         raise FileNotFoundError(f"Fichier source introuvable : {SOURCE_CSV}")
-    patients = pd.read_csv(SOURCE_CSV, dtype={SOURCE_ID_COLUMN: "string"})
+    patients = pd.read_csv(SOURCE_CSV, dtype={SOURCE_ID_COLUMN: "string"}, low_memory=False)
     colonnes_manquantes = {SOURCE_ID_COLUMN, SOURCE_GRAFT_COLUMN} - set(patients.columns)
     if colonnes_manquantes:
         raise ValueError(f"Colonnes absentes du fichier source : {sorted(colonnes_manquantes)}")
@@ -327,8 +325,9 @@ def charger_patients() -> pd.DataFrame:
         format="%Y-%m-%d",
         errors="coerce",
     )
-    selection = patients.head(PATIENT_LIMIT).copy()
-    invalides = selection[SOURCE_ID_COLUMN].isna() | selection[SOURCE_GRAFT_COLUMN].isna()
+    eligible = patients[patients[SOURCE_GRAFT_COLUMN].notna()]
+    selection = eligible.head(PATIENT_LIMIT).copy()
+    invalides = selection[SOURCE_ID_COLUMN].isna()
     if invalides.any():
         lignes = selection.index[invalides].tolist()
         raise ValueError(f"Identifiant ou date de greffe manquant aux lignes source {lignes}.")

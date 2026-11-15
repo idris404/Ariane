@@ -273,12 +273,12 @@ Table `patient_signatures` : la validation d'un cas simple par un soignant ([D-2
 
 ### `GET /signatures/queue`
 
-Les cas que l'algorithme traite seul et qui attendent la signature d'un soignant. Un cas est éligible si le patient a un prélèvement de profil sérique `A` (constant), au plus **3** événements d'historique, et aucune signature. Tri : le plus court historique d'abord, puis `patient_id`. Pas de paramètre.
+Les cas synthétiques constants proposés à la validation humaine. Un cas est éligible si le patient a un prélèvement de profil sérique `A` (constant) et aucune signature. Tri stable par `patient_id`. Pas de paramètre.
 
 Réponse `200` :
 
 ```json
-{ "items": [ Patient, … ], "remaining": 497 }
+{ "items": [ Patient, … ], "remaining": 714 }
 ```
 
 - `items` : au plus **5** `Patient`, au même format que `GET /patients/{id}` (avec `serum_evolution`).

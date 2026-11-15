@@ -8,7 +8,6 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.conftest import make_history_event, make_patient, make_serum_test
-from app.constants.signatures import SIGN_QUEUE_MAX_HISTORY_EVENTS
 from app.patient_history.entity import PatientHistory
 from app.patients.entity import Patient
 from app.serum_tests.entity import SerumTest
@@ -44,8 +43,8 @@ async def session() -> AsyncIterator[AsyncSession]:
             [
                 *with_profile("P-A-0", "A"),
                 *with_profile("P-A-1", "A"),
-                *with_profile("P-A-FEW", "A", events=SIGN_QUEUE_MAX_HISTORY_EVENTS),
-                *with_profile("P-A-MANY", "A", events=SIGN_QUEUE_MAX_HISTORY_EVENTS + 1),
+                *with_profile("P-A-FEW", "A", events=3),
+                *with_profile("P-A-MANY", "A", events=4),
                 *with_profile("P-B", "B"),
                 *with_profile("P-C", "C"),
             ]
@@ -65,15 +64,14 @@ async def codes(repository: SignatureRepository, limit: int = 10) -> list[str]:
     return [patient.patient_id for patient in await repository.eligible(limit)]
 
 
-async def test_the_queue_keeps_constant_profiles_with_a_short_history(repository) -> None:
-    # Le plus court historique d'abord, puis par `patient_id`.
-    assert await codes(repository) == ["P-A-0", "P-A-1", "P-A-FEW"]
-    assert await repository.count_eligible() == 3
+async def test_the_queue_keeps_every_constant_profile_regardless_of_event_count(repository) -> None:
+    assert await codes(repository) == ["P-A-0", "P-A-1", "P-A-FEW", "P-A-MANY"]
+    assert await repository.count_eligible() == 4
 
 
 async def test_the_queue_is_limited(repository) -> None:
     assert await codes(repository, limit=2) == ["P-A-0", "P-A-1"]
-    assert await repository.count_eligible() == 3  # le total ignore la limite
+    assert await repository.count_eligible() == 4  # le total ignore la limite
 
 
 async def test_a_signed_patient_leaves_the_queue(repository) -> None:
@@ -81,8 +79,8 @@ async def test_a_signed_patient_leaves_the_queue(repository) -> None:
 
     assert (signature.patient_id, signature.signed_by) == ("P-A-0", SIGNER)
     assert signature.signed_at is not None
-    assert await codes(repository) == ["P-A-1", "P-A-FEW"]
-    assert await repository.count_eligible() == 2
+    assert await codes(repository) == ["P-A-1", "P-A-FEW", "P-A-MANY"]
+    assert await repository.count_eligible() == 3
 
 
 async def test_a_patient_is_signed_only_once(repository) -> None:
@@ -90,4 +88,4 @@ async def test_a_patient_is_signed_only_once(repository) -> None:
 
     with pytest.raises(PatientAlreadySignedError):
         await repository.add("P-A-0", SIGNER)
-    assert await repository.count_eligible() == 2
+    assert await repository.count_eligible() == 3

@@ -22,7 +22,7 @@ router = APIRouter(
 
 @router.get(SIGN_QUEUE_PATH, response_model=SignQueueRead)
 async def sign_queue(service: SignatureService = Depends(get_signature_service)) -> SignQueueRead:
-    """Les cas simples à valider : profil sérique constant, historique court, pas encore signés."""
+    """Cas synthétiques constants, pas encore signés, proposés à la validation humaine."""
     return await service.queue()
 
 
