@@ -21,18 +21,32 @@ export const FILE_SIZE_STEP = 1024
 export const FILE_SIZE_MAX_FRACTION_DIGITS = 1
 
 // Valeurs simulées : le démonstrateur ne lit pas le contenu des fichiers (aucun endpoint d'import,
-// le format des résultats Lymfip n'est pas défini). Le nombre de patients détectés et la durée du
-// chargement sont fixes, absents de toute donnée réelle.
+// le format des résultats Lymfip n'est pas défini). Le nombre de patients détectés, la durée du
+// chargement et celle de l'analyse sont fixes, absents de toute donnée réelle.
 export const MOCK_IMPORT = {
   detectedPatients: 1000,
   loadingMs: 2500,
+  // Barre de progression de l'analyse : lente au début, rapide ensuite. La progression atteint
+  // `slowUntilProgress` (50 %) à `slowUntilTimeShare` (70 %) de la durée, puis finit les 50 %
+  // restants sur les 30 % de temps qui restent.
+  analysis: {
+    durationMs: 3000,
+    slowUntilProgress: 0.5,
+    slowUntilTimeShare: 0.7,
+  },
 } as const
+
+export const PERCENT_MAX = 100
 
 export const IMPORT_MESSAGES = {
   rejectedSingle: 'Format non pris en charge :',
   rejectedMultiple: 'Formats non pris en charge :',
   acceptedFormats: 'Formats acceptés :',
-  processingUnavailable: 'Traitement des fichiers non disponible dans ce démonstrateur',
+  analysisNeedsFile: 'Déposez un fichier pour lancer l’analyse',
+  analysisRunning: 'Analyse en cours…',
+  analysisProgressLabel: 'Progression de l’analyse',
+  analysisProcessed: 'patients analysés',
+  analysisSimulatedNotice: 'Analyse simulée : le contenu des fichiers n’est pas lu.',
   loading: 'Chargement des données…',
   loadingDetail: 'Détection des patients en cours',
   detectedSingle: 'patient détecté',

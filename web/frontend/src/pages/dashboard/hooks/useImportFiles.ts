@@ -10,8 +10,9 @@ import {
   type ImportEntry,
 } from '../utils'
 
-// idle : en attente de fichiers · loading : chargement simulé · detected : patients « détectés ».
-export type ImportPhase = 'idle' | 'loading' | 'detected'
+// idle : en attente de fichiers · loading : chargement simulé · detected : patients « détectés » ·
+// analyzing : analyse simulée en cours (elle redirige vers la page « à signer » à la fin).
+export type ImportPhase = 'idle' | 'loading' | 'detected' | 'analyzing'
 
 // Documents choisis ou déposés dans la fenêtre d'import. Rien n'est envoyé au serveur ni lu : la
 // détection des patients est simulée (`MOCK_IMPORT`). L'état vit dans le composant et disparaît à
@@ -39,6 +40,10 @@ export function useImportFiles() {
     setPhase('loading')
   }
 
+  function startAnalysis() {
+    setPhase('analyzing')
+  }
+
   function reset() {
     setEntries([])
     setRejectedNames([])
@@ -51,6 +56,7 @@ export function useImportFiles() {
     rejectedMessage: describeRejectedFiles(rejectedNames),
     detectedLabel: formatDetectedPatients(MOCK_IMPORT.detectedPatients),
     addFiles,
+    startAnalysis,
     reset,
   }
 }

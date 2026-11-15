@@ -13,6 +13,7 @@ import {
 import { IMPORT_FORMATS_LABEL, IMPORT_MESSAGES } from '../../../constants/import'
 import { useImportFiles } from '../hooks/useImportFiles'
 import { preventBrowserDrop } from '../utils'
+import { ImportAnalysis } from './ImportAnalysis'
 import { ImportDetection } from './ImportDetection'
 import { ImportDropzone } from './ImportDropzone'
 import { ImportLoading } from './ImportLoading'
@@ -21,6 +22,10 @@ import { ImportLoading } from './ImportLoading'
 // sélection de fichiers et la phase, repartent de zéro à chaque ouverture.
 function ImportDialogBody() {
   const importFiles = useImportFiles()
+  const canStartAnalysis = importFiles.phase === 'detected'
+  // Infobulle utile seulement tant qu'aucun fichier n'est prêt ; pendant l'analyse, le bouton est inactif.
+  const waitingTitle =
+    importFiles.phase === 'analyzing' ? undefined : IMPORT_MESSAGES.analysisNeedsFile
 
   return (
     <>
@@ -40,6 +45,7 @@ function ImportDialogBody() {
           onRestart={importFiles.reset}
         />
       )}
+      {importFiles.phase === 'analyzing' && <ImportAnalysis rows={importFiles.rows} />}
 
       {importFiles.rejectedMessage !== null && (
         <Alert variant="destructive">{importFiles.rejectedMessage}</Alert>
@@ -53,8 +59,13 @@ function ImportDialogBody() {
             Fermer
           </Button>
         </DialogClose>
-        <Button type="button" disabled title={IMPORT_MESSAGES.processingUnavailable}>
-          Lancer l’import
+        <Button
+          type="button"
+          disabled={!canStartAnalysis}
+          title={canStartAnalysis ? undefined : waitingTitle}
+          onClick={importFiles.startAnalysis}
+        >
+          Lancer l’analyse
         </Button>
       </DialogFooter>
     </>

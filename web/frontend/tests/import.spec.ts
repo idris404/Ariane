@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { MOCK_IMPORT } from '../src/constants/import'
+import { IMPORT_MESSAGES, MOCK_IMPORT } from '../src/constants/import'
+import { ROUTES } from '../src/constants/routes'
 import { mockApi } from './fixtures'
 
 // Documents fictifs, créés en mémoire : aucun fichier réel ni donnée de santé.
@@ -53,7 +54,9 @@ test('the import button opens a dialog listing the accepted formats, and Escape 
 }) => {
   const dialog = await openImportDialog(page)
   await expect(dialog.getByText('Formats acceptés : CSV, PDF, JSON, DOCX, XLSX.')).toBeVisible()
-  await expect(dialog.getByRole('button', { name: 'Lancer l’import' })).toBeDisabled()
+  const analyse = dialog.getByRole('button', { name: 'Lancer l’analyse' })
+  await expect(analyse).toBeDisabled()
+  await expect(analyse).toHaveAttribute('title', IMPORT_MESSAGES.analysisNeedsFile)
   const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze()
   expect(accessibility.violations).toEqual([])
   await page.keyboard.press('Escape')
@@ -131,4 +134,54 @@ test('"Changer de fichier" and closing the dialog both start again from the drop
   await expect(reopened.getByRole('group', { name: 'Zone de dépôt de fichiers' })).toBeVisible()
   await expect(reopened.getByText('donnees.json')).toHaveCount(0)
   await expect(reopened.getByRole('status')).toHaveCount(0)
+})
+
+async function reachDetection(page: Page) {
+  const dialog = await openImportDialog(page)
+  await dropFiles(page, [jsonDrop])
+  await expect(dialog.getByRole('button', { name: 'Lancer l’analyse' })).toBeDisabled()
+  await page.clock.fastForward(MOCK_IMPORT.loadingMs)
+  await expect(dialog.getByText('Valeur simulée')).toBeVisible()
+  return dialog
+}
+
+async function readProgress(dialog: ReturnType<Page['getByRole']>) {
+  const bar = dialog.getByRole('progressbar', { name: IMPORT_MESSAGES.analysisProgressLabel })
+  return Number(await bar.getAttribute('aria-valuenow'))
+}
+
+test('the analysis starts slowly, speeds up, then redirects to the page to sign', async ({
+  page,
+}) => {
+  const dialog = await reachDetection(page)
+  const analyse = dialog.getByRole('button', { name: 'Lancer l’analyse' })
+  await expect(analyse).toBeEnabled()
+  await analyse.click()
+
+  const bar = dialog.getByRole('progressbar', { name: IMPORT_MESSAGES.analysisProgressLabel })
+  await expect(bar).toHaveAttribute('aria-valuemax', String(MOCK_IMPORT.detectedPatients))
+  await expect(dialog.getByText('Analyse en cours…')).toBeVisible()
+  await expect(analyse).toBeDisabled()
+
+  // À la moitié du temps, une progression linéaire serait à 50 % : la courbe lente reste en dessous.
+  await page.clock.runFor(MOCK_IMPORT.analysis.durationMs / 2)
+  const halfway = await readProgress(dialog)
+  expect(halfway).toBeGreaterThan(0)
+  expect(halfway).toBeLessThan(MOCK_IMPORT.detectedPatients * MOCK_IMPORT.analysis.slowUntilProgress * 0.9)
+
+  // Fin de l'analyse : redirection vers la page à signer.
+  await page.clock.runFor(MOCK_IMPORT.analysis.durationMs)
+  await expect(page).toHaveURL(new RegExp(`${ROUTES.toSign}$`))
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+})
+
+test('closing the dialog during the analysis cancels it without redirecting', async ({ page }) => {
+  const dialog = await reachDetection(page)
+  await dialog.getByRole('button', { name: 'Lancer l’analyse' }).click()
+  await expect(dialog.getByRole('progressbar')).toBeVisible()
+  await dialog.getByRole('button', { name: 'Fermer' }).click()
+  await expect(dialog).toBeHidden()
+
+  await page.clock.runFor(MOCK_IMPORT.analysis.durationMs)
+  await expect(page).toHaveURL(new RegExp(`${ROUTES.dashboard}$`))
 })

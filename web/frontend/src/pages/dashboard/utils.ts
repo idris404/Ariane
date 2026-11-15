@@ -5,6 +5,7 @@ import {
   FILE_SIZE_UNITS,
   IMPORT_LOCALE,
   IMPORT_MESSAGES,
+  MOCK_IMPORT,
 } from '../../constants/import'
 import { GENDER_LABELS } from '../../constants/patient-file'
 import { InvalidResponseError, readJson } from '../../shared/api'
@@ -127,6 +128,24 @@ export function formatFileSize(bytes: number): string {
 export function formatDetectedPatients(count: number): string {
   const noun = count === 1 ? IMPORT_MESSAGES.detectedSingle : IMPORT_MESSAGES.detectedMultiple
   return `${new Intl.NumberFormat(IMPORT_LOCALE).format(count)} ${noun}`
+}
+
+// Progression (0 à 1) de l'analyse simulée après `elapsedMs` : lente jusqu'à la moitié, puis rapide.
+// Deux segments linéaires, bornés à [0, 1].
+export function analysisProgress(elapsedMs: number): number {
+  const { durationMs, slowUntilProgress, slowUntilTimeShare } = MOCK_IMPORT.analysis
+  const timeShare = Math.min(Math.max(elapsedMs / durationMs, 0), 1)
+  if (timeShare <= slowUntilTimeShare) {
+    return slowUntilProgress * (timeShare / slowUntilTimeShare)
+  }
+  const fastShare = (timeShare - slowUntilTimeShare) / (1 - slowUntilTimeShare)
+  return slowUntilProgress + (1 - slowUntilProgress) * fastShare
+}
+
+// « 412 / 1 000 patients analysés ».
+export function formatAnalysisCount(processed: number, total: number): string {
+  const format = new Intl.NumberFormat(IMPORT_LOCALE)
+  return `${format.format(processed)} / ${format.format(total)} ${IMPORT_MESSAGES.analysisProcessed}`
 }
 
 export function toImportRow(entry: ImportEntry): ImportRow {
