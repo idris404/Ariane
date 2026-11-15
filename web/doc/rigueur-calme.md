@@ -74,17 +74,20 @@ detail expansion and signature submission retain their existing handlers.
 
 ## Component and dependency decision
 
-No shadcn components were added. The current screens use native controls and
-simple panels; introducing a component generator, utility stack or dialog
-library would not improve this slice enough to justify migration. The theme
-uses CSS variables and the existing Tailwind plugin.
+Shadcn/ui is now configured for the existing Vite/Tailwind 4 application with
+`components.json` and the `@/` alias. The generated new-york components used
+by existing screens are Button, Card, Badge, Alert, Input and Label. They are
+owned by this project and tuned to the HLA Twin tokens, control size and
+focus treatment. No new clinical behavior or API contract was introduced.
+The runtime additions `cn`, `radix-ui` and `class-variance-authority` support
+these shadcn primitives; no remote service is required to run them.
 
 New shared presentation components: `DemoNotice`, `SurfaceState`,
 `RecipientTimeline`. The patient file delegates to `ReviewLimits` and
 `FollowUpIllustration`; the existing shell, brand, serum and page components
 are adapted rather than replacing the application.
 
-No production dependency was added. Development-only dependencies:
+The initial visual slice added no production dependency. Development-only dependencies:
 `@playwright/test` for browser regression tests and `@axe-core/playwright` for
 automated accessibility checks. Both are npm-lockfile pinned. Test browser
 installation is a one-time development setup step, not a demo dependency.
@@ -193,3 +196,12 @@ frontend or a service-worker cache. No remote runtime dependency was added.
 - `web/frontend/src/shared/components/SurfaceState.tsx`
 - `web/frontend/tests/fixtures.ts`
 - `web/frontend/tests/review.spec.ts`
+
+## Shadcn integration update (2026-11-15)
+
+User requested mandatory shadcn usage after commit `a676710`. The six components
+listed above are now generated and used on login, dashboard, signature, shell
+and shared status surfaces. The existing CSS variables remain authoritative.
+TypeScript 7 rejects the `baseUrl` option shown in current shadcn Vite docs;
+the alias uses `paths` without it. Run the frontend checks above after future
+component additions.

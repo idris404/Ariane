@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { Link } from 'react-router'
 
 import { SerumGrid, SerumLegend } from '../../../shared/components/SerumEvolution'
@@ -41,7 +42,8 @@ export function SignCase({
           </span>
         </div>
         <div className="flex items-center gap-2 md:justify-end">
-          <button
+          <Button
+            variant="outline"
             type="button"
             onClick={onToggle}
             aria-expanded={expanded}
@@ -49,15 +51,15 @@ export function SignCase({
             className="w-36 rounded-lg border border-border bg-card px-3 py-1.5 text-sm"
           >
             {expanded ? 'Masquer les tests' : 'Voir les tests'}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={onSign}
             disabled={disabled}
             className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
             {pending ? 'Signature…' : 'Signer'}
-          </button>
+          </Button>
         </div>
       </div>
 

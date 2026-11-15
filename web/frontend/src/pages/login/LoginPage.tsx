@@ -1,3 +1,7 @@
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { HumanValidationBanner } from '../../shared/components/DemoNotice'
 import { BrandMark } from '../../shared/components/BrandMark'
 import { useLoginForm } from './hooks/useLoginForm'
@@ -45,7 +49,7 @@ export function LoginPage() {
             </li>
           </ol>
         </section>
-        <section aria-labelledby="login-title" className="panel w-full max-w-lg p-6 sm:p-9">
+        <Card role="region" aria-labelledby="login-title" className="panel w-full max-w-lg p-6 sm:p-9">
           <p className="mt-6 text-xs font-semibold tracking-wider text-primary uppercase">
             Votre espace de démonstration
           </p>
@@ -58,10 +62,10 @@ export function LoginPage() {
 
           <form onSubmit={onSubmit} noValidate className="mt-6 flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-foreground">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 type="email"
                 autoComplete="username"
@@ -78,10 +82,10 @@ export function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="password" className="text-sm font-medium text-foreground">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
                 Mot de passe
-              </label>
-              <input
+              </Label>
+              <Input
                 id="password"
                 type="password"
                 autoComplete="current-password"
@@ -106,14 +110,14 @@ export function LoginPage() {
               </p>
             )}
 
-            <button type="submit" disabled={isPending} className="button-primary mt-2 w-full">
+            <Button type="submit" disabled={isPending} className="button-primary mt-2 w-full">
               {isPending ? 'Connexion…' : 'Se connecter'}
-            </button>
+            </Button>
           </form>
           <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
             Accès réservé à la démonstration. Aucune décision clinique autonome.
           </p>
-        </section>
+        </Card>
       </div>
     </main>
   )

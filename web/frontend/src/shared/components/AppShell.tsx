@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router'
 
@@ -79,14 +80,15 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
           </p>
           <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm">
             <span className="max-w-64 truncate text-xs text-muted-foreground">{user?.email}</span>
-            <button
+            <Button
+              variant="outline"
               type="button"
               onClick={logout}
               disabled={isPending}
               className="rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-muted disabled:opacity-60"
             >
               Déconnexion
-            </button>
+            </Button>
             {errorMessage ? (
               <p role="alert" className="text-sm text-destructive-ink">
                 {errorMessage}

@@ -1,3 +1,4 @@
+import { Alert } from '@/components/ui/alert'
 import type { ReactNode } from 'react'
 
 const appearance = {
@@ -19,7 +20,7 @@ export function SurfaceState({
 }) {
   const { icon, style } = appearance[state]
   return (
-    <div
+    <Alert
       role={state === 'error' ? 'alert' : 'status'}
       className={`flex items-start gap-3 rounded-xl p-5 ${style}`}
     >
@@ -33,6 +34,6 @@ export function SurfaceState({
         <p className="font-medium">{title}</p>
         {children ? <div className="mt-1 text-sm">{children}</div> : null}
       </div>
-    </div>
+    </Alert>
   )
 }

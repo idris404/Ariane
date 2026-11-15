@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { flexRender } from '@tanstack/react-table'
 
 import { MOCK_KPI } from '../../constants/dashboard'
@@ -20,11 +22,11 @@ function Kpi({
   noteClass: string
 }) {
   return (
-    <article className="rounded-xl border border-border bg-card p-4">
+    <Card role="article" className="rounded-xl border border-border bg-card p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-2 text-3xl font-semibold">{value}</p>
       <p className={`mt-1 text-xs ${noteClass}`}>{note}</p>
-    </article>
+    </Card>
   )
 }
 
@@ -47,14 +49,14 @@ export function DashboardPage() {
               disponibles.
             </p>
           </div>
-          <button
+          <Button
             type="button"
             disabled
             title="Ajout non disponible dans ce démonstrateur"
             className="rounded-lg disabled:opacity-60 bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             Ajouter un patient
-          </button>
+          </Button>
         </div>
 
         <section className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
