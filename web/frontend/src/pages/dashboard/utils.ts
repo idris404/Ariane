@@ -1,9 +1,9 @@
 import { API_ENDPOINTS } from '../../constants/api'
 import {
-  FILE_SIZE_LOCALE,
   FILE_SIZE_MAX_FRACTION_DIGITS,
   FILE_SIZE_STEP,
   FILE_SIZE_UNITS,
+  IMPORT_LOCALE,
   IMPORT_MESSAGES,
 } from '../../constants/import'
 import { GENDER_LABELS } from '../../constants/patient-file'
@@ -117,10 +117,16 @@ export function formatFileSize(bytes: number): string {
     value /= FILE_SIZE_STEP
     unit += 1
   }
-  const formatted = new Intl.NumberFormat(FILE_SIZE_LOCALE, {
+  const formatted = new Intl.NumberFormat(IMPORT_LOCALE, {
     maximumFractionDigits: unit === 0 ? 0 : FILE_SIZE_MAX_FRACTION_DIGITS,
   }).format(value)
   return `${formatted} ${FILE_SIZE_UNITS[unit]}`
+}
+
+// « 1 000 patients détectés » ; accord au singulier pour un seul patient.
+export function formatDetectedPatients(count: number): string {
+  const noun = count === 1 ? IMPORT_MESSAGES.detectedSingle : IMPORT_MESSAGES.detectedMultiple
+  return `${new Intl.NumberFormat(IMPORT_LOCALE).format(count)} ${noun}`
 }
 
 export function toImportRow(entry: ImportEntry): ImportRow {

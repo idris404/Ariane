@@ -1,11 +1,15 @@
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { MOCK_IMPORT } from '../src/constants/import'
 import { mockApi } from './fixtures'
 
 // Documents fictifs, créés en mémoire : aucun fichier réel ni donnée de santé.
 const csvFile = { name: 'patients.csv', mimeType: 'text/csv', buffer: Buffer.from('a,b\n1,2') }
 const pdfFile = { name: 'rapport.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4') }
 const textFile = { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('notes') }
+const jsonDrop = { name: 'donnees.json', type: 'application/json', content: '{}' }
+
+type DroppedFile = { name: string; type: string; content: string }
 
 test.beforeEach(async ({ page }) => {
   // Aucune dépendance à Internet pendant les tests de l'interface locale.
@@ -14,6 +18,8 @@ test.beforeEach(async ({ page }) => {
     return ['127.0.0.1', 'localhost'].includes(host) ? route.fallback() : route.abort()
   })
   await mockApi(page)
+  // Le chargement simulé dure `MOCK_IMPORT.loadingMs` : on avance l'horloge au lieu d'attendre.
+  await page.clock.install()
 })
 
 async function openImportDialog(page: Page) {
@@ -24,11 +30,14 @@ async function openImportDialog(page: Page) {
   return dialog
 }
 
-async function dropFiles(page: Page, files: { name: string; type: string; content: string }[]) {
+async function dropFiles(page: Page, files: DroppedFile[]) {
   const dataTransfer = await page.evaluateHandle((items) => {
     const transfer = new DataTransfer()
     for (const item of items) {
-      transfer.items.add(new File([item.content], item.name, { type: item.type }))
+      // `lastModified` fixe : deux fichiers identiques doivent avoir la même identité.
+      transfer.items.add(
+        new File([item.content], item.name, { type: item.type, lastModified: 1 }),
+      )
     }
     return transfer
   }, files)
@@ -37,7 +46,6 @@ async function dropFiles(page: Page, files: { name: string; type: string; conten
   await expect(dropzone).toHaveAttribute('data-dragging', 'true')
   await dropzone.dispatchEvent('dragover', { dataTransfer })
   await dropzone.dispatchEvent('drop', { dataTransfer })
-  await expect(dropzone).toHaveAttribute('data-dragging', 'false')
 }
 
 test('the import button opens a dialog listing the accepted formats, and Escape closes it', async ({
@@ -46,13 +54,14 @@ test('the import button opens a dialog listing the accepted formats, and Escape 
   const dialog = await openImportDialog(page)
   await expect(dialog.getByText('Formats acceptés : CSV, PDF, JSON, DOCX, XLSX.')).toBeVisible()
   await expect(dialog.getByRole('button', { name: 'Lancer l’import' })).toBeDisabled()
-  expect(await new AxeBuilder({ page }).include('[role="dialog"]').analyze().then((r) => r.violations)).toEqual([])
+  const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze()
+  expect(accessibility.violations).toEqual([])
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
   await expect(page.getByRole('button', { name: 'Importer', exact: true })).toBeFocused()
 })
 
-test('the file picker adds accepted documents and reports the unsupported ones', async ({
+test('a valid file from the picker shows the loading view, then the simulated detection', async ({
   page,
 }) => {
   const dialog = await openImportDialog(page)
@@ -60,41 +69,66 @@ test('the file picker adds accepted documents and reports the unsupported ones',
   await dialog.getByRole('button', { name: 'Parcourir mes fichiers' }).click()
   await (await chooser).setFiles([csvFile, pdfFile, textFile])
 
-  const list = dialog.getByRole('list', { name: 'Fichiers sélectionnés' })
-  await expect(list.getByRole('listitem')).toHaveCount(2)
-  await expect(list.getByText('patients.csv')).toBeVisible()
-  await expect(list.getByText('rapport.pdf')).toBeVisible()
+  // Vue chargement : la zone de dépôt laisse la place, les fichiers valides sont listés.
+  await expect(dialog.getByRole('status')).toContainText('Chargement des données')
+  await expect(dialog.getByRole('group', { name: 'Zone de dépôt de fichiers' })).toHaveCount(0)
+  const rows = dialog.getByRole('list', { name: 'Fichiers sélectionnés' }).getByRole('listitem')
+  await expect(rows).toHaveCount(2)
   await expect(dialog.getByRole('alert')).toHaveText('Format non pris en charge : notes.txt')
+
+  // Vue détection : le nombre de patients vient de la constante, et il est signalé comme simulé.
+  await page.clock.fastForward(MOCK_IMPORT.loadingMs)
+  const patients = new Intl.NumberFormat('fr-FR').format(MOCK_IMPORT.detectedPatients)
+  await expect(dialog.getByRole('status')).toContainText(`${patients} patients détectés`)
+  await expect(dialog.getByText('Valeur simulée')).toBeVisible()
+  await expect(dialog.getByText('Chargement des données')).toHaveCount(0)
+  await expect(rows).toHaveCount(2)
+  const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze()
+  expect(accessibility.violations).toEqual([])
 })
 
-test('drag and drop adds documents, ignores duplicates and lets the user remove one', async ({
+test('dropping an unsupported file only reports it, a valid drop starts the loading', async ({
   page,
 }) => {
   const dialog = await openImportDialog(page)
-  const json = { name: 'donnees.json', type: 'application/json', content: '{}' }
-  await dropFiles(page, [json, { name: 'Tableau.XLSX', type: '', content: 'x' }])
-
-  const rows = dialog.getByRole('list', { name: 'Fichiers sélectionnés' }).getByRole('listitem')
-  await expect(rows).toHaveCount(2)
-  await expect(dialog.getByRole('alert')).toHaveCount(0)
+  const dropzone = dialog.getByRole('group', { name: 'Zone de dépôt de fichiers' })
 
   await dropFiles(page, [{ name: 'diagramme.png', type: 'image/png', content: 'x' }])
-  await expect(rows).toHaveCount(2)
+  await expect(dropzone).toHaveAttribute('data-dragging', 'false')
   await expect(dialog.getByRole('alert')).toHaveText('Format non pris en charge : diagramme.png')
+  await expect(dialog.getByRole('status')).toHaveCount(0)
 
-  await dialog.getByRole('button', { name: 'Retirer donnees.json' }).click()
-  await expect(rows).toHaveCount(1)
-  await expect(dialog.getByText('donnees.json')).toHaveCount(0)
+  // Même fichier déposé deux fois, extension en majuscules : une seule ligne, l'alerte disparaît.
+  await dropFiles(page, [jsonDrop, jsonDrop, { name: 'Tableau.XLSX', type: '', content: 'x' }])
+  await expect(dialog.getByRole('status')).toContainText('Chargement des données')
+  await expect(dialog.getByRole('alert')).toHaveCount(0)
+  await expect(
+    dialog.getByRole('list', { name: 'Fichiers sélectionnés' }).getByRole('listitem'),
+  ).toHaveCount(2)
 })
 
-test('closing the dialog clears the selection', async ({ page }) => {
+test('"Changer de fichier" and closing the dialog both start again from the dropzone', async ({
+  page,
+}) => {
   const dialog = await openImportDialog(page)
-  await dropFiles(page, [{ name: 'donnees.json', type: 'application/json', content: '{}' }])
-  await expect(dialog.getByText('donnees.json')).toBeVisible()
+  await dropFiles(page, [jsonDrop])
+  await page.clock.fastForward(MOCK_IMPORT.loadingMs)
+  await expect(dialog.getByText('Valeur simulée')).toBeVisible()
+
+  await dialog.getByRole('button', { name: 'Changer de fichier' }).click()
+  await expect(dialog.getByRole('group', { name: 'Zone de dépôt de fichiers' })).toBeVisible()
+  await expect(dialog.getByText('donnees.json')).toHaveCount(0)
+
+  // Fermer pendant le chargement : la sélection et le chargement sont abandonnés.
+  await dropFiles(page, [jsonDrop])
+  await expect(dialog.getByRole('status')).toContainText('Chargement des données')
   await dialog.getByRole('button', { name: 'Fermer' }).click()
   await expect(dialog).toBeHidden()
+  await page.clock.fastForward(MOCK_IMPORT.loadingMs)
 
   await page.getByRole('button', { name: 'Importer', exact: true }).click()
-  await expect(page.getByRole('dialog', { name: 'Importer des documents' })).toBeVisible()
-  await expect(page.getByText('donnees.json')).toHaveCount(0)
+  const reopened = page.getByRole('dialog', { name: 'Importer des documents' })
+  await expect(reopened.getByRole('group', { name: 'Zone de dépôt de fichiers' })).toBeVisible()
+  await expect(reopened.getByText('donnees.json')).toHaveCount(0)
+  await expect(reopened.getByRole('status')).toHaveCount(0)
 })
