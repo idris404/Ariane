@@ -1,42 +1,207 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-/* Charte web/DESIGN.md — fiche patient. */
+@font-face {
+  font-family: Inter;
+  src: url('/fonts/inter-variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: Manrope;
+  src: url('/fonts/manrope-variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+/* Visual semantics only: these tokens never encode clinical risk. */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-canvas: #f4f7f8;
-  --color-ink: #183b40;
-  --color-muted: #687d82;
-  --color-faint: #849599;
-  --color-line: #e4ecee;
-  --color-teal: #087f74;
-  --color-teal-deep: #0d554f;
-  --color-sidebar: #0d2328;
-  --color-sidebar-raised: #17353b;
-  --color-sidebar-active: #20433f;
-  --color-sidebar-line: #294047;
-  --color-sidebar-text: #bcd0d1;
-  --color-sidebar-muted: #8ea9ac;
-  --color-sidebar-strong: #dcebe8;
-  --color-sidebar-count: #284249;
-  --color-sidebar-count-text: #cddedf;
-  --color-sidebar-alert: #5f4932;
-  --color-sidebar-alert-text: #ffdba7;
-  --color-mint: #c5f0d9;
-  --color-mint-active: #d9f8e6;
-  --color-mint-soft: #e9f5f1;
-  --color-mint-ice: #eef7f3;
-  --color-step-line: #caddd9;
-  --color-success: #24745a;
-  --color-success-soft: #e8f5ef;
-  --color-amber: #9c601c;
-  --color-amber-soft: #fff5e5;
-  --color-amber-line: #eedcbd;
-  --color-danger: #b42318;
-  --color-danger-soft: #fdeceb;
-  --color-blue: #38688e;
-  --color-blue-soft: #eaf3fb;
-  --color-metric: #f4f9f8;
-  --color-chip: #f0f5f5;
-  --color-header: #f7fafa;
-  --color-button-line: #d7e4e4;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-heading: Manrope, Inter, ui-sans-serif, system-ui, sans-serif;
+  --color-background: #f7f8fc;
+  --color-foreground: #202333;
+  --color-card: #ffffff;
+  --color-card-foreground: #202333;
+  --color-primary: #5b5ce2;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #4748bf;
+  --color-secondary: #eaf3ff;
+  --color-secondary-foreground: #26345d;
+  --color-muted: #eef1f6;
+  --color-muted-foreground: #5f6675;
+  --color-accent: #ddf3e8;
+  --color-accent-foreground: #165c49;
+  --color-warning: #f4b860;
+  --color-warning-soft: #fff4e2;
+  --color-warning-foreground: #5a3a00;
+  --color-destructive: #d95663;
+  --color-destructive-foreground: #ffffff;
+  --color-destructive-soft: #fff0f1;
+  /* Dark ink provides AA for small text on a pale background. */
+  --color-destructive-ink: #a12b3b;
+  --color-border: #dde2ea;
+  --color-input: #858b9b;
+  --color-ring: #5b5ce2;
+  --color-brand-soft: #efefff;
+  --radius-lg: 1rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --shadow-panel: 0 4px 20px #20233306;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.035em;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+  }
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+  button,
+  a,
+  input,
+  select,
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button,
+  a,
+  input,
+  select {
+    transition:
+      background-color 180ms,
+      border-color 180ms,
+      color 180ms;
+  }
+  button:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  button,
+  input,
+  select {
+    min-height: 44px;
+  }
+  input,
+  select {
+    border-color: var(--color-input);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 4px;
+  }
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-foreground);
+  }
+  th {
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  .panel {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-card);
+    box-shadow: var(--shadow-panel);
+  }
+  .button-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-lg);
+    padding: 0.65rem 1.1rem;
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .button-primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+  }
+  .button-primary:disabled {
+    opacity: 0.6;
+  }
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 1rem;
+    z-index: 50;
+    transform: translateY(-160%);
+    opacity: 0;
+    pointer-events: none;
+    padding: 0.75rem 1rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-ring);
+    border-radius: var(--radius-lg);
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .data-scroll {
+    max-width: 100%;
+    overflow: auto;
+    border-radius: 0.75rem;
+  }
+  .data-scroll table {
+    min-width: 36rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Form boundaries must remain distinguishable from their white surfaces. */
+input:not(:disabled),
+select:not(:disabled) {
+  border-color: var(--color-input);
+}
+input::placeholder {
+  color: var(--color-muted-foreground);
+  opacity: 1;
 }

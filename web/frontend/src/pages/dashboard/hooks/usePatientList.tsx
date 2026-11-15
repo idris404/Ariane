@@ -33,8 +33,8 @@ const columns: LegacyColumnDef<PatientRow>[] = [
     cell: ({ row }) => (
       <span>
         <span className="block font-medium">{row.original.name}</span>
-        <span className="block text-xs text-muted">{row.original.patientId}</span>
-        <span className="block text-xs text-muted">{row.original.detail}</span>
+        <span className="block text-xs text-muted-foreground">{row.original.patientId}</span>
+        <span className="block text-xs text-muted-foreground">{row.original.detail}</span>
       </span>
     ),
   },
@@ -45,7 +45,7 @@ const columns: LegacyColumnDef<PatientRow>[] = [
     header: '',
     enableSorting: false,
     cell: ({ row }) => (
-      <Link to={row.original.href} className="font-medium text-teal">
+      <Link to={row.original.href} className="font-medium text-primary">
         Ouvrir
       </Link>
     ),

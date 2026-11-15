@@ -35,6 +35,19 @@ export const patientSchema = z.object({
   country: z.string(),
   created_at: z.string(),
   serum_tests: z.array(serumTestSchema),
+  // Existing PatientRead.history payload; no API change or clinical derivation.
+  history: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        patient_id: z.string(),
+        kind: z.string(),
+        title: z.string(),
+        detail: z.string(),
+        occurred_on: z.iso.date(),
+      }),
+    )
+    .default([]),
   serum_evolution: serumEvolutionSchema,
 })
 

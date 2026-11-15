@@ -1,78 +1,119 @@
-import { APP_NAME } from '../../constants/app'
+import { HumanValidationBanner } from '../../shared/components/DemoNotice'
 import { BrandMark } from '../../shared/components/BrandMark'
 import { useLoginForm } from './hooks/useLoginForm'
 
 const INPUT_CLASS =
-  'w-full rounded-lg border border-[#e4ecee] bg-white px-3 py-2.5 text-sm text-[#183b40] placeholder:text-[#849599] focus:border-[#087f74] focus:outline-none focus:ring-2 focus:ring-[#087f74]/20 aria-invalid:border-[#9c601c]'
+  'w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 aria-invalid:border-warning-foreground'
 
 export function LoginPage() {
   const { register, errors, isPending, onSubmit } = useLoginForm()
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f4f7f8] p-6">
-      <div className="w-full max-w-sm rounded-xl border border-[#e4ecee] bg-white p-8">
+    <main className="mx-auto flex min-h-screen max-w-[1440px] flex-col p-5 sm:p-10 lg:p-14">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <BrandMark />
-        <p className="mt-6 text-[10px] font-semibold tracking-wider text-[#087f74] uppercase">
-          Suivi des greffes rénales
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#183b40]">Connexion</h1>
-        <p className="mt-1 text-[13px] text-[#687d82]">Accédez à votre espace {APP_NAME}.</p>
+        <span className="text-xs text-muted-foreground">
+          Transplantation rénale · Démonstrateur
+        </span>
+      </header>
+      <div className="mt-6">
+        <HumanValidationBanner />
+      </div>
+      <div className="grid flex-1 items-center gap-10 py-12 lg:grid-cols-[1.15fr_1fr] lg:gap-24">
+        <section>
+          <p className="eyebrow">Revue immunologique</p>
+          <h1 className="mt-5 max-w-xl text-4xl font-bold leading-[1.12] sm:text-5xl lg:text-[60px]">
+            Relier l’historique.
+            <br />
+            <span className="text-primary">Éclairer la revue.</span>
+          </h1>
+          <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
+            Les données, leur contexte et leurs limites, réunis pour accompagner votre lecture.
+          </p>
+          <ol className="mt-9 flex flex-col gap-5 border-l border-border pl-6 text-sm text-muted-foreground">
+            <li>
+              <span className="mr-3 font-semibold text-primary">01</span>Retrouver le dossier
+              synthétique
+            </li>
+            <li>
+              <span className="mr-3 font-semibold text-primary">02</span>Parcourir l’évolution
+              sérique
+            </li>
+            <li>
+              <span className="mr-3 font-semibold text-primary">03</span>Vérifier avant toute
+              signature
+            </li>
+          </ol>
+        </section>
+        <section aria-labelledby="login-title" className="panel w-full max-w-lg p-6 sm:p-9">
+          <p className="mt-6 text-xs font-semibold tracking-wider text-primary uppercase">
+            Votre espace de démonstration
+          </p>
+          <h2 id="login-title" className="mt-3 text-3xl font-bold text-foreground">
+            Bienvenue sur HLA Twin
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Connectez-vous pour ouvrir les dossiers synthétiques.
+          </p>
 
-        <form onSubmit={onSubmit} noValidate className="mt-6 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="email" className="text-[13px] font-medium text-[#183b40]">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="username"
-              aria-invalid={errors.email ? true : undefined}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              className={INPUT_CLASS}
-              {...register('email')}
-            />
-            {errors.email && (
-              <p id="email-error" className="text-xs text-[#9c601c]">
-                {errors.email.message}
+          <form onSubmit={onSubmit} noValidate className="mt-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-sm font-medium text-foreground">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="username"
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                className={INPUT_CLASS}
+                {...register('email')}
+              />
+              {errors.email && (
+                <p id="email-error" className="text-xs text-warning-foreground">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-sm font-medium text-foreground">
+                Mot de passe
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                aria-invalid={errors.password ? true : undefined}
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                className={INPUT_CLASS}
+                {...register('password')}
+              />
+              {errors.password && (
+                <p id="password-error" className="text-xs text-warning-foreground">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {errors.root && (
+              <p
+                role="alert"
+                className="rounded-lg bg-warning-soft px-3 py-2 text-sm text-warning-foreground"
+              >
+                {errors.root.message}
               </p>
             )}
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-[13px] font-medium text-[#183b40]">
-              Mot de passe
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              aria-invalid={errors.password ? true : undefined}
-              aria-describedby={errors.password ? 'password-error' : undefined}
-              className={INPUT_CLASS}
-              {...register('password')}
-            />
-            {errors.password && (
-              <p id="password-error" className="text-xs text-[#9c601c]">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          {errors.root && (
-            <p role="alert" className="rounded-lg bg-[#fff5e5] px-3 py-2 text-[13px] text-[#9c601c]">
-              {errors.root.message}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded-lg bg-[#087f74] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#06655c] disabled:opacity-60"
-          >
-            {isPending ? 'Connexion…' : 'Se connecter'}
-          </button>
-        </form>
+            <button type="submit" disabled={isPending} className="button-primary mt-2 w-full">
+              {isPending ? 'Connexion…' : 'Se connecter'}
+            </button>
+          </form>
+          <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+            Accès réservé à la démonstration. Aucune décision clinique autonome.
+          </p>
+        </section>
       </div>
     </main>
   )

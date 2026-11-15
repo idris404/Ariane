@@ -1,3 +1,4 @@
+import { SurfaceState } from '../../shared/components/SurfaceState'
 import { AppShell } from '../../shared/components/AppShell'
 import { Dossier } from './components/Dossier'
 import { LoginPanel } from './components/LoginPanel'
@@ -11,12 +12,8 @@ export function PatientFilePage() {
   return (
     <AppShell section="Patients / Fiche patient">
       {needsSession ? <LoginPanel /> : null}
-      {isLoading ? <p className="text-sm text-muted">Chargement du dossier…</p> : null}
-      {errorMessage ? (
-        <p role="alert" className="text-sm text-amber">
-          {errorMessage}
-        </p>
-      ) : null}
+      {isLoading ? <SurfaceState state="loading" title="Chargement du dossier…" /> : null}
+      {errorMessage ? <SurfaceState state="error" title={errorMessage} /> : null}
       {file ? <Dossier file={file} table={table} /> : null}
     </AppShell>
   )

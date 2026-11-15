@@ -1,0 +1,135 @@
+import type { Page } from '@playwright/test'
+
+// Presentation tests only. Values copied from backend/app/conftest.py
+// (make_patient, make_serum_test, make_history_event) and test_evolution.py.
+// IDs are fixed; no random or real patient data. No clinical inference.
+export const patientId = '11111111-1111-4111-8111-111111111111'
+export const patient = {
+  id: patientId,
+  patient_id: 'SYN-UI-001',
+  firstname: 'Ada',
+  lastname: 'Test',
+  birth: '1985-03-02',
+  gender: 'F',
+  city: 'Lille',
+  country: 'France',
+  created_at: '2026-01-01T00:00:00Z',
+  serum_tests: [],
+  history: [
+    {
+      id: '22222222-2222-4222-8222-222222222222',
+      patient_id: 'SYN-UI-001',
+      kind: 'graft',
+      title: 'Greffe rénale',
+      detail: 'Donneur décédé · ABO compatible · exemple fictif',
+      occurred_on: '2015-08-18',
+    },
+  ],
+  serum_evolution: {
+    profile: 'C',
+    label: 'fluctuant',
+    years: [
+      {
+        year: 2017,
+        test_date: '2017-12-09',
+        antigens: [
+          { code: 'b12', label: 'B12', value: 40, output: 0 },
+          { code: 'b13', label: 'B13', value: 190, output: 0 },
+          { code: 'dr53', label: 'DR53', value: 291, output: 0 },
+          { code: 'dr51', label: 'DR51', value: 177, output: 0 },
+          { code: 'dq10', label: 'DQ10', value: 1870, output: 1 },
+        ],
+      },
+    ],
+  },
+}
+
+const user = {
+  id: patientId,
+  email: 'reviewer@example.test',
+  is_active: true,
+  is_superuser: false,
+  is_verified: true,
+}
+export async function mockApi(
+  page: Page,
+  options: {
+    authenticated?: boolean
+    empty?: boolean
+    incomplete?: boolean
+    error?: boolean
+    invalid?: boolean
+    delay?: number
+  } = {},
+) {
+  let authenticated = options.authenticated ?? true
+  let signed = false
+  const requests: { path: string; method: string; body: unknown }[] = []
+  await page.route('**/api/v1/**', async (route) => {
+    const req = route.request()
+    const url = new URL(req.url())
+    const path = url.pathname.replace('/api/v1', '')
+    requests.push({ path, method: req.method(), body: req.postDataJSON() })
+    if (path === '/users/me')
+      return route.fulfill({
+        status: authenticated ? 200 : 401,
+        json: authenticated ? user : { detail: 'Unauthorized' },
+      })
+    if (path === '/auth/login') {
+      authenticated = true
+      return route.fulfill({ status: 204 })
+    }
+    if (path === '/auth/logout') {
+      authenticated = false
+      return route.fulfill({ status: 204 })
+    }
+    if (options.delay) await new Promise((resolve) => setTimeout(resolve, options.delay))
+    if (options.error) return route.fulfill({ status: 503, json: { detail: 'UNAVAILABLE' } })
+    if (path === '/signatures' && req.method() === 'POST') {
+      signed = true
+      return route.fulfill({ status: 201, json: {} })
+    }
+    // The signature UI currently receives only profile A; use the backend test
+    // profile label, keeping the supplied outputs unchanged.
+    if (path === '/signatures/queue')
+      return route.fulfill({
+        json: {
+          items:
+            signed || options.empty
+              ? []
+              : [
+                  {
+                    ...patient,
+                    serum_evolution: {
+                      ...patient.serum_evolution,
+                      profile: 'A',
+                      label: 'constant',
+                    },
+                  },
+                ],
+          remaining: signed || options.empty ? 0 : 1,
+        },
+      })
+    if (path.endsWith('/synthetic-patients'))
+      return route.fulfill({ json: { items: [], total: 0, page: 1, page_size: 20 } })
+    if (path === `/patients/${patientId}`) {
+      const detail = options.incomplete
+        ? { ...patient, history: [], serum_evolution: { profile: null, label: null, years: [] } }
+        : patient
+      return route.fulfill({
+        json: options.invalid ? { ...detail, serum_evolution: { profile: 'unknown' } } : detail,
+      })
+    }
+    if (path === '/patients')
+      return route.fulfill({
+        json: {
+          items: options.empty ? [] : [patient],
+          total: options.empty ? 0 : 1,
+          page: Number(url.searchParams.get('page') ?? 1),
+          page_size: Number(url.searchParams.get('page_size') ?? 20),
+        },
+      })
+    return route.fulfill({ status: 404, json: { detail: 'NOT_FOUND' } })
+  })
+  return requests
+}

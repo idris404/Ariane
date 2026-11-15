@@ -31,7 +31,13 @@ import {
   type SyntheticPatientResponse,
 } from './schemas'
 import type { SerumEvolution } from '../../shared/schemas/serum'
-import { addDays, ageInYears, formatLongDate, formatShortDate, parseIsoDate } from '../../shared/utils/dates'
+import {
+  addDays,
+  ageInYears,
+  formatLongDate,
+  formatShortDate,
+  parseIsoDate,
+} from '../../shared/utils/dates'
 
 export { addDays, ageInYears, formatLongDate, formatShortDate }
 
@@ -70,7 +76,9 @@ export async function getPatient(id: string): Promise<PatientResponse> {
 }
 
 export async function getSyntheticPatient(id: string): Promise<SyntheticPatientResponse | null> {
-  const parsed = syntheticPatientPageSchema.safeParse(await readJson(API_ENDPOINTS.patientSynthetic(id)))
+  const parsed = syntheticPatientPageSchema.safeParse(
+    await readJson(API_ENDPOINTS.patientSynthetic(id)),
+  )
   if (!parsed.success) {
     throw new InvalidResponseError()
   }
@@ -120,6 +128,7 @@ export type PatientFile = {
   postopDateLabel: string | null
   consultationDateLabel: string | null
   renalRows: RenalRow[]
+  history: PatientResponse['history']
   serumEvolution: SerumEvolution
 }
 
@@ -152,7 +161,12 @@ export function buildPatientFile(
       graftDate === null || preop === null || postop === null || consultation === null
         ? []
         : [
-            { index: 1, title: 'Bilan préopératoire', dateLabel: formatShortDate(preop), note: null },
+            {
+              index: 1,
+              title: 'Bilan préopératoire',
+              dateLabel: formatShortDate(preop),
+              note: null,
+            },
             { index: 2, title: 'Greffe rénale', dateLabel: formatShortDate(graftDate), note: null },
             {
               index: 3,
@@ -178,6 +192,7 @@ export function buildPatientFile(
     preopDateLabel: preop === null ? null : formatLongDate(preop),
     postopDateLabel: postop === null ? null : formatLongDate(postop),
     consultationDateLabel: consultation === null ? null : formatLongDate(consultation),
+    history: patient.history,
     serumEvolution: patient.serum_evolution,
     renalRows:
       graftDate === null

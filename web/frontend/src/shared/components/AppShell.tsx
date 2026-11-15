@@ -1,34 +1,19 @@
 import type { ReactNode } from 'react'
-import { Link, NavLink } from 'react-router'
+import { NavLink } from 'react-router'
 
-import { MOCK_NAV_COUNTS } from '../../constants/patient-file'
 import { ROUTES } from '../../constants/routes'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useLogout } from '../hooks/useLogout'
 import { useSignQueue } from '../hooks/useSignQueue'
-
-const placeholders = [
-  { label: 'Résultats douteux', count: MOCK_NAV_COUNTS.doubtful, alert: true },
-  { label: 'Historique', count: null, alert: false },
-  { label: 'Paramètres', count: null, alert: false },
-] as const
+import { BrandMark } from './BrandMark'
+import { HumanValidationBanner } from './DemoNotice'
 
 function itemClass(active: boolean): string {
-  return `flex items-center justify-between rounded-lg px-3 py-2 text-[13px] ${
-    active ? 'bg-sidebar-active text-mint-active' : ''
+  return `flex min-h-12 items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+    active
+      ? 'bg-brand-soft text-primary'
+      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
   }`
-}
-
-function Count({ count, alert }: { count: number; alert: boolean }) {
-  return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-[11px] ${
-        alert ? 'bg-sidebar-alert text-sidebar-alert-text' : 'bg-sidebar-count text-sidebar-count-text'
-      }`}
-    >
-      {count}
-    </span>
-  )
 }
 
 export function AppShell({ children, section }: { children: ReactNode; section: string }) {
@@ -37,73 +22,89 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
   const { logout, isPending, errorMessage } = useLogout()
 
   return (
-    <div className="flex min-h-screen bg-canvas font-sans text-ink">
-      <aside className="flex w-[232px] shrink-0 flex-col bg-sidebar px-4 py-5 text-sidebar-text">
-        <NavLink to={ROUTES.dashboard} className="flex items-center gap-3 px-2">
-          <span className="grid size-9 place-items-center rounded-lg bg-mint text-lg font-semibold text-teal-deep">
-            +
-          </span>
-          <span className="text-lg font-semibold text-white">greffe</span>
+    <div className="min-h-screen bg-background font-sans text-foreground lg:flex">
+      <a href="#main-content" className="skip-link">
+        Aller au contenu
+      </a>
+      <aside className="flex shrink-0 flex-col border-b border-border bg-card px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
+        <NavLink to={ROUTES.dashboard} aria-label="HLA Twin — accueil">
+          <BrandMark />
         </NavLink>
-        <p className="mt-8 px-2 text-[10px] font-medium tracking-[0.14em] text-sidebar-muted uppercase">
-          Coordination rénale
-        </p>
-        <nav className="mt-3 flex flex-col gap-1" aria-label="Navigation">
-          <NavLink
-            to={ROUTES.dashboard}
-            end
-            className={({ isActive }) => itemClass(isActive)}
-          >
-            <span>Vue d’ensemble</span>
-          </NavLink>
-          <Link to={ROUTES.dashboard} className={itemClass(false)}>
-            <span>Liste des patients</span>
-            <Count count={MOCK_NAV_COUNTS.patients} alert={false} />
-          </Link>
-          <NavLink to={ROUTES.toSign} className={({ isActive }) => itemClass(isActive)}>
-            <span>À signer</span>
-            {signQueue === undefined ? null : <Count count={signQueue.remaining} alert={false} />}
-          </NavLink>
-          {placeholders.map((item) => (
-            <div key={item.label} className={itemClass(false)}>
-              <span>{item.label}</span>
-              {item.count === null ? null : <Count count={item.count} alert={item.alert} />}
-            </div>
-          ))}
-        </nav>
-        <div className="mt-auto rounded-xl bg-sidebar-raised p-4">
-          <p className="text-sm font-medium text-sidebar-strong">Besoin d’aide ?</p>
-          <p className="mt-1 text-xs text-sidebar-muted">Contacter le support</p>
-        </div>
-        <p className="mt-4 px-1 text-sm text-sidebar-strong">CHU Saint-Louis</p>
-        <p className="px-1 text-xs text-sidebar-muted">Unité de greffe rénale</p>
-      </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-line bg-white px-8">
-          <p className="text-sm whitespace-nowrap text-muted">
-            Transplantation rénale <span className="px-2 text-line">/</span> {section}
-          </p>
-          <div className="flex shrink-0 items-center gap-4 text-sm">
-            {errorMessage ? (
-              <p role="alert" className="text-xs text-amber">
-                {errorMessage}
-              </p>
-            ) : null}
-            <span className="rounded-full bg-mint-ice px-3 py-1 text-xs font-medium whitespace-nowrap text-success">
-              Session sécurisée
+        <p className="mt-2 text-xs text-muted-foreground lg:mt-3">La revue, en perspective.</p>
+        <p className="eyebrow mt-10 hidden lg:block">Espace de revue</p>
+        <nav className="mt-4 flex gap-2 lg:flex-col" aria-label="Navigation principale">
+          <NavLink to={ROUTES.dashboard} end className={({ isActive }) => itemClass(isActive)}>
+            <span>
+              <span aria-hidden="true" className="mr-2">
+                ▦
+              </span>
+              Les dossiers
             </span>
-            <span className="whitespace-nowrap text-right text-xs text-muted">{user?.email}</span>
+          </NavLink>
+          <NavLink to={ROUTES.toSign} className={({ isActive }) => itemClass(isActive)}>
+            <span>
+              <span aria-hidden="true" className="mr-2">
+                ✓
+              </span>
+              À signer
+            </span>
+            {signQueue === undefined ? null : (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-foreground">
+                {signQueue.remaining}
+              </span>
+            )}
+          </NavLink>
+        </nav>
+        <div className="mt-auto hidden rounded-2xl bg-background p-4 lg:block">
+          <span aria-hidden="true" className="text-2xl text-primary">
+            ◎
+          </span>
+          <p className="mt-3 font-heading text-sm font-bold">La décision reste humaine.</p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            Un historique lisible pour accompagner la revue immunologique.
+          </p>
+        </div>
+        <p className="mt-5 hidden text-xs text-muted-foreground lg:block">
+          HLA Twin · Démonstrateur
+        </p>
+      </aside>
+      <div className="min-w-0 flex-1">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-4 sm:px-8">
+          <p className="text-sm text-muted-foreground">
+            Revue immunologique{' '}
+            <span aria-hidden="true" className="px-2">
+              /
+            </span>
+            <span className="text-foreground">{section}</span>
+          </p>
+          <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm">
+            <span className="max-w-64 truncate text-xs text-muted-foreground">{user?.email}</span>
             <button
               type="button"
               onClick={logout}
               disabled={isPending}
-              className="rounded-lg border border-button-line bg-white px-3 py-2 text-sm disabled:opacity-60"
+              className="rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-muted disabled:opacity-60"
             >
               Déconnexion
             </button>
+            {errorMessage ? (
+              <p role="alert" className="text-sm text-destructive-ink">
+                {errorMessage}
+              </p>
+            ) : null}
           </div>
         </header>
-        <main className="flex-1 px-8 py-6">{children}</main>
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="mx-auto max-w-[1440px] px-4 py-5 sm:px-8 sm:py-7"
+        >
+          <HumanValidationBanner />
+          <div className="mt-8">{children}</div>
+          <footer className="mt-10 border-t border-border py-5 text-xs text-muted-foreground">
+            HLA Twin · Transplantation rénale · Données synthétiques, revue humaine requise
+          </footer>
+        </main>
       </div>
     </div>
   )

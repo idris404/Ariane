@@ -1,3 +1,8 @@
+> **Current direction (2026-11-15): [HLA Twin — Rigueur calme](doc/rigueur-calme.md).**
+> The requested HLA Twin visual system supersedes the historical Greffe4IA
+> palette, branding and layout instructions below. This content is retained
+> as a reference to the original mockups, not as current implementation guidance.
+
 # Charte Graphique & Guide de Style — Greffe4IA (Page 3)
 
 Ce document récapitule l'analyse visuelle et technique de la **Page 3** du projet Figma **Greffe4IA** (`node-id=6:246`), comprenant les écrans :
