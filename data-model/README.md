@@ -79,13 +79,16 @@ results.
 ## Profile balance
 
 `serum_test_history.csv` holds one serum profile per patient: `A` no antigen varies, `B` one or two
-vary, `C` three vary. `rebalance_serum_profiles.py` brings the number of fluctuating (`C`) patients to
-a target without touching constant (`A`) patients, dates or other columns. The surplus becomes `B`:
-the third varying antigen is frozen at its first value. It is deterministic and replayable. Current
-split: 714 `A`, 200 `B`, 86 `C` (the application adds its own featured `C` patient, shown as 87).
+vary, `C` three vary. `fluctuate_serum_profiles.py` turns every intermediate (`B`) patient into a
+fluctuating (`C`) one, leaving constant (`A`) and fluctuating patients, dates and other columns
+untouched. Relabelling alone would leave a `C` profile with one or two varying antigens, so the
+missing ones are made to vary up to three: the first test keeps its value, the following ones get
+synthetic values (seeded per patient and antigen) that cross the 500 positivity threshold. A patient
+with a single test cannot vary: only its label changes. It is deterministic and replayable. Current
+split: 714 `A`, 286 `C` (the application adds its own featured `C` patient, shown as 287).
 
 ```bash
-PYTHONPATH=src python3 -m hla_data_model.rebalance_serum_profiles [--fluctuating 86]
+PYTHONPATH=src python3 -m hla_data_model.fluctuate_serum_profiles
 ```
 
 After changing the CSV, re-seed the application database with `uv run python -m app.seed --reset`
