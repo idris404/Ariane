@@ -204,7 +204,7 @@ Dernière mise à jour : 2026-11-14.
 - **Statut** : Demandée (onglet « À consulter », mêmes écrans que « À signer », uniquement les profils fluctuants) ; la règle de sélection est un choix de conception, **à confirmer**
 - **Décision** : `GET /consultations/queue` liste, paginée (`page`, `page_size`), les patients dont un prélèvement est de profil sérique `C` (fluctuant), en ordre stable de `patient_id`. La signature n'intervient pas : ces cas se consultent, ils ne se signent pas. Contexte `consultations/` à part de `signatures/` : la liste ne dépend d'aucune écriture.
 - **Pourquoi** : les cas constants (profil `A`) sont proposés à la signature ([D-23](#d-23--signature-clinique-des-cas-simples)) ; un suivi très fluctuant demande que le soignant lise la fiche. Contrairement à la file « À signer », un cas consulté ne quitte jamais la liste : un « top 5 » figerait les mêmes patients, d'où la pagination uniforme (`{items, total, page, page_size}`).
-- **Conséquences** : 101 patients concernés avec les données actuelles (100 du CSV, plus le patient mis en avant du seed, `DEMO-0001`, qui ouvre la liste). Les profils `B` (intermédiaire) ne figurent dans aucune des deux files.
+- **Conséquences** : 87 patients concernés avec les données actuelles (86 du CSV, plus le patient mis en avant du seed, `DEMO-0001`, qui ouvre la liste). Répartition des profils : 714 `A`, 200 `B`, 86 `C` dans le CSV (script `data-model/src/hla_data_model/rebalance_serum_profiles.py`). Les profils `B` (intermédiaire) ne figurent dans aucune des deux files.
 
 ---
 

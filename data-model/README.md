@@ -76,6 +76,21 @@ for longitudinal test scenarios. These simulated values and interpretations
 remain subject to human validation and must not be presented as clinical
 results.
 
+## Profile balance
+
+`serum_test_history.csv` holds one serum profile per patient: `A` no antigen varies, `B` one or two
+vary, `C` three vary. `rebalance_serum_profiles.py` brings the number of fluctuating (`C`) patients to
+a target without touching constant (`A`) patients, dates or other columns. The surplus becomes `B`:
+the third varying antigen is frozen at its first value. It is deterministic and replayable. Current
+split: 714 `A`, 200 `B`, 86 `C` (the application adds its own featured `C` patient, shown as 87).
+
+```bash
+PYTHONPATH=src python3 -m hla_data_model.rebalance_serum_profiles [--fluctuating 86]
+```
+
+After changing the CSV, re-seed the application database with `uv run python -m app.seed --reset`
+(from `web/backend/`).
+
 ## Checks
 
 ```bash
