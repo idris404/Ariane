@@ -10,20 +10,15 @@ export function ToConsultPage() {
   return (
     <AppShell section="À consulter" fitWindow>
       <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-medium tracking-[0.14em] text-primary uppercase">
-              Revue approfondie
-            </p>
-            <h1 className="mt-1 text-4xl font-bold">Des suivis fluctuants, à lire de près.</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Cas au suivi sérique fluctuant transmis par le serveur. Ouvrez la fiche pour examiner
-              les données.
-            </p>
-          </div>
-          <span className="rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
-            {toConsult.total} à consulter
-          </span>
+        <div>
+          <p className="text-xs font-medium tracking-[0.14em] text-primary uppercase">
+            Revue approfondie
+          </p>
+          <h1 className="mt-1 text-4xl font-bold">Des suivis fluctuants, à lire de près.</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cas au suivi sérique fluctuant transmis par le serveur. Ouvrez la fiche pour examiner
+            les données.
+          </p>
         </div>
 
         {toConsult.isLoading ? (
@@ -56,7 +51,7 @@ export function ToConsultPage() {
             {toConsult.total === 0 ? null : (
               <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm text-muted-foreground">
                 <p>
-                  {toConsult.from}–{toConsult.to} sur {toConsult.total}
+                  Page {toConsult.page}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                   <button

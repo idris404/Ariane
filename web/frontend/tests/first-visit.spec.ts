@@ -40,7 +40,6 @@ test('on arrival no data is requested and each screen shows an empty component',
   const table = page.getByRole('table', { name: 'Cas au suivi sérique fluctuant à consulter' })
   await expect(table.getByRole('columnheader')).toHaveCount(4)
   await expect(table.getByText(IMPORT_EMPTY.title)).toBeVisible()
-  await expect(page.getByText('0 à consulter', { exact: true })).toBeVisible()
 
   expect(requests.map((request) => request.path).filter((path) => DATA_PATHS.includes(path))).toEqual(
     [],

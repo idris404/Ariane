@@ -114,8 +114,7 @@ export function useToConsult() {
     panels,
     isImported,
     total,
-    from: total === 0 ? 0 : (page - 1) * CONSULT_PAGE_SIZE + 1,
-    to: Math.min(page * CONSULT_PAGE_SIZE, total),
+    page,
     isLoading: queue.isLoading,
     errorMessage: queue.isError ? consultErrorMessage(queue.error) : null,
   }
