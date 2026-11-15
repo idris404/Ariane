@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { flexRender } from '@tanstack/react-table'
 
@@ -8,6 +7,7 @@ import { PAGE_SIZE_OPTIONS } from '../../constants/pagination'
 import { SyntheticDataBadge } from '../../shared/components/DemoNotice'
 import { SurfaceState } from '../../shared/components/SurfaceState'
 import { AppShell } from '../../shared/components/AppShell'
+import { ImportDialog } from './components/ImportDialog'
 import { usePatientList } from './hooks/usePatientList'
 
 function Kpi({
@@ -49,14 +49,7 @@ export function DashboardPage() {
               disponibles.
             </p>
           </div>
-          <Button
-            type="button"
-            disabled
-            title="Ajout non disponible dans ce démonstrateur"
-            className="rounded-lg disabled:opacity-60 bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            Ajouter un patient
-          </Button>
+          <ImportDialog />
         </div>
 
         <section className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">

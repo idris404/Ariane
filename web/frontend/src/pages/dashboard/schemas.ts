@@ -1,9 +1,13 @@
 import { z } from 'zod'
 
 import { PATIENT_SORT_FIELDS, SORT_ORDERS } from '../../constants/dashboard'
+import { IMPORT_ACCEPTED_EXTENSIONS } from '../../constants/import'
 import { GENDERS } from '../../constants/patient-file'
 
 export const genderSchema = z.enum(GENDERS)
+
+// Extension (en minuscules, sans le point) d'un document que la fenêtre d'import accepte.
+export const importExtensionSchema = z.enum(IMPORT_ACCEPTED_EXTENSIONS)
 
 export const patientListItemSchema = z.object({
   id: z.uuid(),
