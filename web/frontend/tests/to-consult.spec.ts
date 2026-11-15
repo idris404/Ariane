@@ -216,50 +216,68 @@ test('a page beyond the last one falls back to the last page', async ({ page }) 
   await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
 })
 
-// Grand écran (≥ lg) : la page occupe exactement la hauteur de la fenêtre.
-const FIT_WIDTH = 1440
+// Grand écran (≥ lg). La page défile normalement (hauteur minimale d'un écran) et le tableau montre
+// toutes ses lignes : il n'a pas de défilement vertical interne.
+const WIDE_VIEWPORT_WIDTH = 1440
 
 async function pageScrolls(page: Page) {
   return page.evaluate(() => document.documentElement.scrollHeight > innerHeight)
 }
 
-test.describe('on a tall window', () => {
-  test.use({ viewport: { width: FIT_WIDTH, height: 1000 } })
+function tableRegion(page: Page) {
+  return page.getByRole('region', { name: 'Liste des cas à consulter' })
+}
 
-  test('the five cases and the pagination fit without any scrolling', async ({ page }) => {
+async function regionScrollsInside(page: Page) {
+  return tableRegion(page).evaluate((el) => el.scrollHeight > el.clientHeight)
+}
+
+test.describe('on a short window', () => {
+  test.use({ viewport: { width: WIDE_VIEWPORT_WIDTH, height: 800 } })
+
+  test('the page scrolls and every row of the table is shown in full', async ({ page }) => {
     await mockApi(page)
     await openConsultPage(page)
-    const region = page.getByRole('region', { name: 'Liste des cas à consulter' })
+    const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
 
-    await expect(page.getByRole('row').filter({ hasText: 'Fluctuant' })).toHaveCount(
-      CONSULT_PAGE_SIZE,
-    )
-    expect(CONSULT_PAGE_SIZE).toBe(5)
-    expect(await pageScrolls(page)).toBe(false)
-    expect(await region.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true)
-    await expect(page.getByRole('button', { name: 'Suivant' })).toBeInViewport()
+    await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
+    // Le contenu dépasse l'écran : c'est la page qui défile, pas le tableau.
+    expect(await pageScrolls(page)).toBe(true)
+    expect(await regionScrollsInside(page)).toBe(false)
+
+    // Chaque ligne, puis la pagination, s'atteignent en faisant défiler la page.
+    await rows.last().scrollIntoViewIfNeeded()
+    await expect(rows.last()).toBeInViewport()
+    const next = page.getByRole('button', { name: 'Suivant' })
+    await next.scrollIntoViewIfNeeded()
+    await expect(next).toBeInViewport()
+  })
+
+  test('an unfolded row lengthens the page, not the table', async ({ page }) => {
+    await mockApi(page)
+    await openConsultPage(page)
+
+    await page.getByRole('button', { name: 'Voir les tests' }).first().click()
+    await expect(page.getByRole('region', { name: 'Résultats sériques par année' })).toBeAttached()
+    expect(await regionScrollsInside(page)).toBe(false)
+    expect(await pageScrolls(page)).toBe(true)
   })
 })
 
-test.describe('on a short window', () => {
-  test.use({ viewport: { width: FIT_WIDTH, height: 800 } })
+test.describe('on a tall window', () => {
+  test.use({ viewport: { width: WIDE_VIEWPORT_WIDTH, height: 1400 } })
 
-  test('the page does not scroll: the table does, and the pagination stays in view', async ({
+  test('the page is at least one screen high and shows all the rows without scrolling', async ({
     page,
   }) => {
     await mockApi(page)
     await openConsultPage(page)
-    const region = page.getByRole('region', { name: 'Liste des cas à consulter' })
-    const next = page.getByRole('button', { name: 'Suivant' })
+    const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
 
+    await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
+    for (const row of await rows.all()) await expect(row).toBeInViewport()
+    // Hauteur minimale d'un écran : le contenu est plus court, la page ne défile pas.
     expect(await pageScrolls(page)).toBe(false)
-    await expect(next).toBeInViewport()
-
-    // Une ligne dépliée allonge le tableau, pas la page.
-    await page.getByRole('button', { name: 'Voir les tests' }).first().click()
-    await expect(page.getByRole('region', { name: 'Résultats sériques par année' })).toBeAttached()
-    expect(await pageScrolls(page)).toBe(false)
-    expect(await region.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true)
-    await expect(next).toBeInViewport()
+    expect(await regionScrollsInside(page)).toBe(false)
   })
 })

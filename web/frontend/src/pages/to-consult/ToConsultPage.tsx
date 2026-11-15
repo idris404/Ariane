@@ -8,8 +8,8 @@ export function ToConsultPage() {
   const toConsult = useToConsult()
 
   return (
-    <AppShell section="À consulter" fitWindow>
-      <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1">
+    <AppShell section="À consulter">
+      <div className="flex flex-col gap-5">
         <div>
           <p className="text-xs font-medium tracking-[0.14em] text-primary uppercase">
             Revue approfondie
@@ -28,8 +28,8 @@ export function ToConsultPage() {
           <SurfaceState state="error" title={toConsult.errorMessage} />
         )}
         {toConsult.isLoading || toConsult.errorMessage !== null ? null : (
-          <section className="flex flex-col overflow-hidden rounded-xl border border-border bg-card lg:min-h-[22rem] lg:flex-1">
-            <header className="flex shrink-0 items-center gap-2 border-b border-border px-5 py-4">
+          <section className="overflow-hidden rounded-xl border border-border bg-card">
+            <header className="flex items-center gap-2 border-b border-border px-5 py-4">
               <h2 className="text-2xl font-semibold">Cas à consulter</h2>
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                 {toConsult.table.getRowModel().rows.length}
@@ -49,7 +49,7 @@ export function ToConsultPage() {
               }
             />
             {toConsult.total === 0 ? null : (
-              <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm text-muted-foreground">
+              <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm text-muted-foreground">
                 <p>
                   Page {toConsult.page}
                 </p>
