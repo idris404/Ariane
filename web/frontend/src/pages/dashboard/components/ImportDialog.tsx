@@ -83,7 +83,13 @@ export function ImportDialog() {
           Importer
         </Button>
       </DialogTrigger>
-      <DialogContent onDragOver={preventBrowserDrop} onDrop={preventBrowserDrop}>
+      {/* Un clic à côté ne ferme pas la fenêtre : une sélection ou une analyse en cours serait perdue.
+          Échap et « Fermer » restent disponibles. */}
+      <DialogContent
+        onInteractOutside={(event) => event.preventDefault()}
+        onDragOver={preventBrowserDrop}
+        onDrop={preventBrowserDrop}
+      >
         <ImportDialogBody />
       </DialogContent>
     </Dialog>

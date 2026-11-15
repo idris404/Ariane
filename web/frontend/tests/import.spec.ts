@@ -185,3 +185,17 @@ test('closing the dialog during the analysis cancels it without redirecting', as
   await page.clock.runFor(MOCK_IMPORT.analysis.durationMs)
   await expect(page).toHaveURL(new RegExp(`${ROUTES.dashboard}$`))
 })
+
+test('a click outside the dialog does not close it, Escape still does', async ({ page }) => {
+  const dialog = await openImportDialog(page)
+  await dropFiles(page, [jsonDrop])
+  await expect(dialog.getByRole('status')).toContainText('Chargement des données')
+
+  // Coin de la page : hors de la fenêtre, sur le fond assombri.
+  await page.mouse.click(2, 2)
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('status')).toContainText('Chargement des données')
+
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+})
