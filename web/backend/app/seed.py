@@ -2,7 +2,7 @@
 compte de démonstration.
 
     uv run python -m app.seed [--csv CHEMIN] [--serum-csv CHEMIN]
-        [--only patients|synthetic|serum|history|users] [--reset]
+        [--only patients|synthetic|serum|history|featured|users] [--reset]
                                                                       (depuis web/backend/)
 
 Les patients synthétiques, les tests sériques et l'historique d'événements partent des patients
@@ -10,6 +10,10 @@ Les patients synthétiques, les tests sériques et l'historique d'événements p
 `--only serum` ou `--only history` ne relance que cette étape, à condition que les patients
 existent déjà. Rejouable : ce qui est déjà présent n'est pas dupliqué. Une seule transaction :
 tout ou rien.
+
+L'étape `featured` ajoute un dossier fictif mis en avant (`constants/featured_patient.py`, hors CSV) :
+le patient, ses prélèvements sériques et son événement. Il ne dépend d'aucune autre étape ; son
+`patient_id` (« DEMO-0001 ») le place en tête des listes triées par `patient_id`.
 
 L'étape `users` crée le compte de démonstration (développement local uniquement) : email et mot de
 passe lus dans web/.env (`SEED_USER_EMAIL`, `SEED_USER_PASSWORD`), le seed s'arrête avant de toucher à
@@ -40,6 +44,7 @@ from app.constants.seed import (
 from app.core.database import Base, async_session_maker, engine
 from app.core.exceptions import SeedError
 from app.core.security import build_password_helper
+from app.featured_patient.seed import FeaturedSeedReport, seed_featured_patient
 from app.patient_history.entity import PatientHistory
 from app.patient_history.repository import PatientHistoryRepository
 from app.patient_history.seed import HistorySeedReport, seed_patient_history
@@ -77,6 +82,7 @@ class SeedReport:
     serum_tests: SerumSeedReport | None = None
     patient_history: HistorySeedReport | None = None
     users: UserSeedReport | None = None
+    featured_patient: FeaturedSeedReport | None = None
 
 
 async def run_seed(
@@ -91,6 +97,7 @@ async def run_seed(
     demo_user: DemoUser | None = None,
 ) -> SeedReport:
     patients_report = synthetic_report = serum_report = history_report = users_report = None
+    featured_report = None
     patients = PatientService(patient_repository)
     if only in (None, SeedStage.PATIENTS):
         patients_report = await seed_patients(patient_repository, csv_path)
@@ -102,11 +109,22 @@ async def run_seed(
         serum_report = await seed_serum_tests(serum_repository, patients, serum_csv_path)
     if only in (None, SeedStage.PATIENT_HISTORY):
         history_report = await seed_patient_history(history_repository, patients)
+    if only in (None, SeedStage.FEATURED_PATIENT):
+        featured_report = await seed_featured_patient(
+            patient_repository, serum_repository, history_repository
+        )
     if only in (None, SeedStage.USERS):
         if user_manager is None or demo_user is None:
             raise SeedError("gestionnaire d'utilisateurs ou compte de démonstration manquant")
         users_report = await seed_users(user_manager, demo_user)
-    return SeedReport(patients_report, synthetic_report, serum_report, history_report, users_report)
+    return SeedReport(
+        patients_report,
+        synthetic_report,
+        serum_report,
+        history_report,
+        users_report,
+        featured_report,
+    )
 
 
 def find_outdated_tables(connection: Connection) -> list[str]:
@@ -197,6 +215,12 @@ def describe(report: SeedReport) -> list[str]:
             f"historique : {history.read} événements, {history.inserted} insérés, "
             f"{already} déjà présents, {history.without_patient} sans patient (ignorés)"
         )
+    if report.featured_patient:
+        featured = report.featured_patient
+        lines.append(
+            f"patient mis en avant : {featured.patients} patient, {featured.serum_tests} tests "
+            f"sériques, {featured.history} événements insérés (0 : déjà présent)"
+        )
     if report.users:
         lines.append(
             "compte de démonstration : "
@@ -209,7 +233,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Ingère les CSV patients, synthétiques et sériques, l'historique fictif, "
-            "puis le compte de démonstration."
+            "le patient mis en avant, puis le compte de démonstration."
         )
     )
     parser.add_argument("--csv", type=Path, default=DEFAULT_PATIENTS_CSV_PATH)
