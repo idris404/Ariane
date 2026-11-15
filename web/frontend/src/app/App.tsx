@@ -4,6 +4,7 @@ import { ROUTES } from '../constants/routes'
 import { DashboardPage } from '../pages/dashboard/DashboardPage'
 import { LoginPage } from '../pages/login/LoginPage'
 import { PatientFilePage } from '../pages/patient-file/PatientFilePage'
+import { ToConsultPage } from '../pages/to-consult/ToConsultPage'
 import { ToSignPage } from '../pages/to-sign/ToSignPage'
 import { AuthenticatedLayout } from '../shared/components/AuthenticatedLayout'
 import { RedirectIfAuthenticated } from '../shared/components/RedirectIfAuthenticated'
@@ -22,6 +23,7 @@ export function App() {
               <Route path={ROUTES.dashboard} element={<DashboardPage />} />
               <Route path={ROUTES.fiche} element={<PatientFilePage />} />
               <Route path={ROUTES.toSign} element={<ToSignPage />} />
+              <Route path={ROUTES.toConsult} element={<ToConsultPage />} />
             </Route>
           </Route>
         </Routes>

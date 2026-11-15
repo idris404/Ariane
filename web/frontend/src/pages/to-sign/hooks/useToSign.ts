@@ -5,7 +5,8 @@ import { API_ENDPOINTS } from '../../../constants/api'
 import { signKeys } from '../../../constants/to-sign'
 import { useSignQueue } from '../../../shared/hooks/useSignQueue'
 import { apiFetch } from '../../../shared/utils/api'
-import { queueErrorMessage, signErrorMessage, toSignCase } from '../utils'
+import { toPatientCase } from '../../../shared/utils/cases'
+import { queueErrorMessage, signErrorMessage } from '../utils'
 
 async function signPatient(patientId: string): Promise<void> {
   await apiFetch(API_ENDPOINTS.signatures, { method: 'POST', body: { patient_id: patientId } })
@@ -23,7 +24,7 @@ export function useToSign() {
   const [today] = useState(() => new Date())
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const cases = useMemo(
-    () => (queue.data?.items ?? []).map((item) => toSignCase(item, today)),
+    () => (queue.data?.items ?? []).map((item) => toPatientCase(item, today)),
     [queue.data, today],
   )
 

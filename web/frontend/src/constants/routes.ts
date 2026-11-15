@@ -6,4 +6,5 @@ export const ROUTES = {
   dashboard: '/dashboard',
   fiche: `/fiche/:${FICHE_ID_PARAM}`,
   toSign: '/a-signer',
+  toConsult: '/a-consulter',
 } as const

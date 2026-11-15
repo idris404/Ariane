@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { CONSULT_PAGE_SIZE } from '../src/constants/to-consult'
 
 // Presentation tests only. Values copied from backend/app/conftest.py
 // (make_patient, make_serum_test, make_history_event) and test_evolution.py.
@@ -43,6 +44,17 @@ export const patient = {
     ],
   },
 }
+
+// Cas au profil fluctuant de la file « À consulter » : une page pleine et deux cas de plus. Le
+// premier est le patient détaillé ci-dessus, pour que « Voir la fiche » mène à une fiche existante.
+export const consultCaseCount = CONSULT_PAGE_SIZE + 2
+export const consultPatients = Array.from({ length: consultCaseCount }, (_, index) => ({
+  ...patient,
+  id: index === 0 ? patientId : `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+  patient_id: `SYN-UI-C${String(index + 1).padStart(2, '0')}`,
+  firstname: 'Cas',
+  lastname: `Fluctuant ${index + 1}`,
+}))
 
 const user = {
   id: patientId,
@@ -110,6 +122,19 @@ export async function mockApi(
           remaining: signed || options.empty ? 0 : 1,
         },
       })
+    if (path === '/consultations/queue') {
+      const pageNumber = Number(url.searchParams.get('page') ?? 1)
+      const pageSize = Number(url.searchParams.get('page_size') ?? 20)
+      const cases = options.empty ? [] : consultPatients
+      return route.fulfill({
+        json: {
+          items: cases.slice((pageNumber - 1) * pageSize, pageNumber * pageSize),
+          total: cases.length,
+          page: pageNumber,
+          page_size: pageSize,
+        },
+      })
+    }
     if (path.endsWith('/synthetic-patients'))
       return route.fulfill({ json: { items: [], total: 0, page: 1, page_size: 20 } })
     if (path === `/patients/${patientId}`) {

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { NavLink } from 'react-router'
 
 import { ROUTES } from '../../constants/routes'
+import { useConsultCount } from '../hooks/useConsultCount'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useLogout } from '../hooks/useLogout'
 import { useSignQueue } from '../hooks/useSignQueue'
@@ -20,6 +21,7 @@ function itemClass(active: boolean): string {
 export function AppShell({ children, section }: { children: ReactNode; section: string }) {
   const { data: user } = useCurrentUser()
   const { data: signQueue } = useSignQueue()
+  const consultCount = useConsultCount()
   const { logout, isPending, errorMessage } = useLogout()
 
   return (
@@ -33,7 +35,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
         </NavLink>
         <p className="mt-2 text-xs text-muted-foreground lg:mt-3">La revue, en perspective.</p>
         <p className="eyebrow mt-10 hidden lg:block">Espace de revue</p>
-        <nav className="mt-4 flex gap-2 lg:flex-col" aria-label="Navigation principale">
+        <nav className="mt-4 flex flex-wrap gap-2 lg:flex-col" aria-label="Navigation principale">
           <NavLink to={ROUTES.dashboard} end className={({ isActive }) => itemClass(isActive)}>
             <span>
               <span aria-hidden="true" className="mr-2">
@@ -52,6 +54,19 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
             {signQueue === undefined ? null : (
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-foreground">
                 {signQueue.remaining}
+              </span>
+            )}
+          </NavLink>
+          <NavLink to={ROUTES.toConsult} className={({ isActive }) => itemClass(isActive)}>
+            <span>
+              <span aria-hidden="true" className="mr-2">
+                ◉
+              </span>
+              À consulter
+            </span>
+            {consultCount === undefined ? null : (
+              <span className="rounded-full bg-destructive-soft px-2 py-0.5 text-xs font-medium text-destructive-ink">
+                {consultCount}
               </span>
             )}
           </NavLink>

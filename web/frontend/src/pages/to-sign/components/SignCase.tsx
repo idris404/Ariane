@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Link } from 'react-router'
 
 import { SerumGrid, SerumLegend } from '../../../shared/components/SerumEvolution'
-import type { SignCase as SignCaseView } from '../utils'
+import type { PatientCase } from '../../../shared/utils/cases'
 
 export function SignCase({
   item,
@@ -13,7 +13,7 @@ export function SignCase({
   onToggle,
   onSign,
 }: {
-  item: SignCaseView
+  item: PatientCase
   expanded: boolean
   pending: boolean
   disabled: boolean
