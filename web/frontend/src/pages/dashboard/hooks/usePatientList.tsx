@@ -18,6 +18,7 @@ import {
   dashboardKeys,
 } from '../../../constants/dashboard'
 import { InvalidResponseError, SessionRequiredError } from '../../../shared/api'
+import { useImportedData } from '../../../shared/hooks/useImportedData'
 import {
   getPatientPage,
   toPatientRow,
@@ -96,10 +97,12 @@ export function usePatientList() {
     sortBy: query.sort_by,
     sortOrder: query.sort_order,
   }
+  const isImported = useImportedData()
   const patients = useQuery({
     queryKey: dashboardKeys.patients(listQuery),
     queryFn: async () => ({ page: await getPatientPage(listQuery), today: new Date() }),
     placeholderData: keepPreviousData,
+    enabled: isImported,
     retry: (failureCount, error) =>
       !(error instanceof SessionRequiredError) && failureCount < QUERY_RETRY_COUNT,
   })
@@ -153,7 +156,8 @@ export function usePatientList() {
     pageSize,
     total,
     page,
-    isLoading: patients.isPending,
+    isLoading: patients.isLoading,
+    isImported,
     errorMessage: patients.error == null ? null : messageFor(patients.error),
     onSearchChange: (value: string) => {
       setDraft(value)

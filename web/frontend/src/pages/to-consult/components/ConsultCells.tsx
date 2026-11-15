@@ -4,7 +4,6 @@ import { Link } from 'react-router'
 import type { SerumEvolution } from '../../../shared/schemas/serum'
 import type { PatientCase } from '../../../shared/utils/cases'
 import { profileLabel } from '../utils'
-import { EventsDialog } from './EventsDialog'
 
 // Cellules du tableau « À consulter » : de la présentation seule, branchée par les colonnes.
 
@@ -28,7 +27,14 @@ export function ProfileCell({ evolution }: { evolution: SerumEvolution }) {
   )
 }
 
-export function EventsCell({ item }: { item: PatientCase }) {
+type EventsCellProps = {
+  item: PatientCase
+  open: boolean
+  detailsId: string
+  onToggle: () => void
+}
+
+export function EventsCell({ item, open, detailsId, onToggle }: EventsCellProps) {
   if (item.events.length === 0) {
     return (
       <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
@@ -36,7 +42,20 @@ export function EventsCell({ item }: { item: PatientCase }) {
       </span>
     )
   }
-  return <EventsDialog patientName={item.name} label={item.historyLabel} events={item.events} />
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="xs"
+      onClick={onToggle}
+      aria-expanded={open}
+      aria-controls={detailsId}
+      aria-label={`${item.historyLabel} de ${item.name}`}
+      className="min-h-8 rounded-full px-3 py-0.5 font-normal text-muted-foreground hover:text-foreground aria-expanded:bg-secondary aria-expanded:text-foreground"
+    >
+      {item.historyLabel}
+    </Button>
+  )
 }
 
 type ActionsCellProps = {

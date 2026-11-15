@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import { IMPORT_STORAGE_KEY, IMPORT_STORAGE_VALUE } from '../src/constants/import'
 import { CONSULT_PAGE_SIZE } from '../src/constants/to-consult'
 
 // Presentation tests only. Values copied from backend/app/conftest.py
@@ -86,8 +87,17 @@ export async function mockApi(
     error?: boolean
     invalid?: boolean
     delay?: number
+    // Faux : arrivée sur le site avant tout import (aucune donnée n'est demandée). Vrai par défaut :
+    // les autres tests partent d'un import déjà terminé.
+    imported?: boolean
   } = {},
 ) {
+  if (options.imported ?? true) {
+    await page.addInitScript(
+      ([key, value]) => sessionStorage.setItem(key, value),
+      [IMPORT_STORAGE_KEY, IMPORT_STORAGE_VALUE] as const,
+    )
+  }
   let authenticated = options.authenticated ?? true
   let signed = false
   const requests: { path: string; method: string; body: unknown }[] = []

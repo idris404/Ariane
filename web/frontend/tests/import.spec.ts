@@ -3,14 +3,13 @@ import AxeBuilder from '@axe-core/playwright'
 import { IMPORT_MESSAGES, MOCK_IMPORT } from '../src/constants/import'
 import { ROUTES } from '../src/constants/routes'
 import { mockApi } from './fixtures'
+import { dropFiles } from './import-helpers'
 
 // Documents fictifs, créés en mémoire : aucun fichier réel ni donnée de santé.
 const csvFile = { name: 'patients.csv', mimeType: 'text/csv', buffer: Buffer.from('a,b\n1,2') }
 const pdfFile = { name: 'rapport.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4') }
 const textFile = { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('notes') }
 const jsonDrop = { name: 'donnees.json', type: 'application/json', content: '{}' }
-
-type DroppedFile = { name: string; type: string; content: string }
 
 test.beforeEach(async ({ page }) => {
   // Aucune dépendance à Internet pendant les tests de l'interface locale.
@@ -29,24 +28,6 @@ async function openImportDialog(page: Page) {
   const dialog = page.getByRole('dialog', { name: 'Importer des documents' })
   await expect(dialog).toBeVisible()
   return dialog
-}
-
-async function dropFiles(page: Page, files: DroppedFile[]) {
-  const dataTransfer = await page.evaluateHandle((items) => {
-    const transfer = new DataTransfer()
-    for (const item of items) {
-      // `lastModified` fixe : deux fichiers identiques doivent avoir la même identité.
-      transfer.items.add(
-        new File([item.content], item.name, { type: item.type, lastModified: 1 }),
-      )
-    }
-    return transfer
-  }, files)
-  const dropzone = page.getByRole('group', { name: 'Zone de dépôt de fichiers' })
-  await dropzone.dispatchEvent('dragenter', { dataTransfer })
-  await expect(dropzone).toHaveAttribute('data-dragging', 'true')
-  await dropzone.dispatchEvent('dragover', { dataTransfer })
-  await dropzone.dispatchEvent('drop', { dataTransfer })
 }
 
 test('the import button opens a dialog listing the accepted formats, and Escape closes it', async ({
@@ -86,6 +67,9 @@ test('a valid file from the picker shows the loading view, then the simulated de
   await expect(dialog.getByText('Valeur simulée')).toBeVisible()
   await expect(dialog.getByText('Chargement des données')).toHaveCount(0)
   await expect(rows).toHaveCount(2)
+  // Le bouton vient de s'activer : on attend la fin de sa transition, sinon axe mesure un contraste
+  // intermédiaire.
+  await expect(dialog.getByRole('button', { name: 'Lancer l’analyse' })).toHaveCSS('opacity', '1')
   const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze()
   expect(accessibility.violations).toEqual([])
 })

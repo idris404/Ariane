@@ -38,6 +38,18 @@ export const MOCK_IMPORT = {
 
 export const PERCENT_MAX = 100
 
+// Les données (patients, cas à signer, cas à consulter) ne sont demandées au serveur qu'après un
+// import terminé. Le drapeau vit dans le sessionStorage de l'onglet : un rechargement garde les
+// données, une nouvelle arrivée sur le site repart d'un écran vide.
+export const IMPORT_STORAGE_KEY = 'hla-twin.data-imported'
+export const IMPORT_STORAGE_VALUE = 'true'
+
+// État vide avant tout import, commun aux trois écrans de données.
+export const IMPORT_EMPTY = {
+  title: 'Aucune donnée chargée.',
+  hint: 'Importez un fichier depuis « Les dossiers », puis lancez l’analyse pour charger les données.',
+} as const
+
 export const IMPORT_MESSAGES = {
   rejectedSingle: 'Format non pris en charge :',
   rejectedMultiple: 'Formats non pris en charge :',

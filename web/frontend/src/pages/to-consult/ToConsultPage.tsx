@@ -1,3 +1,4 @@
+import { IMPORT_EMPTY } from '../../constants/import'
 import { SurfaceState } from '../../shared/components/SurfaceState'
 import { AppShell } from '../../shared/components/AppShell'
 import { ConsultTable } from './components/ConsultTable'
@@ -31,11 +32,7 @@ export function ToConsultPage() {
         {toConsult.errorMessage === null ? null : (
           <SurfaceState state="error" title={toConsult.errorMessage} />
         )}
-        {!toConsult.isLoading && toConsult.errorMessage === null && toConsult.total === 0 ? (
-          <SurfaceState state="empty" title="Aucun cas à consulter." />
-        ) : null}
-
-        {toConsult.total === 0 ? null : (
+        {toConsult.isLoading || toConsult.errorMessage !== null ? null : (
           <section className="flex flex-col overflow-hidden rounded-xl border border-border bg-card lg:min-h-[22rem] lg:flex-1">
             <header className="flex shrink-0 items-center gap-2 border-b border-border px-5 py-4">
               <h2 className="text-2xl font-semibold">Cas à consulter</h2>
@@ -43,30 +40,44 @@ export function ToConsultPage() {
                 {toConsult.table.getRowModel().rows.length}
               </span>
             </header>
-            <ConsultTable table={toConsult.table} />
-            <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm text-muted-foreground">
-              <p>
-                {toConsult.from}–{toConsult.to} sur {toConsult.total}
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
-                  onClick={() => toConsult.table.previousPage()}
-                  disabled={!toConsult.table.getCanPreviousPage()}
-                >
-                  Précédent
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
-                  onClick={() => toConsult.table.nextPage()}
-                  disabled={!toConsult.table.getCanNextPage()}
-                >
-                  Suivant
-                </button>
-              </div>
-            </footer>
+            <ConsultTable
+              table={toConsult.table}
+              panels={toConsult.panels}
+              empty={
+                toConsult.isImported ? (
+                  <SurfaceState state="empty" title="Aucun cas à consulter." />
+                ) : (
+                  <SurfaceState state="empty" title={IMPORT_EMPTY.title}>
+                    {IMPORT_EMPTY.hint}
+                  </SurfaceState>
+                )
+              }
+            />
+            {toConsult.total === 0 ? null : (
+              <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm text-muted-foreground">
+                <p>
+                  {toConsult.from}–{toConsult.to} sur {toConsult.total}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+                    onClick={() => toConsult.table.previousPage()}
+                    disabled={!toConsult.table.getCanPreviousPage()}
+                  >
+                    Précédent
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+                    onClick={() => toConsult.table.nextPage()}
+                    disabled={!toConsult.table.getCanNextPage()}
+                  >
+                    Suivant
+                  </button>
+                </div>
+              </footer>
+            )}
           </section>
         )}
       </div>

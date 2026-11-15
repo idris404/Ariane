@@ -123,29 +123,61 @@ test('a server error is shown instead of an empty list', async ({ page }) => {
   await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
 })
 
-test('the events pill opens a dialog listing the essentials of each event', async ({ page }) => {
+test('the events pill unfolds a sub-table under the row, like the serum tests', async ({
+  page,
+}) => {
   await mockApi(page)
   await openConsultPage(page)
 
   const trigger = page.getByRole('button', { name: '2 événements de Cas Fluctuant 2' })
-  await expect(trigger).toBeVisible()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
   await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true')
 
-  const dialog = page.getByRole('dialog', { name: 'Événements de Cas Fluctuant 2' })
-  await expect(dialog).toBeVisible()
-  const events = dialog.getByRole('list', { name: 'Événements' }).getByRole('listitem')
+  const region = page.getByRole('region', { name: 'Événements de Cas Fluctuant 2' })
+  await expect(region).toBeVisible()
+  const subTable = region.getByRole('table')
+  await expect(subTable.getByRole('columnheader')).toHaveText(['Date', 'Événement', 'Détail'])
+  const events = subTable.getByRole('row').filter({ hasText: 'août 2015' })
   await expect(events).toHaveCount(2)
   await expect(events.first()).toContainText('18 août 2015')
   await expect(events.first()).toContainText('Greffe rénale')
   await expect(events.first()).toContainText('Donneur décédé · ABO compatible · exemple fictif')
   await expect(events.last()).toContainText('25 août 2015')
   await expect(events.last()).toContainText('Suivi postopératoire')
-  const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze()
+  const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
   expect(accessibility.violations).toEqual([])
 
-  await page.keyboard.press('Escape')
-  await expect(dialog).toBeHidden()
-  await expect(trigger).toBeFocused()
+  await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(region).toHaveCount(0)
+})
+
+test('a row opens one sub-table at a time: the tests replace the events and back', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await openConsultPage(page)
+  const events = page.getByRole('button', { name: '2 événements de Cas Fluctuant 2' })
+  const row = page.getByRole('row').filter({ has: events })
+  const tests = row.getByRole('button', { name: 'Voir les tests' })
+  const eventsRegion = page.getByRole('region', { name: 'Événements de Cas Fluctuant 2' })
+  const testsRegion = page.getByRole('region', { name: 'Résultats sériques par année' })
+
+  await events.click()
+  await expect(eventsRegion).toBeVisible()
+  await tests.click()
+  await expect(testsRegion).toBeVisible()
+  await expect(eventsRegion).toHaveCount(0)
+  await expect(events).toHaveAttribute('aria-expanded', 'false')
+  await expect(row.getByRole('button', { name: 'Masquer les tests' })).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  )
+
+  await events.click()
+  await expect(eventsRegion).toBeVisible()
+  await expect(testsRegion).toHaveCount(0)
 })
 
 test('a single event is singular and a case without event has no button', async ({ page }) => {

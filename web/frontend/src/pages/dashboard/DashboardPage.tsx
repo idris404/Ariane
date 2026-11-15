@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card'
 import { flexRender } from '@tanstack/react-table'
 
 import { MOCK_KPI } from '../../constants/dashboard'
+import { IMPORT_EMPTY } from '../../constants/import'
 import { GENDER_LABELS } from '../../constants/patient-file'
 import { PAGE_SIZE_OPTIONS } from '../../constants/pagination'
 import { SyntheticDataBadge } from '../../shared/components/DemoNotice'
@@ -123,7 +124,13 @@ export function DashboardPage() {
             ) : null}
             {list.errorMessage ? <SurfaceState state="error" title={list.errorMessage} /> : null}
             {list.errorMessage === null && !list.isLoading && list.total === 0 ? (
-              <SurfaceState state="empty" title="Aucun patient ne correspond à cette recherche." />
+              list.isImported ? (
+                <SurfaceState state="empty" title="Aucun patient ne correspond à cette recherche." />
+              ) : (
+                <SurfaceState state="empty" title={IMPORT_EMPTY.title}>
+                  {IMPORT_EMPTY.hint}
+                </SurfaceState>
+              )
             ) : null}
 
             {list.errorMessage === null && list.total > 0 ? (

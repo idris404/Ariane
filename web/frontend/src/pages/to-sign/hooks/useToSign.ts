@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 
 import { API_ENDPOINTS } from '../../../constants/api'
 import { signKeys } from '../../../constants/to-sign'
+import { useImportedData } from '../../../shared/hooks/useImportedData'
 import { useSignQueue } from '../../../shared/hooks/useSignQueue'
 import { apiFetch } from '../../../shared/utils/api'
 import { toPatientCase } from '../../../shared/utils/cases'
@@ -15,6 +16,7 @@ async function signPatient(patientId: string): Promise<void> {
 export function useToSign() {
   const queryClient = useQueryClient()
   const queue = useSignQueue()
+  const isImported = useImportedData()
   const sign = useMutation({
     mutationFn: signPatient,
     // Après un succès comme après un 409 : la file a changé côté serveur.
@@ -30,6 +32,7 @@ export function useToSign() {
 
   return {
     cases,
+    isImported,
     remaining: queue.data?.remaining ?? 0,
     isLoading: queue.isLoading,
     errorMessage: queue.isError ? queueErrorMessage(queue.error) : null,

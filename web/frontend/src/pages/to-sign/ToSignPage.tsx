@@ -1,3 +1,4 @@
+import { IMPORT_EMPTY } from '../../constants/import'
 import { MOCK_SIGN_KPI } from '../../constants/to-sign'
 import { SyntheticDataBadge } from '../../shared/components/DemoNotice'
 import { SurfaceState } from '../../shared/components/SurfaceState'
@@ -42,11 +43,7 @@ export function ToSignPage() {
         {toSign.errorMessage === null ? null : (
           <SurfaceState state="error" title={toSign.errorMessage} />
         )}
-        {!toSign.isLoading && toSign.errorMessage === null && toSign.cases.length === 0 ? (
-          <SurfaceState state="empty" title="Aucun cas à signer." />
-        ) : null}
-
-        {toSign.cases.length === 0 ? null : (
+        {toSign.isLoading || toSign.errorMessage !== null ? null : (
           <section className="overflow-hidden rounded-xl border border-border bg-card">
             <header className="flex items-center gap-2 border-b border-border px-5 py-4">
               <h2 className="text-2xl font-semibold">Cas à signer</h2>
@@ -54,20 +51,32 @@ export function ToSignPage() {
                 {toSign.cases.length}
               </span>
             </header>
-            <ul>
-              {toSign.cases.map((item) => (
-                <SignCase
-                  key={item.id}
-                  item={item}
-                  expanded={toSign.expandedId === item.id}
-                  pending={toSign.pendingId === item.id}
-                  disabled={toSign.pendingId !== null}
-                  error={toSign.failedId === item.id ? toSign.signError : null}
-                  onToggle={() => toSign.onToggle(item.id)}
-                  onSign={() => toSign.onSign(item.id)}
-                />
-              ))}
-            </ul>
+            {toSign.cases.length === 0 ? (
+              <div className="p-5">
+                {toSign.isImported ? (
+                  <SurfaceState state="empty" title="Aucun cas à signer." />
+                ) : (
+                  <SurfaceState state="empty" title={IMPORT_EMPTY.title}>
+                    {IMPORT_EMPTY.hint}
+                  </SurfaceState>
+                )}
+              </div>
+            ) : (
+              <ul>
+                {toSign.cases.map((item) => (
+                  <SignCase
+                    key={item.id}
+                    item={item}
+                    expanded={toSign.expandedId === item.id}
+                    pending={toSign.pendingId === item.id}
+                    disabled={toSign.pendingId !== null}
+                    error={toSign.failedId === item.id ? toSign.signError : null}
+                    onToggle={() => toSign.onToggle(item.id)}
+                    onSign={() => toSign.onSign(item.id)}
+                  />
+                ))}
+              </ul>
+            )}
           </section>
         )}
         <details className="panel p-5">

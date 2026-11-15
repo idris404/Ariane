@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 
 import { MOCK_IMPORT, PERCENT_MAX } from '../../../constants/import'
 import { ROUTES } from '../../../constants/routes'
+import { importedData } from '../../../shared/utils/importedData'
 import { analysisProgress } from '../utils'
 
 // Analyse simulée des patients détectés : fait avancer la progression pendant `analysis.durationMs`,
@@ -20,6 +21,8 @@ export function useImportAnalysis() {
       const elapsed = performance.now() - startedAt
       setProgress(analysisProgress(elapsed))
       if (elapsed >= MOCK_IMPORT.analysis.durationMs) {
+        // Les données peuvent maintenant être demandées : la page à signer les charge.
+        importedData.markImported()
         navigate(ROUTES.toSign)
         return
       }
