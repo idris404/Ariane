@@ -197,6 +197,17 @@ Dernière mise à jour : 2026-11-14.
 
 ---
 
+## Consultation
+
+### D-24 — File « À consulter » : les profils fluctuants
+
+- **Statut** : Demandée (onglet « À consulter », mêmes écrans que « À signer », uniquement les profils fluctuants) ; la règle de sélection est un choix de conception, **à confirmer**
+- **Décision** : `GET /consultations/queue` liste, paginée (`page`, `page_size`), les patients dont un prélèvement est de profil sérique `C` (fluctuant), en ordre stable de `patient_id`. La signature n'intervient pas : ces cas se consultent, ils ne se signent pas. Contexte `consultations/` à part de `signatures/` : la liste ne dépend d'aucune écriture.
+- **Pourquoi** : les cas constants (profil `A`) sont proposés à la signature ([D-23](#d-23--signature-clinique-des-cas-simples)) ; un suivi très fluctuant demande que le soignant lise la fiche. Contrairement à la file « À signer », un cas consulté ne quitte jamais la liste : un « top 5 » figerait les mêmes patients, d'où la pagination uniforme (`{items, total, page, page_size}`).
+- **Conséquences** : 100 patients concernés avec les données actuelles. Les profils `B` (intermédiaire) ne figurent dans aucune des deux files.
+
+---
+
 ## Points ouverts
 
 À trancher par l'équipe ; chacun renvoie à la décision concernée.

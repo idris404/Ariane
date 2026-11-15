@@ -2,7 +2,7 @@
 
 Base URL en local : `http://localhost:8000/api/v1`. Toutes les routes métier vivent sous `/api/v1` ([D-01](api-decisions.md#d-01--versionnement-par-préfixe-apiv1)). Les décisions derrière chaque comportement sont dans [api-decisions.md](api-decisions.md) ; les renvois `D-xx` y mènent.
 
-Dernière mise à jour : 2026-11-14 · 16 opérations.
+Dernière mise à jour : 2026-11-15 · 17 opérations.
 
 ## Vue d'ensemble
 
@@ -21,6 +21,7 @@ Dernière mise à jour : 2026-11-14 · 16 opérations.
 | `GET` | `/patients/{id}/synthetic-patients` | Session | Les patients synthétiques d'un patient |
 | `GET` | `/signatures/queue` | Session | File « À signer » : les cas simples à valider |
 | `POST` | `/signatures` | Session | Signer (valider) le cas d'un patient |
+| `GET` | `/consultations/queue` | Session | File « À consulter » : les cas au suivi sérique fluctuant, paginés |
 
 **Protection « Session »** : cookie `HttpOnly` posé par `POST /auth/login`. Le client doit l'envoyer avec chaque requête (`credentials: "include"`). Sans session valide : `401`.
 
@@ -297,3 +298,26 @@ Réponse `201` :
 ```
 
 Le patient quitte alors la file. Erreurs : `401`, `404 PATIENT_NOT_FOUND`, `409 PATIENT_ALREADY_SIGNED`, `422`.
+
+---
+
+## Consultations
+
+Cas à lire, pas à signer ([D-24](api-decisions.md#d-24--file-à-consulter--les-profils-fluctuants)). Aucune écriture.
+
+### `GET /consultations/queue`
+
+Les cas synthétiques au suivi sérique fluctuant. Un cas est à consulter si le patient a un prélèvement de profil sérique `C` (fluctuant) ; une éventuelle signature n'entre pas en compte. Tri stable par `patient_id`.
+
+Paramètres de requête : `page` (≥ 1, défaut 1) et `page_size` (1 à 100, défaut 20). Un paramètre inconnu est refusé (`422`).
+
+Réponse `200` :
+
+```json
+{ "items": [ Patient, … ], "total": 100, "page": 1, "page_size": 20 }
+```
+
+- `items` : les `Patient` de la page, au même format que `GET /patients/{id}` (avec `serum_evolution` et `history`).
+- `total` : le nombre total de cas à consulter, toutes pages confondues.
+
+Erreurs : `401`, `422`.
