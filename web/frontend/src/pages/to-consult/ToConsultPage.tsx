@@ -1,6 +1,6 @@
 import { SurfaceState } from '../../shared/components/SurfaceState'
 import { AppShell } from '../../shared/components/AppShell'
-import { ConsultCase } from './components/ConsultCase'
+import { ConsultTable } from './components/ConsultTable'
 import { useToConsult } from './hooks/useToConsult'
 
 export function ToConsultPage() {
@@ -31,28 +31,19 @@ export function ToConsultPage() {
         {toConsult.errorMessage === null ? null : (
           <SurfaceState state="error" title={toConsult.errorMessage} />
         )}
-        {!toConsult.isLoading && toConsult.errorMessage === null && toConsult.cases.length === 0 ? (
+        {!toConsult.isLoading && toConsult.errorMessage === null && toConsult.total === 0 ? (
           <SurfaceState state="empty" title="Aucun cas à consulter." />
         ) : null}
 
-        {toConsult.cases.length === 0 ? null : (
+        {toConsult.total === 0 ? null : (
           <section className="overflow-hidden rounded-xl border border-border bg-card">
             <header className="flex items-center gap-2 border-b border-border px-5 py-4">
               <h2 className="text-2xl font-semibold">Cas à consulter</h2>
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {toConsult.cases.length}
+                {toConsult.table.getRowModel().rows.length}
               </span>
             </header>
-            <ul>
-              {toConsult.cases.map((item) => (
-                <ConsultCase
-                  key={item.id}
-                  item={item}
-                  expanded={toConsult.expandedId === item.id}
-                  onToggle={() => toConsult.onToggle(item.id)}
-                />
-              ))}
-            </ul>
+            <ConsultTable table={toConsult.table} />
             <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm text-muted-foreground">
               <p>
                 {toConsult.from}–{toConsult.to} sur {toConsult.total}
@@ -61,16 +52,16 @@ export function ToConsultPage() {
                 <button
                   type="button"
                   className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
-                  onClick={toConsult.onPrevious}
-                  disabled={!toConsult.canPrevious}
+                  onClick={() => toConsult.table.previousPage()}
+                  disabled={!toConsult.table.getCanPreviousPage()}
                 >
                   Précédent
                 </button>
                 <button
                   type="button"
                   className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
-                  onClick={toConsult.onNext}
-                  disabled={!toConsult.canNext}
+                  onClick={() => toConsult.table.nextPage()}
+                  disabled={!toConsult.table.getCanNextPage()}
                 >
                   Suivant
                 </button>

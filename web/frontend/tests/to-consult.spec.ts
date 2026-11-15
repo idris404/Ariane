@@ -46,7 +46,14 @@ test('the page lists fluctuating cases with a red profile pill and a "Voir la fi
 
   await expect(page.getByText(`${consultCaseCount} à consulter`, { exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Cas à consulter' })).toBeVisible()
-  const rows = page.getByRole('listitem').filter({ hasText: 'Fluctuant' })
+  const table = page.getByRole('table', { name: 'Cas au suivi sérique fluctuant à consulter' })
+  await expect(table.getByRole('columnheader')).toHaveText([
+    'Patient',
+    'Profil sérique',
+    'Événements',
+    'Actions',
+  ])
+  const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
   await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
 
   const first = rows.first()
@@ -68,13 +75,14 @@ test('"Voir les tests" shows the serum tests and "Voir la fiche" opens the patie
 }) => {
   await mockApi(page)
   await openConsultPage(page)
-  const first = page.getByRole('listitem').filter({ hasText: 'Fluctuant' }).first()
+  const first = page.getByRole('row').filter({ hasText: 'Fluctuant' }).first()
 
   await first.getByRole('button', { name: 'Voir les tests' }).click()
   await expect(first.getByRole('button', { name: 'Masquer les tests' })).toHaveAttribute(
     'aria-expanded',
     'true',
   )
+  await expect(page.getByRole('region', { name: 'Résultats sériques par année' })).toBeVisible()
   await first.getByRole('link', { name: /Voir la fiche/ }).click()
   await expect(page).toHaveURL(new RegExp(`/fiche/${patientId}$`))
 })
@@ -82,7 +90,7 @@ test('"Voir les tests" shows the serum tests and "Voir la fiche" opens the patie
 test('the list is paginated: next and previous pages keep the total', async ({ page }) => {
   await mockApi(page)
   await openConsultPage(page)
-  const rows = page.getByRole('listitem').filter({ hasText: 'Fluctuant' })
+  const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
   const previous = page.getByRole('button', { name: 'Précédent' })
   const next = page.getByRole('button', { name: 'Suivant' })
 
@@ -90,6 +98,7 @@ test('the list is paginated: next and previous pages keep the total', async ({ p
   await expect(previous).toBeDisabled()
 
   await next.click()
+  await expect(page).toHaveURL(/[?&]page=2\b/)
   await expect(
     page.getByText(`${CONSULT_PAGE_SIZE + 1}–${consultCaseCount} sur ${consultCaseCount}`),
   ).toBeVisible()
@@ -146,7 +155,33 @@ test('a single event is singular and a case without event has no button', async 
   await expect(
     page.getByRole('button', { name: '1 événement de Cas Fluctuant 1', exact: true }),
   ).toBeVisible()
-  const withoutEvent = page.getByRole('listitem').filter({ hasText: /Cas Fluctuant 3(?!\d)/ })
+  const withoutEvent = page.getByRole('row').filter({ hasText: /Cas Fluctuant 3(?!\d)/ })
   await expect(withoutEvent.getByText('Aucun événement')).toBeVisible()
   await expect(withoutEvent.getByRole('button', { name: /événement/ })).toHaveCount(0)
+})
+
+test('the page lives in the URL: it is reopened and restored after visiting a file', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await page.goto(`${ROUTES.toConsult}?page=2`)
+  await expect(
+    page.getByText(`${CONSULT_PAGE_SIZE + 1}–${consultCaseCount} sur ${consultCaseCount}`),
+  ).toBeVisible()
+
+  await page.getByRole('link', { name: /Voir la fiche/ }).first().click()
+  await expect(page).toHaveURL(/\/fiche\//)
+  await page.goBack()
+  await expect(
+    page.getByText(`${CONSULT_PAGE_SIZE + 1}–${consultCaseCount} sur ${consultCaseCount}`),
+  ).toBeVisible()
+})
+
+test('a page beyond the last one falls back to the last page', async ({ page }) => {
+  await mockApi(page)
+  await page.goto(`${ROUTES.toConsult}?page=99`)
+  await expect(
+    page.getByText(`${CONSULT_PAGE_SIZE + 1}–${consultCaseCount} sur ${consultCaseCount}`),
+  ).toBeVisible()
+  await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
 })

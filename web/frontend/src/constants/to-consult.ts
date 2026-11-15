@@ -9,6 +9,9 @@ export const CONSULT_PAGE_SIZE = 10
 export const CONSULT_COUNT_PAGE_SIZE = 1
 export const FIRST_PAGE = 1
 
+// Identifiant de la colonne des boutons (alignée à droite dans le tableau).
+export const ACTIONS_COLUMN_ID = 'actions'
+
 export const TO_CONSULT_ERRORS = {
   queue: 'La liste des cas à consulter est indisponible pour le moment.',
   invalid: 'La réponse du serveur est invalide.',

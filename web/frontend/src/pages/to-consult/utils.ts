@@ -14,3 +14,8 @@ export function profileLabel(evolution: SerumEvolution): string | null {
     ? `Profil ${evolution.profile}`
     : `Profil ${evolution.profile} · ${evolution.label}`
 }
+
+// Identifiant de la ligne de détail (les tests sériques) d'une ligne du tableau.
+export function detailsRowId(rowId: string): string {
+  return `consult-details-${rowId}`
+}
