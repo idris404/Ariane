@@ -24,6 +24,10 @@ test('on arrival no data is requested and each screen shows an empty component',
   const requests = await mockApi(page, { imported: false })
 
   await page.goto(ROUTES.dashboard)
+  await expect(page).toHaveTitle('Ariane · Revue immunologique')
+  const logo = page.getByRole('link', { name: 'Ariane — accueil' }).getByRole('img', { name: 'Ariane' })
+  await expect(logo).toBeVisible()
+  expect(await logo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
   await expect(page.getByText(IMPORT_EMPTY.title)).toBeVisible()
   await expect(page.getByText(IMPORT_EMPTY.hint)).toBeVisible()
   // Pas de compteur dans la barre latérale : rien n'a été demandé.

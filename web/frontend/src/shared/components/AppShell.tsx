@@ -30,7 +30,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
         Aller au contenu
       </a>
       <aside className="flex shrink-0 flex-col border-b border-border bg-card px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
-        <NavLink to={ROUTES.dashboard} aria-label="HLA Twin — accueil">
+        <NavLink to={ROUTES.dashboard} aria-label="Ariane — accueil">
           <BrandMark />
         </NavLink>
         <p className="mt-2 text-xs text-muted-foreground lg:mt-3">La revue, en perspective.</p>
@@ -81,7 +81,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
           </p>
         </div>
         <p className="mt-5 hidden text-xs text-muted-foreground lg:block">
-          HLA Twin · Démonstrateur
+          Ariane · Démonstrateur
         </p>
       </aside>
       <div className="min-w-0 flex-1">
@@ -119,7 +119,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
           <HumanValidationBanner />
           <div className="mt-8">{children}</div>
           <footer className="mt-10 border-t border-border py-5 text-xs text-muted-foreground">
-            HLA Twin · Transplantation rénale · Données synthétiques, revue humaine requise
+            Ariane · Transplantation rénale · Données synthétiques, revue humaine requise
           </footer>
         </main>
       </div>

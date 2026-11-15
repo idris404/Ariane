@@ -1,4 +1,4 @@
-# HLA Twin frontend
+# Ariane frontend
 
 React/Vite application. Current visual direction and implementation boundaries:
 [HLA Twin — Rigueur calme](../doc/rigueur-calme.md).

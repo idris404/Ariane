@@ -54,7 +54,7 @@ export function LoginPage() {
             Votre espace de démonstration
           </p>
           <h2 id="login-title" className="mt-3 text-3xl font-bold text-foreground">
-            Bienvenue sur HLA Twin
+            Bienvenue sur Ariane
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Connectez-vous pour ouvrir les dossiers synthétiques.
