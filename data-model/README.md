@@ -76,6 +76,32 @@ for longitudinal test scenarios. These simulated values and interpretations
 remain subject to human validation and must not be presented as clinical
 results.
 
+## Profile balance
+
+`serum_test_history.csv` holds one serum profile per patient: `A` no antigen varies, `B` one or two
+vary, `C` three vary. `fluctuate_serum_profiles.py` turns every intermediate (`B`) patient into a
+fluctuating (`C`) one, leaving constant (`A`) and fluctuating patients, dates and other columns
+untouched. Relabelling alone would leave a `C` profile with one or two varying antigens, so the
+missing ones are made to vary up to three: the first test keeps its value, the following ones get
+synthetic values (seeded per patient and antigen) that cross the 500 positivity threshold. A patient
+with a single test cannot vary: only its label changes. It is deterministic and replayable. Current
+split of the file: 713 `A`, 286 `C` (999 patients).
+
+```bash
+PYTHONPATH=src python3 -m hla_data_model.fluctuate_serum_profiles
+```
+
+`limit_serum_patients.py` removes the last constant (`A`) patients, never the demonstration patients with
+an event history, down to a target (999). The application adds its own featured `A` patient, so it
+holds 1 000 patients: 714 to sign and 286 to consult. Fluctuating patients are never removed.
+
+```bash
+PYTHONPATH=src python3 -m hla_data_model.limit_serum_patients [--patients 999]
+```
+
+After changing the CSV, re-seed the application database with `uv run python -m app.seed --reset`
+(from `web/backend/`).
+
 ## Checks
 
 ```bash

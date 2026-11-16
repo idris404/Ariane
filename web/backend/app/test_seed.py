@@ -15,11 +15,13 @@ from app.conftest import (
     fake_seed_rows,
     write_seed_csv,
 )
+from app.constants.featured_patient import FEATURED_PATIENT
 from app.constants.patient_history import DEMO_PATIENTS, HISTORY_EVENTS
 from app.constants.seed import SeedStage
 from app.core.exceptions import SeedError
 from app.core.security import build_password_helper
 from app.core.database import Base
+from app.featured_patient.seed import FeaturedSeedReport
 from app.patient_history.seed import HistorySeedReport
 from app.patients.seed import PatientSeedReport, patient_uuid_for
 from app.seed import (
@@ -40,6 +42,11 @@ pytestmark = pytest.mark.anyio
 
 ROWS = 4
 HISTORY_ROWS = len(DEMO_PATIENTS) * len(HISTORY_EVENTS)
+# Ce que l'étape `featured` insère : le patient mis en avant, ses tests sériques et son historique.
+FEATURED_REPORT = FeaturedSeedReport(
+    patients=1, serum_tests=len(FEATURED_PATIENT.serum_tests), history=len(FEATURED_PATIENT.events)
+)
+NOTHING_FEATURED = FeaturedSeedReport(patients=0, serum_tests=0, history=0)
 
 
 @pytest.fixture
@@ -127,11 +134,13 @@ async def test_the_full_seed_creates_the_patients_then_their_synthetic_patients(
     assert report.patient_history == HistorySeedReport(
         read=HISTORY_ROWS, inserted=0, without_patient=HISTORY_ROWS
     )
+    assert report.featured_patient == FEATURED_REPORT
     assert report.users == UserSeedReport(created=True)
-    # Chaque patient synthétique pointe, par `patient_id`, vers un patient créé par la première étape.
-    created = {v["patient_id"] for v in patients.stored.values()}
+    # Chaque patient synthétique pointe, par `patient_id`, vers un patient créé par la première étape
+    # (le patient mis en avant n'a pas de patient synthétique : il ne vient pas du CSV).
+    created = {v["patient_id"] for v in patients.stored.values()} - {FEATURED_PATIENT.patient_id}
     assert {v["patient_id"] for v in synthetic.stored.values()} == created
-    assert {v["patient_id"] for v in serum.stored.values()} == {"P-0"}
+    assert {v["patient_id"] for v in serum.stored.values()} == {"P-0", FEATURED_PATIENT.patient_id}
 
 
 async def test_only_patients_leaves_the_synthetic_patients_alone(
@@ -215,9 +224,51 @@ async def test_replaying_the_full_seed_changes_nothing(
     assert second.patient_history == HistorySeedReport(
         read=HISTORY_ROWS, inserted=0, without_patient=HISTORY_ROWS
     )
+    assert second.featured_patient == NOTHING_FEATURED
     assert second.users == UserSeedReport(created=False)
     assert patient_uuid_for("P-0") in patients.stored
     assert len(synthetic.stored) == ROWS
+
+
+async def test_a_patient_set_limits_the_patients_and_what_hangs_from_them(
+    csv_path: Path,
+    patients: FakePatientRepository,
+    synthetic: FakeSyntheticPatientRepository,
+    serum: FakeSerumTestRepository,
+    history: FakePatientHistoryRepository,
+) -> None:
+    wanted = {"P-1", "P-2"}
+
+    first = await run_seed(
+        csv_path, patients, synthetic, serum, history, SeedStage.PATIENTS, patient_ids=wanted
+    )
+    second = await run_seed(csv_path, patients, synthetic, serum, history, SeedStage.SYNTHETIC_PATIENTS)
+
+    assert first.patients == PatientSeedReport(read=2, inserted=2, skipped=ROWS - 2)
+    assert {v["patient_id"] for v in patients.stored.values()} == wanted
+    # Les patients synthétiques suivent : ceux dont le patient n'existe pas sont écartés.
+    assert second.synthetic_patients == SyntheticSeedReport(
+        read=ROWS, inserted=2, without_patient=ROWS - 2
+    )
+
+
+async def test_only_featured_adds_the_featured_record_and_nothing_else(
+    csv_path: Path,
+    patients: FakePatientRepository,
+    synthetic: FakeSyntheticPatientRepository,
+    serum: FakeSerumTestRepository,
+    history: FakePatientHistoryRepository,
+) -> None:
+    report = await run_seed(
+        csv_path, patients, synthetic, serum, history, SeedStage.FEATURED_PATIENT
+    )
+
+    assert report.featured_patient == FEATURED_REPORT
+    assert report.patients is None and report.synthetic_patients is None
+    assert {v["patient_id"] for v in patients.stored.values()} == {FEATURED_PATIENT.patient_id}
+    assert {v["patient_id"] for v in serum.stored.values()} == {FEATURED_PATIENT.patient_id}
+    assert {v["patient_id"] for v in history.stored.values()} == {FEATURED_PATIENT.patient_id}
+    assert synthetic.stored == {}
 
 
 async def test_only_users_creates_the_account_and_touches_no_patient(
@@ -301,6 +352,20 @@ def test_the_history_report_counts_events_without_a_patient() -> None:
     assert "7 événements, 7 insérés, 0 déjà présents, 0 sans patient" in line
 
 
+def test_the_patients_report_tells_how_many_rows_were_left_out_of_the_set() -> None:
+    line = describe(SeedReport(PatientSeedReport(read=999, inserted=999, skipped=50001), None))[0]
+
+    assert "999 lignes lues, 999 insérés, 0 déjà présents, 50001 hors du jeu (ignorés)" in line
+    assert "hors du jeu" not in describe(SeedReport(PatientSeedReport(read=1, inserted=1), None))[0]
+
+
+def test_the_featured_report_tells_how_much_was_inserted() -> None:
+    line = describe(SeedReport(None, None, featured_patient=FEATURED_REPORT))[0]
+
+    assert "patient mis en avant : 1 patient" in line
+    assert f"{FEATURED_REPORT.serum_tests} tests sériques, 1 événements" in line
+
+
 def test_a_stage_that_did_not_run_is_not_reported() -> None:
     assert len(describe(SeedReport(PatientSeedReport(read=1, inserted=1), None))) == 1
     assert describe(SeedReport(None, None)) == []
@@ -359,6 +424,14 @@ def test_reset_recreates_both_tables_so_it_cannot_be_combined_with_only(
 
     with pytest.raises(SystemExit):
         parse_args()
+
+
+def test_the_whole_patients_csv_is_loaded_only_when_asked(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["seed"])
+    assert parse_args().all_patients is False
+
+    monkeypatch.setattr(sys, "argv", ["seed", "--all-patients"])
+    assert parse_args().all_patients is True
 
 
 def test_reset_alone_is_accepted(monkeypatch: pytest.MonkeyPatch) -> None:

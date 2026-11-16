@@ -1,4 +1,4 @@
-import type { PatientResponse } from '../../pages/patient-file/schemas'
+import type { PatientResponse } from '../../features/patient-file/schemas'
 import { formatLongDate } from '../utils/dates'
 import { SurfaceState } from './SurfaceState'
 

@@ -2,14 +2,22 @@
 compte de démonstration.
 
     uv run python -m app.seed [--csv CHEMIN] [--serum-csv CHEMIN]
-        [--only patients|synthetic|serum|history|users] [--reset]
+        [--only patients|synthetic|serum|history|featured|users] [--all-patients] [--reset]
                                                                       (depuis web/backend/)
+
+Par défaut, l'étape `patients` ne charge que les patients qui ont un historique sérique (les `patient_id`
+du CSV sérique, 999 ici), auxquels s'ajoute le patient mis en avant : 1 000 patients au total, chacun
+« à signer » ou « à consulter ». `--all-patients` charge à la place tout le CSV des patients (51 000 lignes).
 
 Les patients synthétiques, les tests sériques et l'historique d'événements partent des patients
 (liés par `patient_id`, ex. « HIS-00355 ») : l'étape `patients` passe d'abord. `--only synthetic`,
 `--only serum` ou `--only history` ne relance que cette étape, à condition que les patients
 existent déjà. Rejouable : ce qui est déjà présent n'est pas dupliqué. Une seule transaction :
 tout ou rien.
+
+L'étape `featured` ajoute un dossier fictif mis en avant (`constants/featured_patient.py`, hors CSV) :
+le patient, ses prélèvements sériques et son événement. Il ne dépend d'aucune autre étape ; son
+`patient_id` (« DEMO-0001 ») le place en tête des listes triées par `patient_id`.
 
 L'étape `users` crée le compte de démonstration (développement local uniquement) : email et mot de
 passe lus dans web/.env (`SEED_USER_EMAIL`, `SEED_USER_PASSWORD`), le seed s'arrête avant de toucher à
@@ -25,7 +33,7 @@ régénèrent depuis les CSV et les événements fictifs ; les identifiants `id`
 import argparse
 import asyncio
 import sys
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -40,6 +48,7 @@ from app.constants.seed import (
 from app.core.database import Base, async_session_maker, engine
 from app.core.exceptions import SeedError
 from app.core.security import build_password_helper
+from app.featured_patient.seed import FeaturedSeedReport, seed_featured_patient
 from app.patient_history.entity import PatientHistory
 from app.patient_history.repository import PatientHistoryRepository
 from app.patient_history.seed import HistorySeedReport, seed_patient_history
@@ -49,7 +58,7 @@ from app.patients.seed import PatientSeedReport, seed_patients
 from app.patients.services import PatientService
 from app.serum_tests.entity import SerumTest
 from app.serum_tests.repository import SerumTestRepository
-from app.serum_tests.seed import SerumSeedReport, seed_serum_tests
+from app.serum_tests.seed import SerumSeedReport, read_serum_patient_ids, seed_serum_tests
 from app.signatures.entity import PatientSignature
 from app.synthetic_patients.entity import SyntheticPatient
 from app.synthetic_patients.repository import SyntheticPatientRepository
@@ -77,6 +86,7 @@ class SeedReport:
     serum_tests: SerumSeedReport | None = None
     patient_history: HistorySeedReport | None = None
     users: UserSeedReport | None = None
+    featured_patient: FeaturedSeedReport | None = None
 
 
 async def run_seed(
@@ -89,11 +99,13 @@ async def run_seed(
     serum_csv_path: Path | None = None,
     user_manager: UserManager | None = None,
     demo_user: DemoUser | None = None,
+    patient_ids: Collection[str] | None = None,
 ) -> SeedReport:
     patients_report = synthetic_report = serum_report = history_report = users_report = None
+    featured_report = None
     patients = PatientService(patient_repository)
     if only in (None, SeedStage.PATIENTS):
-        patients_report = await seed_patients(patient_repository, csv_path)
+        patients_report = await seed_patients(patient_repository, csv_path, patient_ids)
     if only in (None, SeedStage.SYNTHETIC_PATIENTS):
         synthetic_report = await seed_synthetic_patients(synthetic_repository, patients, csv_path)
     if only in (None, SeedStage.SERUM_TESTS):
@@ -102,11 +114,22 @@ async def run_seed(
         serum_report = await seed_serum_tests(serum_repository, patients, serum_csv_path)
     if only in (None, SeedStage.PATIENT_HISTORY):
         history_report = await seed_patient_history(history_repository, patients)
+    if only in (None, SeedStage.FEATURED_PATIENT):
+        featured_report = await seed_featured_patient(
+            patient_repository, serum_repository, history_repository
+        )
     if only in (None, SeedStage.USERS):
         if user_manager is None or demo_user is None:
             raise SeedError("gestionnaire d'utilisateurs ou compte de démonstration manquant")
         users_report = await seed_users(user_manager, demo_user)
-    return SeedReport(patients_report, synthetic_report, serum_report, history_report, users_report)
+    return SeedReport(
+        patients_report,
+        synthetic_report,
+        serum_report,
+        history_report,
+        users_report,
+        featured_report,
+    )
 
 
 def find_outdated_tables(connection: Connection) -> list[str]:
@@ -142,10 +165,17 @@ async def main(
     serum_csv_path: Path,
     only: SeedStage | None = None,
     reset: bool = False,
+    all_patients: bool = False,
 ) -> SeedReport:
     try:
         # Avant tout travail : un .env incomplet ne doit pas coûter la lecture de 51 000 lignes.
         demo_user = load_demo_user() if only in (None, SeedStage.USERS) else None
+        # Le jeu de patients : ceux qui ont un historique sérique, sauf `--all-patients`.
+        patient_ids = (
+            None
+            if all_patients or only not in (None, SeedStage.PATIENTS)
+            else read_serum_patient_ids(serum_csv_path)
+        )
         await prepare_tables(reset)
         # Session à part pour les utilisateurs : l'adaptateur FastAPI Users fait son propre `commit`.
         async with async_session_maker() as user_session:
@@ -164,6 +194,7 @@ async def main(
                     serum_csv_path,
                     user_manager,
                     demo_user,
+                    patient_ids,
                 )
     finally:
         await engine.dispose()
@@ -173,8 +204,10 @@ def describe(report: SeedReport) -> list[str]:
     lines = []
     if report.patients:
         read, inserted = report.patients.read, report.patients.inserted
+        skipped = f", {report.patients.skipped} hors du jeu (ignorés)" if report.patients.skipped else ""
         lines.append(
             f"patients : {read} lignes lues, {inserted} insérés, {read - inserted} déjà présents"
+            f"{skipped}"
         )
     if report.synthetic_patients:
         synthetic = report.synthetic_patients
@@ -197,6 +230,12 @@ def describe(report: SeedReport) -> list[str]:
             f"historique : {history.read} événements, {history.inserted} insérés, "
             f"{already} déjà présents, {history.without_patient} sans patient (ignorés)"
         )
+    if report.featured_patient:
+        featured = report.featured_patient
+        lines.append(
+            f"patient mis en avant : {featured.patients} patient, {featured.serum_tests} tests "
+            f"sériques, {featured.history} événements insérés (0 : déjà présent)"
+        )
     if report.users:
         lines.append(
             "compte de démonstration : "
@@ -209,12 +248,20 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Ingère les CSV patients, synthétiques et sériques, l'historique fictif, "
-            "puis le compte de démonstration."
+            "le patient mis en avant, puis le compte de démonstration."
         )
     )
     parser.add_argument("--csv", type=Path, default=DEFAULT_PATIENTS_CSV_PATH)
     parser.add_argument("--serum-csv", type=Path, default=DEFAULT_SERUM_HISTORY_CSV_PATH)
     parser.add_argument("--only", type=SeedStage, choices=list(SeedStage), default=None)
+    parser.add_argument(
+        "--all-patients",
+        action="store_true",
+        help=(
+            "charge tout le CSV des patients (51 000 lignes) au lieu des seuls patients qui "
+            "ont un historique sérique"
+        ),
+    )
     parser.add_argument(
         "--reset",
         action="store_true",
@@ -232,7 +279,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
     try:
-        report = asyncio.run(main(args.csv, args.serum_csv, args.only, args.reset))
+        report = asyncio.run(main(args.csv, args.serum_csv, args.only, args.reset, args.all_patients))
     except SeedError as error:
         sys.exit(f"erreur : {error}")
     if args.reset:

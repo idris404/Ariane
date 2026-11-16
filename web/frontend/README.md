@@ -1,48 +1,50 @@
-# HLA Twin frontend
+# Frontend Ariane
 
-React/Vite application. Current visual direction and implementation boundaries:
-[HLA Twin — Rigueur calme](../doc/rigueur-calme.md).
+Application Next.js 16 avec App Router, React 19, TypeScript strict et Tailwind CSS 4.
+
+## Routes
+
+| Route | Accès | Contenu |
+| --- | --- | --- |
+| `/` | Public | Landing, prix, vidéo, architecture et limites |
+| `/login` | Public | Connexion au démonstrateur local |
+| `/dashboard` | Session | Cockpit et import simulé |
+| `/fiche/[id]` | Session | Historique et évolution sérique |
+| `/a-signer` | Session | Dossiers préparés pour validation |
+| `/a-consulter` | Session | Dossiers à examiner en détail |
+
+## Configuration
 
 ```bash
+cp .env.example .env
 npm ci
-npm run dev
+```
+
+`NEXT_PUBLIC_API_URL` indique l’origine du backend FastAPI, sans `/api/v1`.
+
+## Commandes
+
+```bash
+npm run dev        # http://localhost:5173
 npm run lint
 npm run typecheck
-npm run build
-# One-time browser setup, then the local UI regression suite:
-npx playwright install chromium
 npm run test:ui
+npm run build
+npm run start      # build de production sur :5173
 ```
 
-Configure `VITE_API_URL` with the local backend URL as described in the existing
-environment example. Fonts are bundled locally. UI tests mock the API and block
-external requests; they do not submit signatures to the real backend.
+Les tests Playwright utilisent des réponses synthétiques contrôlées et bloquent les appels vers Internet. Ils ne signent aucun dossier dans une base locale réelle.
 
-## Original scaffold reference
+## Organisation
 
-# Frontend
-
-SPA Vite + React + TypeScript (strict). Conventions d'architecture et de code : [`../.claude/rules/frontend.md`](../.claude/rules/frontend.md).
-
-## Démarrage
-
-```bash
-cp .env.example .env        # VITE_API_URL : origine du backend
-npm install
-npm run dev -- --strictPort # http://localhost:5173
+```text
+app/               routes Next.js et layouts
+src/features/      pages et logique par parcours
+src/shared/        composants, schémas, appels API et hooks communs
+src/components/ui/ composants d’interface
+src/constants/     valeurs partagées du frontend
+public/brand/      identité Ariane
+public/showcase/   captures et vidéo de démonstration
 ```
 
-Le backend doit autoriser cette origine (`FRONTEND_URL` dans `../.env`) : le cookie de session circule entre les deux.
-
-## Scripts
-
-| Script | Rôle |
-| --- | --- |
-| `npm run dev` | Serveur de développement |
-| `npm run build` | Vérification des types (`tsc -b`) puis build de production |
-| `npm run lint` | oxlint |
-| `npm run preview` | Sert le build de production |
-
-## Stack
-
-React 19, Vite, TypeScript strict, Tailwind CSS 4, Motion, GSAP, TanStack Query, TanStack Table, Zod, React Hook Form, nuqs.
+La direction artistique est documentée dans [`../doc/rigueur-calme.md`](../doc/rigueur-calme.md). Les limites de communication sont décrites dans [`../../docs/RESPONSIBLE_USE.md`](../../docs/RESPONSIBLE_USE.md).

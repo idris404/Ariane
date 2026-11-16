@@ -1,4 +1,6 @@
 import type { Page } from '@playwright/test'
+import { IMPORT_STORAGE_KEY, IMPORT_STORAGE_VALUE } from '../src/constants/import'
+import { CONSULT_PAGE_SIZE } from '../src/constants/to-consult'
 
 // Presentation tests only. Values copied from backend/app/conftest.py
 // (make_patient, make_serum_test, make_history_event) and test_evolution.py.
@@ -44,6 +46,31 @@ export const patient = {
   },
 }
 
+// Cas au profil fluctuant de la file « À consulter » : une page pleine et deux cas de plus. Le
+// premier est le patient détaillé ci-dessus, pour que « Voir la fiche » mène à une fiche existante.
+export const consultCaseCount = CONSULT_PAGE_SIZE + 2
+// Historique : 1 événement (le patient détaillé), 2 pour le deuxième cas, aucun pour le troisième.
+const secondEvent = {
+  id: '33333333-3333-4333-8333-333333333333',
+  patient_id: 'SYN-UI-001',
+  kind: 'postop',
+  title: 'Suivi postopératoire',
+  detail: 'Contrôle à sept jours · exemple fictif',
+  occurred_on: '2015-08-25',
+}
+function consultHistory(index: number) {
+  if (index === 1) return [...patient.history, secondEvent]
+  return index === 2 ? [] : patient.history
+}
+export const consultPatients = Array.from({ length: consultCaseCount }, (_, index) => ({
+  ...patient,
+  id: index === 0 ? patientId : `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+  patient_id: `SYN-UI-C${String(index + 1).padStart(2, '0')}`,
+  firstname: 'Cas',
+  lastname: `Fluctuant ${index + 1}`,
+  history: consultHistory(index),
+}))
+
 const user = {
   id: patientId,
   email: 'reviewer@example.test',
@@ -60,8 +87,17 @@ export async function mockApi(
     error?: boolean
     invalid?: boolean
     delay?: number
+    // Faux : arrivée sur le site avant tout import (aucune donnée n'est demandée). Vrai par défaut :
+    // les autres tests partent d'un import déjà terminé.
+    imported?: boolean
   } = {},
 ) {
+  if (options.imported ?? true) {
+    await page.addInitScript(
+      ([key, value]) => sessionStorage.setItem(key, value),
+      [IMPORT_STORAGE_KEY, IMPORT_STORAGE_VALUE] as const,
+    )
+  }
   let authenticated = options.authenticated ?? true
   let signed = false
   const requests: { path: string; method: string; body: unknown }[] = []
@@ -110,6 +146,19 @@ export async function mockApi(
           remaining: signed || options.empty ? 0 : 1,
         },
       })
+    if (path === '/consultations/queue') {
+      const pageNumber = Number(url.searchParams.get('page') ?? 1)
+      const pageSize = Number(url.searchParams.get('page_size') ?? 20)
+      const cases = options.empty ? [] : consultPatients
+      return route.fulfill({
+        json: {
+          items: cases.slice((pageNumber - 1) * pageSize, pageNumber * pageSize),
+          total: cases.length,
+          page: pageNumber,
+          page_size: pageSize,
+        },
+      })
+    }
     if (path.endsWith('/synthetic-patients'))
       return route.fulfill({ json: { items: [], total: 0, page: 1, page_size: 20 } })
     if (path === `/patients/${patientId}`) {

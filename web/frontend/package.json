@@ -4,28 +4,28 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview",
+    "dev": "next dev -p 5173",
+    "build": "next build",
+    "lint": "oxlint app src tests *.ts",
+    "start": "next start -p 5173",
     "test:ui": "playwright test",
-    "typecheck": "tsc -b"
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.6",
-    "@tailwindcss/vite": "^4.3.5",
+    "@tailwindcss/postcss": "^4.3.5",
     "@tanstack/react-query": "^5.107.1",
     "@tanstack/react-table": "^9.3.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "gsap": "^3.15.1",
     "motion": "^14.14.0",
+    "next": "^16.4.6",
     "nuqs": "^2.10.3",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.92.0",
-    "react-router": "^8.5.1",
     "tailwindcss": "^4.3.5",
     "zod": "^4.6.7"
   },
@@ -35,9 +35,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
-    "typescript": "~7.0.2",
-    "vite": "^8.3.6"
+    "typescript": "~7.0.2"
   }
 }

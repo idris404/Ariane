@@ -7,7 +7,12 @@ import pytest
 from app.conftest import write_seed_csv
 from app.constants.serum_tests import SEED_SERUM_UUID_NAMESPACE
 from app.core.exceptions import SeedError
-from app.serum_tests.seed import build_serum_values, read_serum_values, serum_test_uuid_for
+from app.serum_tests.seed import (
+    build_serum_values,
+    read_serum_patient_ids,
+    read_serum_values,
+    serum_test_uuid_for,
+)
 
 pytestmark = pytest.mark.anyio
 
@@ -59,3 +64,17 @@ def test_a_missing_column_rejects_the_file(tmp_path: Path) -> None:
 
     with pytest.raises(SeedError, match="colonnes absentes"):
         list(read_serum_values(path))
+
+
+def test_the_patients_with_a_serum_history_are_listed_once_each(tmp_path: Path) -> None:
+    csv_path = write_seed_csv(
+        tmp_path / "serum.csv",
+        [
+            a_row(patient_id="P-1"),
+            a_row(patient_id="P-1", test_date="2018-12-09"),
+            a_row(patient_id="P-2"),
+        ],
+    )
+
+    assert read_serum_patient_ids(csv_path) == frozenset({"P-1", "P-2"})
+

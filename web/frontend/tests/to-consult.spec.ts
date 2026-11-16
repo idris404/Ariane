@@ -1,0 +1,283 @@
+import { expect, test, type Page } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
+import { CONSULT_PAGE_SIZE, TO_CONSULT_ERRORS } from '../src/constants/to-consult'
+import { ROUTES } from '../src/constants/routes'
+import { consultCaseCount, mockApi, patientId } from './fixtures'
+
+test.beforeEach(async ({ page }) => {
+  // Aucune dépendance à Internet pendant les tests de l'interface locale.
+  await page.route('**/*', (route) => {
+    const host = new URL(route.request().url()).hostname
+    return ['127.0.0.1', 'localhost'].includes(host) ? route.fallback() : route.abort()
+  })
+})
+
+const navigation = (page: Page) => page.getByRole('navigation', { name: 'Navigation principale' })
+
+async function openConsultPage(page: Page) {
+  await page.goto(ROUTES.toConsult)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Des suivis fluctuants, à lire de près.',
+  )
+}
+
+test('the sidebar has an "À consulter" tab with a red count that opens the page', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await page.goto(ROUTES.dashboard)
+
+  const tab = navigation(page).getByRole('link', { name: /À consulter/ })
+  const count = tab.getByText(String(consultCaseCount), { exact: true })
+  await expect(count).toBeVisible()
+  await expect(count).toHaveClass(/destructive-ink/)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+
+  await tab.click()
+  await expect(page).toHaveURL(new RegExp(`${ROUTES.toConsult}$`))
+  await expect(tab).toHaveAttribute('aria-current', 'page')
+})
+
+test('the page lists fluctuating cases with a red profile pill and a "Voir la fiche" button', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await openConsultPage(page)
+
+  await expect(page.getByRole('heading', { name: 'Cas à consulter' })).toBeVisible()
+  const table = page.getByRole('table', { name: 'Cas au suivi sérique fluctuant à consulter' })
+  await expect(table.getByRole('columnheader')).toHaveText([
+    'Patient',
+    'Profil sérique',
+    'Événements',
+    'Actions',
+  ])
+  const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
+  await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
+
+  const first = rows.first()
+  await expect(first.getByText('Profil C · fluctuant')).toHaveClass(/destructive-ink/)
+  await expect(first.getByRole('link', { name: /Voir la fiche/ })).toHaveAttribute(
+    'href',
+    `/fiche/${patientId}`,
+  )
+  // Cette liste se consulte, elle ne se signe pas.
+  await expect(page.getByRole('button', { name: 'Signer' })).toHaveCount(0)
+
+  const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
+  expect(accessibility.violations).toEqual([])
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
+test('"Voir les tests" shows the serum tests and "Voir la fiche" opens the patient file', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await openConsultPage(page)
+  const first = page.getByRole('row').filter({ hasText: 'Fluctuant' }).first()
+
+  await first.getByRole('button', { name: 'Voir les tests' }).click()
+  await expect(first.getByRole('button', { name: 'Masquer les tests' })).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  )
+  await expect(page.getByRole('region', { name: 'Résultats sériques par année' })).toBeVisible()
+  await first.getByRole('link', { name: /Voir la fiche/ }).click()
+  await expect(page).toHaveURL(new RegExp(`/fiche/${patientId}$`))
+})
+
+test('the list is paginated: next and previous pages keep the total', async ({ page }) => {
+  await mockApi(page)
+  await openConsultPage(page)
+  const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
+  const previous = page.getByRole('button', { name: 'Précédent' })
+  const next = page.getByRole('button', { name: 'Suivant' })
+
+  await expect(page.getByText('Page 1', { exact: true })).toBeVisible()
+  await expect(previous).toBeDisabled()
+
+  await next.click()
+  await expect(page).toHaveURL(/[?&]page=2\b/)
+  await expect(
+    page.getByText('Page 2', { exact: true }),
+  ).toBeVisible()
+  await expect(rows).toHaveCount(consultCaseCount - CONSULT_PAGE_SIZE)
+  await expect(next).toBeDisabled()
+
+  await previous.click()
+  await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
+})
+
+test('an empty list is explicit', async ({ page }) => {
+  await mockApi(page, { empty: true })
+  await openConsultPage(page)
+  await expect(page.getByText('Aucun cas à consulter.')).toBeVisible()
+})
+
+test('a server error is shown instead of an empty list', async ({ page }) => {
+  await mockApi(page, { error: true })
+  await openConsultPage(page)
+  await expect(page.getByRole('alert').filter({ hasText: TO_CONSULT_ERRORS.queue })).toBeVisible()
+  await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
+})
+
+test('the events pill unfolds a sub-table under the row, like the serum tests', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await openConsultPage(page)
+
+  const trigger = page.getByRole('button', { name: '2 événements de Cas Fluctuant 2' })
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+
+  const region = page.getByRole('region', { name: 'Événements de Cas Fluctuant 2' })
+  await expect(region).toBeVisible()
+  const subTable = region.getByRole('table')
+  await expect(subTable.getByRole('columnheader')).toHaveText(['Date', 'Événement', 'Détail'])
+  const events = subTable.getByRole('row').filter({ hasText: 'août 2015' })
+  await expect(events).toHaveCount(2)
+  await expect(events.first()).toContainText('18 août 2015')
+  await expect(events.first()).toContainText('Greffe rénale')
+  await expect(events.first()).toContainText('Donneur décédé · ABO compatible · exemple fictif')
+  await expect(events.last()).toContainText('25 août 2015')
+  await expect(events.last()).toContainText('Suivi postopératoire')
+  const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
+  expect(accessibility.violations).toEqual([])
+
+  await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(region).toHaveCount(0)
+})
+
+test('a row opens one sub-table at a time: the tests replace the events and back', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await openConsultPage(page)
+  const events = page.getByRole('button', { name: '2 événements de Cas Fluctuant 2' })
+  const row = page.getByRole('row').filter({ has: events })
+  const tests = row.getByRole('button', { name: 'Voir les tests' })
+  const eventsRegion = page.getByRole('region', { name: 'Événements de Cas Fluctuant 2' })
+  const testsRegion = page.getByRole('region', { name: 'Résultats sériques par année' })
+
+  await events.click()
+  await expect(eventsRegion).toBeVisible()
+  await tests.click()
+  await expect(testsRegion).toBeVisible()
+  await expect(eventsRegion).toHaveCount(0)
+  await expect(events).toHaveAttribute('aria-expanded', 'false')
+  await expect(row.getByRole('button', { name: 'Masquer les tests' })).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  )
+
+  await events.click()
+  await expect(eventsRegion).toBeVisible()
+  await expect(testsRegion).toHaveCount(0)
+})
+
+test('a single event is singular and a case without event has no button', async ({ page }) => {
+  await mockApi(page)
+  await openConsultPage(page)
+
+  await expect(
+    page.getByRole('button', { name: '1 événement de Cas Fluctuant 1', exact: true }),
+  ).toBeVisible()
+  const withoutEvent = page.getByRole('row').filter({ hasText: /Cas Fluctuant 3(?!\d)/ })
+  await expect(withoutEvent.getByText('Aucun événement')).toBeVisible()
+  await expect(withoutEvent.getByRole('button', { name: /événement/ })).toHaveCount(0)
+})
+
+test('the page lives in the URL: it is reopened and restored after visiting a file', async ({
+  page,
+}) => {
+  await mockApi(page)
+  await page.goto(`${ROUTES.toConsult}?page=2`)
+  await expect(
+    page.getByText('Page 2', { exact: true }),
+  ).toBeVisible()
+
+  await page.getByRole('link', { name: /Voir la fiche/ }).first().click()
+  await expect(page).toHaveURL(/\/fiche\//)
+  await page.goBack()
+  await expect(
+    page.getByText('Page 2', { exact: true }),
+  ).toBeVisible()
+})
+
+test('a page beyond the last one falls back to the last page', async ({ page }) => {
+  await mockApi(page)
+  await page.goto(`${ROUTES.toConsult}?page=99`)
+  await expect(
+    page.getByText('Page 2', { exact: true }),
+  ).toBeVisible()
+  await expect(page.getByText('Aucun cas à consulter.')).toHaveCount(0)
+})
+
+// Grand écran (≥ lg). La page défile normalement (hauteur minimale d'un écran) et le tableau montre
+// toutes ses lignes : il n'a pas de défilement vertical interne.
+const WIDE_VIEWPORT_WIDTH = 1440
+
+async function pageScrolls(page: Page) {
+  return page.evaluate(() => document.documentElement.scrollHeight > innerHeight)
+}
+
+function tableRegion(page: Page) {
+  return page.getByRole('region', { name: 'Liste des cas à consulter' })
+}
+
+async function regionScrollsInside(page: Page) {
+  return tableRegion(page).evaluate((el) => el.scrollHeight > el.clientHeight)
+}
+
+test.describe('on a short window', () => {
+  test.use({ viewport: { width: WIDE_VIEWPORT_WIDTH, height: 800 } })
+
+  test('the page scrolls and every row of the table is shown in full', async ({ page }) => {
+    await mockApi(page)
+    await openConsultPage(page)
+    const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
+
+    await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
+    // Le contenu dépasse l'écran : c'est la page qui défile, pas le tableau.
+    expect(await pageScrolls(page)).toBe(true)
+    expect(await regionScrollsInside(page)).toBe(false)
+
+    // Chaque ligne, puis la pagination, s'atteignent en faisant défiler la page.
+    await rows.last().scrollIntoViewIfNeeded()
+    await expect(rows.last()).toBeInViewport()
+    const next = page.getByRole('button', { name: 'Suivant' })
+    await next.scrollIntoViewIfNeeded()
+    await expect(next).toBeInViewport()
+  })
+
+  test('an unfolded row lengthens the page, not the table', async ({ page }) => {
+    await mockApi(page)
+    await openConsultPage(page)
+
+    await page.getByRole('button', { name: 'Voir les tests' }).first().click()
+    await expect(page.getByRole('region', { name: 'Résultats sériques par année' })).toBeAttached()
+    expect(await regionScrollsInside(page)).toBe(false)
+    expect(await pageScrolls(page)).toBe(true)
+  })
+})
+
+test.describe('on a tall window', () => {
+  test.use({ viewport: { width: WIDE_VIEWPORT_WIDTH, height: 1400 } })
+
+  test('the page is at least one screen high and shows all the rows without scrolling', async ({
+    page,
+  }) => {
+    await mockApi(page)
+    await openConsultPage(page)
+    const rows = page.getByRole('row').filter({ hasText: 'Fluctuant' })
+
+    await expect(rows).toHaveCount(CONSULT_PAGE_SIZE)
+    for (const row of await rows.all()) await expect(row).toBeInViewport()
+    // Hauteur minimale d'un écran : le contenu est plus court, la page ne défile pas.
+    expect(await pageScrolls(page)).toBe(false)
+    expect(await regionScrollsInside(page)).toBe(false)
+  })
+})

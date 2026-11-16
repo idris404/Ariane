@@ -141,3 +141,49 @@ async def test_replaying_the_seed_does_not_duplicate_patients(tmp_path: Path) ->
 
     assert len(repository.stored) == 3
     assert (second.read, second.inserted) == (3, 0)
+
+
+# --- le jeu de patients ------------------------------------------------------------------------
+
+
+async def test_a_patient_set_inserts_only_its_patients_and_counts_the_others(tmp_path: Path) -> None:
+    csv_path = write_seed_csv(tmp_path / "patients.csv", fake_seed_rows(5))
+    repository = FakePatientRepository()
+
+    report = await seed_patients(repository, csv_path, {"P-1", "P-3", "NOT-IN-THE-CSV"})
+
+    assert report == seed.PatientSeedReport(read=2, inserted=2, skipped=3)
+    assert {values["patient_id"] for values in repository.stored.values()} == {"P-1", "P-3"}
+
+
+async def test_without_a_patient_set_the_whole_csv_is_inserted(tmp_path: Path) -> None:
+    csv_path = write_seed_csv(tmp_path / "patients.csv", fake_seed_rows(5))
+    repository = FakePatientRepository()
+
+    report = await seed_patients(repository, csv_path)
+
+    assert report == seed.PatientSeedReport(read=5, inserted=5, skipped=0)
+
+
+async def test_an_empty_patient_set_inserts_nothing(tmp_path: Path) -> None:
+    csv_path = write_seed_csv(tmp_path / "patients.csv", fake_seed_rows(3))
+    repository = FakePatientRepository()
+
+    report = await seed_patients(repository, csv_path, set())
+
+    assert report == seed.PatientSeedReport(read=0, inserted=0, skipped=3)
+    assert repository.stored == {}
+
+
+async def test_a_patient_set_is_read_in_batches_without_dropping_the_remainder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(seed, "SEED_BATCH_SIZE", 2)
+    csv_path = write_seed_csv(tmp_path / "patients.csv", fake_seed_rows(5))
+    repository = FakePatientRepository()
+
+    report = await seed_patients(repository, csv_path, {f"P-{n}" for n in range(5)})
+
+    assert (report.read, report.inserted) == (5, 5)
+    assert repository.batches == [2, 2, 1]
+

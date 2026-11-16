@@ -36,11 +36,13 @@ SEED_USER_ENV_ERROR: Final = (
 class SeedStage(StrEnum):
     """Étapes du seed, dans l'ordre : synthétiques, tests sériques et historique partent des patients.
 
-    `users` est indépendante des CSV : elle ne lit ni ne dépend des patients.
+    `featured` crée son propre patient (dossier fictif, hors CSV) : elle ne dépend d'aucune autre
+    étape. `users` est indépendante des CSV : elle ne lit ni ne dépend des patients.
     """
 
     PATIENTS = "patients"
     SYNTHETIC_PATIENTS = "synthetic"
     SERUM_TESTS = "serum"
     PATIENT_HISTORY = "history"
+    FEATURED_PATIENT = "featured"
     USERS = "users"

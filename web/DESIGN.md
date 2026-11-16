@@ -33,7 +33,7 @@ L'interface adopte un style **Clinical HealthTech / Medical SaaS Premium** conç
 
 | Nom du Token | Valeur HEX | Rôle & Usage dans l'UI |
 | :--- | :--- | :--- |
-| **Teal Primaire (Action)** | `#087f74` | Boutons d'action principaux (*Ajouter un patient*, *Modifier le dossier*, *Ouvrir la validation*), sur-titres en majuscules (*SUIVI DES GREFFES RÉNALES*), liens cliquables (*Ouvrir*, *Examiner*), étapes actives du stepper. |
+| **Teal Primaire (Action)** | `#087f74` | Boutons d'action principaux (*Importer*, *Modifier le dossier*, *Ouvrir la validation*), sur-titres en majuscules (*SUIVI DES GREFFES RÉNALES*), liens cliquables (*Ouvrir*, *Examiner*), étapes actives du stepper. |
 | **Teal Foncé Institutionnel** | `#0d554f` | Couleur de la croix médicale `+` dans le logo supérieur gauche. |
 | **Menthe Pastel Emblème** | `#c5f0d9` | Fond carré arrondi de l'icône logo médical. |
 | **Menthe Active Navigation** | `#d9f8e6` | Texte de l'élément de navigation actuellement actif dans la sidebar. |

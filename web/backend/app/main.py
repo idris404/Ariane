@@ -12,6 +12,7 @@ from app.constants.auth import INVALID_CREDENTIALS_CODE
 from app.constants.http import API_V1_PREFIX, CORS_ALLOWED_HEADERS, CORS_ALLOWED_METHODS
 from app.core.config import get_settings
 from app.constants.patients import PATIENT_NOT_FOUND_CODE
+from app.consultations.router import router as consultations_router
 from app.core.database import Base, engine
 from app.patients.exceptions import PatientNotFoundError
 from app.patients.router import router as patients_router
@@ -75,5 +76,6 @@ api_v1_router.include_router(patients_router)
 api_v1_router.include_router(synthetic_patients_router)
 api_v1_router.include_router(patient_synthetic_patients_router)
 api_v1_router.include_router(signatures_router)
+api_v1_router.include_router(consultations_router)
 
 app.include_router(api_v1_router)
