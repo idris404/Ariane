@@ -243,7 +243,7 @@ export function LandingPage() {
             >
               <source src="/showcase/demo-ariane.mp4" type="video/mp4" />
             </video>
-            <p className="mt-4 text-sm text-white/55">29 secondes · parcours local · données synthétiques</p>
+            <p className="mt-4 text-sm text-white/55">44 secondes · parcours local · données synthétiques</p>
           </Reveal>
         </div>
       </section>
