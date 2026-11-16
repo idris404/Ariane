@@ -58,15 +58,15 @@ FEATURED_TEST_DATES: Final = (
 )
 FEATURED_STABLE_VALUES: Final = {"b12": 120, "b13": 640, "dr53": 365, "dr51": 1180, "dq10": 290}
 
-# Dossier fictif de démonstration, mis en avant : le nom est un nom d'affichage choisi par l'équipe,
-# aucune valeur ci-dessous ne provient d'une personne réelle ni d'un résultat clinique.
+# Dossier fictif de démonstration, mis en avant. L'identité, les dates et les valeurs
+# sont entièrement synthétiques et ne désignent aucune personnalité publique.
 # `patient_id` : « DEMO- » se classe avant « HIS- » et « SYN- », donc ce patient ouvre toute liste
 # triée par `patient_id` (la file « À signer »). Âgé de 28 ans à la date de naissance ci-dessous
 # (jusqu'au 19 juin 2027). Profil `A` (constant) : il fait partie des cas « À signer ».
 FEATURED_PATIENT: Final = FeaturedPatient(
     patient_id="DEMO-0001",
-    firstname="Kylian",
-    lastname="Mbappé",
+    firstname="Alex",
+    lastname="Martin",
     birth=date(1998, 6, 20),
     gender=Gender.MALE,
     city="Paris",

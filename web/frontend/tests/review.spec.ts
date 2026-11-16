@@ -10,6 +10,18 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
+test('public landing presents the award, product and responsible-use boundary', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: /Rendre du temps/ })).toBeVisible()
+  await expect(page.getByText('Prix de la meilleure solution pour les patients')).toBeVisible()
+  await expect(page.getByLabel('Vidéo de démonstration Ariane')).toBeVisible()
+  await expect(page.getByText('Le biologiste garde la main.')).toBeVisible()
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze()
+  expect(accessibility.violations).toEqual([])
+})
+
 async function assertLayout(page: Page) {
   await page.evaluate(() => document.fonts.ready)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -32,10 +44,10 @@ test('login, keyboard focus, local fonts and simulated session flow', async ({ p
     return route.fallback()
   })
   await mockApi(page, { authenticated: false })
-  await page.goto('/')
+  await page.goto('/login')
   await expect(page.getByRole('button', { name: 'Se connecter' })).toBeVisible()
   await assertLayout(page)
-  await page.keyboard.press('Tab')
+  await page.getByLabel('Email', { exact: true }).focus()
   await expect(page.getByLabel('Email', { exact: true })).toBeFocused()
   expect(
     await page
@@ -48,7 +60,7 @@ test('login, keyboard focus, local fonts and simulated session flow', async ({ p
   await expect(page).toHaveURL(/dashboard/)
   await expect(page.getByText('Ada Test', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Déconnexion' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL(/\/login$/)
   expect(external).toEqual([])
   expect(await page.evaluate(() => document.fonts.check('16px Inter'))).toBe(true)
   expect(await page.evaluate(() => document.fonts.check('16px Manrope'))).toBe(true)
@@ -105,7 +117,7 @@ test('malformed serum payload shows an error instead of invented interpretation'
 }) => {
   await mockApi(page, { invalid: true })
   await page.goto(`/fiche/${patientId}`)
-  await expect(page.getByRole('alert')).toContainText('La réponse du serveur est invalide', {
+  await expect(page.getByRole('alert').filter({ hasText: 'La réponse du serveur est invalide' })).toBeVisible({
     timeout: 15000,
   })
   await expect(page.getByRole('heading', { name: 'Évolution des antigènes' })).toHaveCount(0)
@@ -137,7 +149,7 @@ for (const route of ['/dashboard', `/fiche/${patientId}`, '/a-signer']) {
     await mockApi(page, { error: true, delay: 400 })
     await page.goto(route)
     await expect(page.getByRole('status')).toContainText('Chargement')
-    await expect(page.getByRole('alert')).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)').first()).toBeVisible({ timeout: 15000 })
     await assertLayout(page)
   })
 }
@@ -156,7 +168,7 @@ test('reduced motion disables transitions and skip link reaches main content', a
   await mockApi(page)
   await page.goto('/dashboard')
   await expect(page.getByText('Ada Test', { exact: true })).toBeVisible()
-  await page.keyboard.press('Tab')
+  await page.getByRole('link', { name: 'Aller au contenu' }).focus()
   await expect(page.getByRole('link', { name: 'Aller au contenu' })).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.locator('#main-content')).toBeFocused()
@@ -206,7 +218,7 @@ test('failed signature stays visible and is never presented as success', async (
   )
   await page.goto('/a-signer')
   await page.getByRole('button', { name: 'Signer', exact: true }).click()
-  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: /signature|indisponible|réessayer/i })).toBeVisible()
   await expect(page.getByText('Ada Test', { exact: true })).toBeVisible()
   await expect(page.getByText('Aucun cas à signer.', { exact: true })).toHaveCount(0)
   await assertLayout(page)

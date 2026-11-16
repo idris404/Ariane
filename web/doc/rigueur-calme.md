@@ -2,6 +2,9 @@
 
 ## Scope and audit (2026-11-15)
 
+This section records the frontend state before the public showcase and Next.js
+migration. For the current implementation, see the 2026-11-16 update below.
+
 The requested repository is `idris404/Hackathon-Adopt-AI`, local checkout
 `Hackathon-Adopt-AI`, branch `main`. The initial working tree was clean.
 The similarly named `Hackathon AdoptAI` checkout points to the old `HLA-twin`
@@ -205,3 +208,38 @@ and shared status surfaces. The existing CSS variables remain authoritative.
 TypeScript 7 rejects the `baseUrl` option shown in current shadcn Vite docs;
 the alias uses `paths` without it. Run the frontend checks above after future
 component additions.
+
+## Public showcase and Next.js migration (2026-11-16)
+
+The frontend now runs on Next.js 16 with the App Router. The public route `/`
+presents Ariane, its patient-solution award, the demonstrator, architecture and
+responsible-use boundary. `/login` opens the local demo; the existing dashboard,
+review queues and patient file keep their URLs behind `AuthGate`.
+
+The application features moved from `src/pages/` to `src/features/` so Next.js
+does not interpret them as a Pages Router. API calls and medical presentation
+logic were not moved to server components: FastAPI remains the data and domain
+source of truth. The migration does not change the HTTP contract.
+
+The current Ariane symbol, wordmark and composed lockup live in `public/brand/`.
+The landing page and repository documentation reuse the approved Rigueur calme
+tokens, local fonts, flat surfaces and explicit text labels. Project media is in
+`public/showcase/` and includes the demo video and interface captures.
+
+The repository is source-visible for presentation but is not open source. The
+root proprietary `LICENSE` reserves code usage and commercialization rights;
+`BRAND.md` separately reserves the Ariane name, visual identity and media. This
+keeps a future commercial or dual-licensing agreement possible.
+
+Current frontend commands are:
+
+```bash
+npm ci
+npm run lint
+npm run typecheck
+npm run test:ui
+npm run build
+```
+
+Playwright starts Next.js on port 5181 with mocked synthetic API responses. The
+production build and local demo remain independent of a remote runtime service.

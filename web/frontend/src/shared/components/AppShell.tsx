@@ -1,6 +1,9 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { NavLink } from 'react-router'
 
 import { ROUTES } from '../../constants/routes'
 import { useConsultCount } from '../hooks/useConsultCount'
@@ -19,6 +22,7 @@ function itemClass(active: boolean): string {
 }
 
 export function AppShell({ children, section }: { children: ReactNode; section: string }) {
+  const pathname = usePathname()
   const { data: user } = useCurrentUser()
   const { data: signQueue } = useSignQueue()
   const consultCount = useConsultCount()
@@ -30,21 +34,21 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
         Aller au contenu
       </a>
       <aside className="flex shrink-0 flex-col border-b border-border bg-card px-4 py-5 lg:sticky lg:top-0 lg:h-screen lg:w-[236px] lg:border-r lg:border-b-0 lg:px-5 lg:py-8">
-        <NavLink to={ROUTES.dashboard} aria-label="Ariane — accueil">
+        <Link href={ROUTES.dashboard} aria-label="Ariane — accueil">
           <BrandMark />
-        </NavLink>
+        </Link>
         <p className="mt-2 text-xs text-muted-foreground lg:mt-3">La revue, en perspective.</p>
         <p className="eyebrow mt-10 hidden lg:block">Espace de revue</p>
         <nav className="mt-4 flex flex-wrap gap-2 lg:flex-col" aria-label="Navigation principale">
-          <NavLink to={ROUTES.dashboard} end className={({ isActive }) => itemClass(isActive)}>
+          <Link href={ROUTES.dashboard} aria-current={pathname === ROUTES.dashboard ? 'page' : undefined} className={itemClass(pathname === ROUTES.dashboard)}>
             <span>
               <span aria-hidden="true" className="mr-2">
                 ▦
               </span>
               Les dossiers
             </span>
-          </NavLink>
-          <NavLink to={ROUTES.toSign} className={({ isActive }) => itemClass(isActive)}>
+          </Link>
+          <Link href={ROUTES.toSign} aria-current={pathname === ROUTES.toSign ? 'page' : undefined} className={itemClass(pathname === ROUTES.toSign)}>
             <span>
               <span aria-hidden="true" className="mr-2">
                 ✓
@@ -56,8 +60,8 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
                 {signQueue.remaining}
               </span>
             )}
-          </NavLink>
-          <NavLink to={ROUTES.toConsult} className={({ isActive }) => itemClass(isActive)}>
+          </Link>
+          <Link href={ROUTES.toConsult} aria-current={pathname === ROUTES.toConsult ? 'page' : undefined} className={itemClass(pathname === ROUTES.toConsult)}>
             <span>
               <span aria-hidden="true" className="mr-2">
                 ◉
@@ -69,7 +73,7 @@ export function AppShell({ children, section }: { children: ReactNode; section: 
                 {consultCount}
               </span>
             )}
-          </NavLink>
+          </Link>
         </nav>
         <div className="mt-auto hidden rounded-2xl bg-background p-4 lg:block">
           <span aria-hidden="true" className="text-2xl text-primary">

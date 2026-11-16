@@ -44,7 +44,7 @@ def test_the_featured_patient_is_28_and_opens_every_list_sorted_by_patient_id() 
 def test_the_patient_row_has_the_identity_and_a_stable_id() -> None:
     values = build_patient_values(FEATURED_PATIENT)
 
-    assert (values["firstname"], values["lastname"]) == ("Kylian", "Mbappé")
+    assert (values["firstname"], values["lastname"]) == ("Alex", "Martin")
     assert values["gender"] is Gender.MALE
     assert values["patient_id"] == FEATURED_PATIENT.patient_id
     assert values["id"] == patient_uuid_for(FEATURED_PATIENT.patient_id)
