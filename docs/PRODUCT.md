@@ -32,6 +32,12 @@ Cette orientation organise le travail. Elle ne constitue pas une décision clini
 - une traçabilité de l’action humaine ;
 - un parcours local et reproductible pour la démonstration.
 
+## Ambition opérationnelle
+
+Le besoin terrain présenté pendant le hackathon correspond à une file accumulée estimée à six mois. Ariane vise à aider l’équipe à revenir vers un mois de file en préparant les dossiers répétitifs et en maintenant les cas à approfondir immédiatement visibles.
+
+Cette trajectoire **6 → 1 mois** est une hypothèse de valeur à mesurer. Elle ne constitue pas un résultat déjà obtenu, une promesse contractuelle ou une performance clinique.
+
 ## Suite professionnelle possible
 
 La suite du projet demanderait une validation formelle des règles, des contre-exemples et du vocabulaire, puis une évaluation rétrospective sur des données autorisées. Les gains de temps devraient être chronométrés et les erreurs mesurées avant toute expérimentation en situation réelle.
@@ -43,6 +49,8 @@ Les pistes de développement comprennent :
 - mesure du temps de revue ;
 - pilote encadré avec validation locale ;
 - étude d’une intégration, uniquement après documentation et autorisation du système cible.
+
+Le protocole proposé pour distinguer la preuve de produit de la preuve d’impact est détaillé dans [Du démonstrateur au pilote](PILOT.md).
 
 ## Hors périmètre du prototype
 

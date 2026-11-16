@@ -28,7 +28,7 @@ Ne pas présenter Ariane comme :
 
 ## Chiffres de démonstration
 
-Les nombres 1 000, 714 et 286 décrivent le scénario synthétique présenté. L’objectif de temps de revue évoqué pendant le pitch reste une hypothèse à mesurer dans un futur pilote.
+Les nombres 1 000, 714 et 286 décrivent le scénario synthétique présenté. L’objectif de ramener une file accumulée de six mois vers un mois reste une hypothèse opérationnelle à mesurer dans un futur pilote. Il ne doit pas être présenté comme un résultat déjà obtenu, une promesse contractuelle ou une performance clinique.
 
 ## Passage à une expérimentation réelle
 
@@ -40,3 +40,5 @@ Une expérimentation demanderait au minimum :
 4. évaluation rétrospective documentée ;
 5. mesure des erreurs, incertitudes et temps de revue ;
 6. supervision et validation professionnelles à chaque étape.
+
+Voir [Du démonstrateur au pilote](PILOT.md) pour les indicateurs proposés et les limites de l’évaluation.
