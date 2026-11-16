@@ -1,12 +1,17 @@
 import Link from 'next/link'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { ROUTES } from '../../constants/routes'
+import { Reveal } from './Reveal'
 
 const capabilities = [
   ['01', 'Importer', 'Un parcours local et reproductible à partir de données entièrement synthétiques.'],
-  ['02', 'Structurer', 'L’historique sérique et les événements utiles sont réunis dans une lecture longitudinale.'],
-  ['03', 'Orienter', 'Les dossiers sont préparés pour la signature ou conservés pour une revue approfondie.'],
-  ['04', 'Valider', 'Le biologiste vérifie les éléments affichés et reste responsable de la décision finale.'],
+  ['02', 'Structurer', 'Les résultats et les événements sont réunis dans une lecture longitudinale immédiatement exploitable.'],
+  ['03', 'Prioriser', 'La file distingue les dossiers préparés pour validation de ceux qui exigent une revue approfondie.'],
+  ['04', 'Valider', 'Le biologiste vérifie chaque dossier et reste seul responsable de la validation finale.'],
 ] as const
 
 const architecture = [
@@ -16,6 +21,13 @@ const architecture = [
   ['Produit', 'Next.js et validation humaine'],
 ] as const
 
+const safeguards = [
+  ['○', 'Validation humaine', 'Aucun dossier n’est validé automatiquement.'],
+  ['◇', 'Données synthétiques', 'Aucune donnée patient réelle dans le démonstrateur.'],
+  ['?', 'Incertitude visible', 'Une information manquante ne devient jamais une conclusion favorable.'],
+  ['◎', 'Calcul déterministe', 'Le cœur du parcours reste reproductible et utilisable localement.'],
+] as const
+
 export function LandingPage() {
   return (
     <main className="landing min-h-screen overflow-hidden bg-background text-foreground">
@@ -23,100 +35,176 @@ export function LandingPage() {
         Aller au contenu
       </a>
 
-      <header className="mx-auto flex max-w-[1440px] items-center justify-between gap-5 px-5 py-6 sm:px-10 lg:px-14">
+      <header className="landing-shell flex items-center justify-between gap-5 py-5 sm:py-6">
         <Link href={ROUTES.landing} aria-label="Ariane — accueil" className="flex items-center">
-          <img src="/ariane-logo.png" alt="Ariane" className="h-auto w-40 sm:w-48" />
+          <img src="/ariane-logo.png" alt="Ariane" className="h-auto w-36 sm:w-44" />
         </Link>
-        <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex" aria-label="Navigation de présentation">
+        <nav
+          className="hidden items-center gap-7 text-sm text-muted-foreground md:flex"
+          aria-label="Navigation de présentation"
+        >
           <a href="#solution" className="hover:text-foreground">La solution</a>
+          <a href="#impact" className="hover:text-foreground">Impact</a>
           <a href="#demo" className="hover:text-foreground">Démonstration</a>
-          <a href="#architecture" className="hover:text-foreground">Architecture</a>
         </nav>
-        <Link href={ROUTES.login} className="button-primary">
-          Ouvrir Ariane
-        </Link>
+        <Button asChild size="lg">
+          <Link href={ROUTES.login}>Ouvrir Ariane</Link>
+        </Button>
       </header>
 
-      <section id="contenu" className="mx-auto grid max-w-[1440px] items-center gap-12 px-5 pt-12 pb-20 sm:px-10 lg:grid-cols-[0.82fr_1.18fr] lg:px-14 lg:pt-20 lg:pb-28">
-        <div>
-          <div className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-brand-soft px-4 py-2 text-sm font-semibold text-primary">
+      <section
+        id="contenu"
+        aria-labelledby="hero-title"
+        className="landing-shell grid items-center gap-12 pt-10 pb-20 lg:grid-cols-[0.92fr_1.08fr] lg:pt-16 lg:pb-28"
+      >
+        <div className="flex flex-col items-start gap-6">
+          <Badge variant="secondary" className="animate-landing-fade-up gap-2 border border-primary/20 bg-brand-soft px-4 py-2 text-sm font-semibold text-primary">
             <span aria-hidden="true">✦</span>
             Prix de la meilleure solution pour les patients
-          </div>
-          <p className="eyebrow mt-10">AI for Health · 50 heures pour agir</p>
-          <h1 className="mt-5 max-w-3xl text-[clamp(3rem,7vw,6.75rem)] leading-[0.95] font-bold tracking-[-0.06em]">
-            Rendre du temps
-            <span className="mt-2 block text-primary">à l’expertise.</span>
+          </Badge>
+          <Badge variant="secondary" className="eyebrow animate-landing-fade-up [animation-delay:80ms]">
+            Le retard s’accumule. L’expertise ne devrait pas.
+          </Badge>
+          <h1 id="hero-title" className="landing-display animate-landing-fade-up max-w-[12ch] [animation-delay:140ms]">
+            Rattraper le retard.
+            <span className="block text-primary">Garder l’expertise.</span>
           </h1>
-          <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-            Ariane prépare la revue immunologique de dossiers synthétiques, rend l’historique lisible et laisse chaque validation au biologiste.
+          <p className="landing-lead animate-landing-fade-up max-w-[42ch] text-muted-foreground [animation-delay:200ms]">
+            Ariane prépare la revue répétitive pour aider une équipe à ramener une file accumulée de six mois vers un mois — sans automatiser la décision du biologiste.
           </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <a href="#demo" className="button-primary min-h-12 px-5 text-base">Voir la démonstration</a>
-            <a href="#solution" className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-border bg-card px-5 text-base font-semibold hover:border-primary/40 hover:bg-brand-soft">
-              Comprendre Ariane
-            </a>
+          <div className="animate-landing-fade-up flex flex-wrap gap-3 [animation-delay:260ms]">
+            <Button asChild size="lg" className="min-h-12 text-base">
+              <a href="#impact">Voir l’impact visé</a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="min-h-12 text-base">
+              <a href="#demo">Voir le prototype</a>
+            </Button>
           </div>
-          <p className="mt-6 text-sm text-muted-foreground">Données synthétiques · Démonstrateur · Validation humaine obligatoire</p>
+          <p className="animate-landing-fade-up max-w-xl text-sm leading-6 text-muted-foreground [animation-delay:320ms]">
+            Objectif opérationnel à confirmer en pilote · Données synthétiques · Validation humaine obligatoire
+          </p>
         </div>
 
-        <div className="relative">
-          <div aria-hidden="true" className="absolute -top-8 -right-10 h-40 w-40 rounded-[3rem] bg-secondary" />
-          <figure className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-panel sm:p-5">
-            <img src="/showcase/signing-queue-full.png" alt="File de validation Ariane affichant des dossiers synthétiques à relire" className="w-full rounded-[1.25rem] border border-border" />
-            <figcaption className="flex flex-wrap items-center justify-between gap-3 px-2 pt-4 text-xs text-muted-foreground">
-              <span>Interface réelle du prototype</span>
-              <span className="rounded-full bg-accent px-3 py-1 font-medium text-accent-foreground">○ Validation humaine</span>
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section className="border-y border-border bg-card">
-        <div className="mx-auto grid max-w-[1440px] gap-px bg-border sm:grid-cols-3">
-          <article className="bg-card px-7 py-10 sm:px-10 lg:px-14">
-            <p className="text-5xl font-bold text-primary">3 jours</p>
-            <p className="mt-2 text-sm text-muted-foreground">pour passer du besoin terrain à un prototype complet</p>
-          </article>
-          <article className="bg-card px-7 py-10 sm:px-10 lg:px-14">
-            <p className="text-5xl font-bold text-primary">1 000</p>
-            <p className="mt-2 text-sm text-muted-foreground">profils synthétiques dans le scénario présenté au jury</p>
-          </article>
-          <article className="bg-card px-7 py-10 sm:px-10 lg:px-14">
-            <p className="text-5xl font-bold text-primary">100 %</p>
-            <p className="mt-2 text-sm text-muted-foreground">des validations finales restent humaines</p>
-          </article>
+        <div className="animate-landing-pop relative">
+          <div aria-hidden="true" className="absolute -top-10 -right-12 h-44 w-44 rounded-[3rem] bg-secondary" />
+          <Card className="landing-product relative overflow-hidden rounded-[2rem]">
+            <CardContent className="p-3 sm:p-5">
+              <figure>
+                <img
+                  src="/showcase/signing-queue-full.png"
+                  alt="File de validation Ariane affichant des dossiers synthétiques à relire"
+                  className="w-full rounded-[1.25rem] border border-border"
+                />
+                <figcaption className="flex flex-wrap items-center justify-between gap-3 px-2 pt-4 text-xs text-muted-foreground">
+                  <span>Interface réelle du prototype</span>
+                  <Badge variant="secondary" className="bg-accent px-3 py-1 text-accent-foreground">○ Validation humaine</Badge>
+                </figcaption>
+              </figure>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      <section id="solution" className="mx-auto max-w-[1440px] px-5 py-24 sm:px-10 lg:px-14 lg:py-32">
-        <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr]">
+      <section className="border-y border-border bg-card" aria-label="Repères du projet">
+        <div className="mx-auto grid max-w-[76rem] gap-px bg-border sm:grid-cols-3">
+          <Card role="article" className="rounded-none border-0 shadow-none">
+            <CardContent className="px-6 py-9 sm:px-9 lg:px-12">
+              <p className="landing-stat text-primary">6 → 1 mois</p>
+              <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">objectif de réduction de la file accumulée, à mesurer en pilote</p>
+            </CardContent>
+          </Card>
+          <Card role="article" className="rounded-none border-0 shadow-none">
+            <CardContent className="px-6 py-9 sm:px-9 lg:px-12">
+              <p className="landing-stat text-primary">1 000</p>
+              <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">profils synthétiques dans le scénario présenté au jury</p>
+            </CardContent>
+          </Card>
+          <Card role="article" className="rounded-none border-0 shadow-none">
+            <CardContent className="px-6 py-9 sm:px-9 lg:px-12">
+              <p className="landing-stat text-primary">100 %</p>
+              <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">des validations finales restent entre les mains du professionnel</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section id="solution" className="landing-shell landing-section">
+        <Reveal className="grid gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:gap-20">
           <div>
-            <p className="eyebrow">Le problème</p>
-            <h2 className="mt-4 text-4xl font-bold sm:text-5xl">Quand la routine prend le temps de l’expertise.</h2>
-            <p className="mt-6 max-w-lg text-lg leading-8 text-muted-foreground">
-              La revue immunologique demande de reconstituer un historique, de confronter les résultats et de repérer les dossiers qui exigent une attention particulière. Ariane organise cette lecture sans remplacer le professionnel.
+            <Badge variant="secondary" className="eyebrow">Le vrai problème</Badge>
+            <h2 className="landing-title mt-4 max-w-[13ch]">Ce n’est pas un dossier. C’est la file qui ne cesse de grandir.</h2>
+            <p className="landing-lead mt-6 max-w-[43ch] text-muted-foreground">
+              Reconstituer les historiques et confronter les résultats mobilise le temps expert sur une tâche répétitive. Pendant ce temps, les dossiers s’accumulent et le retard devient structurel.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {capabilities.map(([number, title, text]) => (
-              <article key={number} className="panel min-h-60 p-7 sm:p-8">
-                <span className="font-heading text-sm font-bold text-primary">{number}</span>
-                <h3 className="mt-12 text-2xl font-bold">{title}</h3>
-                <p className="mt-3 leading-7 text-muted-foreground">{text}</p>
-              </article>
+            {capabilities.map(([number, title, text], index) => (
+              <Reveal key={number} delay={index * 70} className="flex">
+                <Card role="article" className="landing-card min-h-60 w-full">
+                  <CardContent className="flex h-full flex-col p-7 sm:p-8">
+                    <Badge variant="secondary" className="px-2.5 text-primary">{number}</Badge>
+                    <h3 className="landing-subtitle mt-auto pt-12">{title}</h3>
+                    <p className="mt-3 max-w-sm leading-7 text-muted-foreground">{text}</p>
+                  </CardContent>
+                </Card>
+              </Reveal>
             ))}
           </div>
+        </Reveal>
+      </section>
+
+      <section id="impact" className="border-y border-border bg-secondary/45">
+        <div className="landing-shell landing-section">
+          <Reveal className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
+            <Card className="rounded-[2rem] border-primary/15">
+              <CardContent className="p-7 sm:p-10">
+                <Badge variant="secondary" className="eyebrow">Objectif opérationnel</Badge>
+                <div className="mt-9 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                  <div>
+                    <p className="landing-impact-number text-muted-foreground">6</p>
+                    <p className="mt-1 text-sm font-semibold">mois de retard</p>
+                  </div>
+                  <div className="landing-backlog-track" aria-hidden="true"><span /></div>
+                  <div className="text-right">
+                    <p className="landing-impact-number text-primary">1</p>
+                    <p className="mt-1 text-sm font-semibold">mois de file cible</p>
+                  </div>
+                </div>
+                <Alert className="mt-8 border-warning/30 bg-warning-soft text-warning-foreground">
+                  <AlertDescription className="text-warning-foreground">
+                    Projection de capacité issue du besoin terrain. Elle devra être mesurée avec une équipe pilote avant toute communication comme résultat obtenu.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+            <div>
+              <Badge variant="secondary" className="eyebrow">Changer d’échelle</Badge>
+              <h2 className="landing-title mt-4">Le gain ne se compte pas seulement en minutes. Il se voit dans le retard résorbé.</h2>
+              <p className="landing-lead mt-6 max-w-[44ch] text-muted-foreground">
+                En préparant les dossiers répétitifs et en isolant ceux qui réclament une lecture approfondie, Ariane redonne de la capacité à l’équipe sans raccourcir la vigilance.
+              </p>
+              <ul className="mt-8 grid gap-3 text-sm sm:grid-cols-2">
+                {[
+                  'Moins de temps passé à reconstruire le contexte',
+                  'Les dossiers complexes restent immédiatement visibles',
+                  'Une file de travail claire et priorisée',
+                  'Chaque validation reste explicitement humaine',
+                ].map((item) => (
+                  <li key={item}><Card className="h-full shadow-none"><CardContent className="p-4">{item}</CardContent></Card></li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       <section id="demo" className="bg-[#202333] text-white">
-        <div className="mx-auto grid max-w-[1440px] gap-14 px-5 py-24 sm:px-10 lg:grid-cols-[0.72fr_1.28fr] lg:px-14 lg:py-32">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-[#a7a8ff] uppercase">Démonstration</p>
-            <h2 className="mt-4 text-4xl font-bold sm:text-5xl">Ariane, en action.</h2>
-            <p className="mt-6 max-w-lg text-lg leading-8 text-white/70">
-              Du chargement des profils synthétiques jusqu’à la file de validation, la démonstration montre le parcours réellement construit pendant le hackathon.
+        <div className="landing-shell landing-section grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
+          <Reveal>
+            <Badge className="border border-white/10 bg-white/10 px-3 py-1 text-[#c8c9ff]">Démonstration</Badge>
+            <h2 className="landing-title mt-4">Du dossier brut à une file prête à relire.</h2>
+            <p className="landing-lead mt-6 max-w-[40ch] text-white/70">
+              Le prototype montre le parcours réellement construit pendant le hackathon, du chargement synthétique jusqu’à la validation explicite.
             </p>
             <ul className="mt-9 space-y-4 text-sm text-white/75">
               <li className="flex gap-3"><span className="text-[#a7a8ff]">01</span> Import et analyse simulés</li>
@@ -124,108 +212,133 @@ export function LandingPage() {
               <li className="flex gap-3"><span className="text-[#a7a8ff]">03</span> Files « À signer » et « À consulter »</li>
               <li className="flex gap-3"><span className="text-[#a7a8ff]">04</span> Vérification explicite avant signature</li>
             </ul>
-          </div>
-          <div>
-            <video controls playsInline preload="metadata" poster="/showcase/dashboard.jpg" className="aspect-video w-full rounded-[1.5rem] border border-white/15 bg-black object-cover" aria-label="Vidéo de démonstration Ariane">
+          </Reveal>
+          <Reveal delay={100}>
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/showcase/dashboard.jpg"
+              className="aspect-video w-full rounded-[1.5rem] border border-white/15 bg-black object-cover"
+              aria-label="Vidéo de démonstration Ariane"
+            >
               <source src="/showcase/demo-ariane.mp4" type="video/mp4" />
             </video>
             <p className="mt-4 text-sm text-white/55">29 secondes · parcours local · données synthétiques</p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-5 py-24 sm:px-10 lg:px-14 lg:py-32">
-        <div className="grid items-start gap-12 lg:grid-cols-2">
+      <section className="landing-shell landing-section">
+        <Reveal className="grid items-start gap-12 lg:grid-cols-2 lg:gap-20">
           <div>
-            <p className="eyebrow">Résultat du scénario</p>
-            <h2 className="mt-4 text-4xl font-bold sm:text-5xl">La routine préparée. Les cas complexes visibles.</h2>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-              Sur les 1 000 profils synthétiques présentés, Ariane a préparé 714 dossiers pour la file de validation et conservé 286 dossiers pour une revue approfondie.
+            <Badge variant="secondary" className="eyebrow">Résultat du scénario</Badge>
+            <h2 className="landing-title mt-4">La routine préparée. Les cas complexes toujours visibles.</h2>
+            <p className="landing-lead mt-6 max-w-[44ch] text-muted-foreground">
+              Sur 1 000 profils synthétiques, Ariane prépare 714 dossiers pour la file de validation et en conserve 286 pour une revue approfondie.
             </p>
-            <p className="mt-5 rounded-2xl bg-warning-soft p-4 text-sm leading-6 text-warning-foreground">
-              ◇ Résultat de démonstration sur un jeu synthétique. Cette répartition ne constitue pas une performance clinique.
-            </p>
+            <Alert className="mt-5 border-warning/30 bg-warning-soft text-warning-foreground">
+              <AlertDescription className="text-warning-foreground">
+                ◇ Résultat de démonstration. Cette répartition ne constitue ni une performance clinique ni une mesure du gain de temps.
+              </AlertDescription>
+            </Alert>
           </div>
-          <div className="overflow-hidden rounded-[2rem] border border-border bg-card p-8 sm:p-10">
-            <div className="flex items-end justify-between gap-5 border-b border-border pb-8">
-              <div><p className="text-6xl font-bold text-primary">714</p><p className="mt-2 text-sm text-muted-foreground">à valider</p></div>
-              <div className="text-right"><p className="text-4xl font-bold">286</p><p className="mt-2 text-sm text-muted-foreground">à approfondir</p></div>
-            </div>
-            <div className="mt-8 flex h-5 overflow-hidden rounded-full" role="img" aria-label="714 dossiers à valider et 286 dossiers à approfondir sur 1000">
-              <span className="block w-[71.4%] bg-primary" />
-              <span className="block w-[28.6%] bg-warning" />
-            </div>
-          </div>
-        </div>
+          <Card className="overflow-hidden rounded-[2rem]">
+            <CardContent className="p-8 sm:p-10">
+              <div className="flex items-end justify-between gap-5 border-b border-border pb-8">
+                <div><p className="landing-impact-number text-primary">714</p><p className="mt-2 text-sm text-muted-foreground">à valider</p></div>
+                <div className="text-right"><p className="text-4xl font-semibold">286</p><p className="mt-2 text-sm text-muted-foreground">à approfondir</p></div>
+              </div>
+              <div className="mt-8 flex h-5 overflow-hidden rounded-full" role="img" aria-label="714 dossiers à valider et 286 dossiers à approfondir sur 1000">
+                <span className="landing-progress block w-[71.4%] origin-left bg-primary" />
+                <span className="landing-progress block w-[28.6%] origin-left bg-warning [transition-delay:180ms]" />
+              </div>
+            </CardContent>
+          </Card>
+        </Reveal>
       </section>
 
       <section id="architecture" className="border-y border-border bg-secondary/45">
-        <div className="mx-auto max-w-[1440px] px-5 py-24 sm:px-10 lg:px-14 lg:py-32">
-          <div className="max-w-3xl">
-            <p className="eyebrow">Architecture</p>
-            <h2 className="mt-4 text-4xl font-bold sm:text-5xl">Un produit complet, local et explicable.</h2>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">Le calcul reste dans le backend. L’interface présente les résultats et leurs limites, sans dupliquer les règles métier.</p>
-          </div>
+        <div className="landing-shell landing-section">
+          <Reveal className="max-w-3xl">
+            <Badge variant="secondary" className="eyebrow">Architecture</Badge>
+            <h2 className="landing-title mt-4">Un produit complet, local et explicable.</h2>
+            <p className="landing-lead mt-6 text-muted-foreground">Le calcul reste dans le backend. L’interface présente les résultats et leurs limites, sans dupliquer les règles métier.</p>
+          </Reveal>
           <div className="mt-12 grid gap-3 lg:grid-cols-4">
             {architecture.map(([title, text], index) => (
-              <article key={title} className="relative rounded-2xl border border-border bg-card p-6">
-                <span className="text-xs font-semibold text-primary">0{index + 1}</span>
-                <h3 className="mt-8 text-xl font-bold">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
-                {index < architecture.length - 1 ? <span aria-hidden="true" className="absolute -right-3 top-1/2 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-primary lg:flex">→</span> : null}
-              </article>
+              <Reveal key={title} delay={index * 80} className="flex">
+                <Card role="article" className="landing-card relative w-full">
+                  <CardContent className="p-6">
+                    <Badge variant="secondary" className="text-primary">0{index + 1}</Badge>
+                    <h3 className="landing-subtitle mt-8">{title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
+                    {index < architecture.length - 1 ? <span aria-hidden="true" className="absolute -right-3 top-1/2 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-primary lg:flex">→</span> : null}
+                  </CardContent>
+                </Card>
+              </Reveal>
             ))}
           </div>
           <div className="mt-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
-            {['Next.js', 'TypeScript', 'FastAPI', 'PostgreSQL', 'Pydantic', 'TanStack Query', 'Playwright'].map((item) => <span key={item} className="rounded-full border border-border bg-card px-3 py-1.5">{item}</span>)}
+            {['Next.js', 'TypeScript', 'FastAPI', 'PostgreSQL', 'Pydantic', 'TanStack Query', 'Playwright'].map((item) => <Badge key={item} variant="outline" className="bg-card px-3 py-1.5 text-muted-foreground">{item}</Badge>)}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-5 py-24 sm:px-10 lg:px-14 lg:py-32">
-        <div className="grid gap-12 rounded-[2rem] bg-accent p-8 sm:p-12 lg:grid-cols-[0.72fr_1.28fr] lg:p-16">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-accent-foreground uppercase">Conception responsable</p>
-            <h2 className="mt-4 text-4xl font-bold">Le biologiste garde la main.</h2>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            {[
-              ['○', 'Validation humaine', 'Aucun dossier n’est validé automatiquement.'],
-              ['◇', 'Données synthétiques', 'Aucune donnée patient réelle dans le démonstrateur.'],
-              ['?', 'Incertitude visible', 'Les informations manquantes ne sont jamais interprétées comme favorables.'],
-              ['◎', 'Calcul déterministe', 'Le cœur du parcours reste reproductible et utilisable localement.'],
-            ].map(([symbol, title, text]) => (
-              <article key={title} className="rounded-2xl bg-white/70 p-5">
-                <span aria-hidden="true" className="text-xl text-accent-foreground">{symbol}</span>
-                <h3 className="mt-4 font-bold">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
-              </article>
-            ))}
-          </div>
-        </div>
+      <section className="landing-shell landing-section">
+        <Reveal>
+          <Card className="rounded-[2rem] border-0 bg-accent shadow-none">
+            <CardContent className="grid gap-12 p-8 sm:p-12 lg:grid-cols-[0.72fr_1.28fr] lg:p-16">
+              <div>
+                <Badge variant="secondary" className="bg-white/70 text-accent-foreground">Conception responsable</Badge>
+                <h2 className="landing-title mt-4">Accélérer la préparation. Jamais la décision.</h2>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {safeguards.map(([symbol, title, text]) => (
+                  <Card key={title} role="article" className="border-0 bg-white/70 shadow-none">
+                    <CardContent className="p-5">
+                      <Badge variant="secondary" aria-hidden="true" className="text-accent-foreground">{symbol}</Badge>
+                      <h3 className="mt-4 font-bold">{title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </Reveal>
       </section>
 
-      <section className="bg-primary text-white">
-        <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-20 sm:px-10 lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-24">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-white uppercase">AI for Health · Paris</p>
-            <h2 className="mt-4 max-w-4xl text-4xl font-bold sm:text-6xl">Une solution née en 50 heures, récompensée pour sa valeur patient.</h2>
-            <p className="mt-6 text-white">13–15 novembre 2026 · Metafore Boétie Saint-Augustin</p>
-          </div>
-          <a href="https://hackathons-artefactadoptai.agorize.com/fr/challenges/hackathon-adopt-ai-for-health?lang=fr" target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-white px-5 font-semibold text-primary hover:bg-secondary">
-            Découvrir le hackathon ↗
-          </a>
-        </div>
+      <section className="landing-shell pb-[clamp(4rem,2.6rem+6vw,7.5rem)]">
+        <Reveal>
+          <Card className="rounded-[2.5rem] border-0 bg-primary text-white shadow-none">
+            <CardContent className="px-6 py-16 text-center sm:px-10 sm:py-24">
+              <Badge variant="outline" className="border-white/30 bg-primary-hover text-white">AI for Health · Paris</Badge>
+              <h2 className="landing-display mx-auto mt-5 max-w-[16ch]">Rattraper le retard sans raccourcir la vigilance.</h2>
+              <p className="landing-lead mx-auto mt-6 max-w-[42ch] text-white">
+                Une solution née en 50 heures, récompensée pour sa valeur patient et conçue pour rendre de la capacité aux équipes.
+              </p>
+              <div className="mt-9 flex flex-wrap justify-center gap-3">
+                <Button asChild size="lg" variant="secondary" className="bg-white text-primary hover:bg-secondary">
+                  <Link href={ROUTES.login}>Ouvrir le démonstrateur</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white">
+                  <a href="https://hackathons-artefactadoptai.agorize.com/fr/challenges/hackathon-adopt-ai-for-health?lang=fr" target="_blank" rel="noreferrer">Découvrir le hackathon ↗</a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </Reveal>
       </section>
 
-      <footer className="mx-auto flex max-w-[1440px] flex-col gap-8 px-5 py-12 sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-14">
+      <footer className="landing-shell flex flex-col gap-8 border-t border-border py-12 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <img src="/ariane-logo.png" alt="Ariane" className="h-auto w-40" />
-          <p className="mt-3 text-sm text-muted-foreground">La revue, en perspective.</p>
+          <img src="/ariane-logo.png" alt="Ariane" className="h-auto w-36" />
+          <p className="mt-3 text-sm text-muted-foreground">Rattraper la file. Préserver la décision.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <a href="https://github.com/idris404/Ariane" className="inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Voir le dépôt GitHub</a>
-          <Link href={ROUTES.login} className="button-primary">Ouvrir le démonstrateur</Link>
+          <Button asChild variant="outline"><a href="https://github.com/idris404/Ariane">Voir le dépôt GitHub</a></Button>
+          <Button asChild><Link href={ROUTES.login}>Ouvrir Ariane</Link></Button>
         </div>
         <p className="text-xs text-muted-foreground">© 2026 Ariane · Tous droits réservés</p>
       </footer>

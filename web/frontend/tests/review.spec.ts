@@ -12,10 +12,16 @@ test.beforeEach(async ({ page }) => {
 
 test('public landing presents the award, product and responsible-use boundary', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: /Rendre du temps/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'Rattraper le retard. Garder l’expertise.',
+    }),
+  ).toBeVisible()
   await expect(page.getByText('Prix de la meilleure solution pour les patients')).toBeVisible()
+  await expect(page.getByText('6 → 1 mois')).toBeVisible()
   await expect(page.getByLabel('Vidéo de démonstration Ariane')).toBeVisible()
-  await expect(page.getByText('Le biologiste garde la main.')).toBeVisible()
+  await expect(page.getByText('Accélérer la préparation. Jamais la décision.')).toBeVisible()
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze()
