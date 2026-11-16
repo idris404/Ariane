@@ -28,6 +28,24 @@ const safeguards = [
   ['◎', 'Calcul déterministe', 'Le cœur du parcours reste reproductible et utilisable localement.'],
 ] as const
 
+const pilotStages = [
+  [
+    '01',
+    'Déjà construit',
+    'Un parcours fonctionnel, local et testé sur 1 000 profils entièrement synthétiques.',
+  ],
+  [
+    '02',
+    'Déjà reconnu',
+    'Le prix de la meilleure solution pour les patients au hackathon AI for Health.',
+  ],
+  [
+    '03',
+    'À mesurer en pilote',
+    'La capacité à réduire la file accumulée, le temps de préparation et les reprises manuelles.',
+  ],
+] as const
+
 export function LandingPage() {
   return (
     <main className="landing min-h-screen overflow-hidden bg-background text-foreground">
@@ -46,6 +64,7 @@ export function LandingPage() {
           <a href="#solution" className="hover:text-foreground">La solution</a>
           <a href="#impact" className="hover:text-foreground">Impact</a>
           <a href="#demo" className="hover:text-foreground">Démonstration</a>
+          <a href="#pilote" className="hover:text-foreground">Suite</a>
         </nav>
         <Button asChild size="lg">
           <Link href={ROUTES.login}>Ouvrir Ariane</Link>
@@ -283,6 +302,38 @@ export function LandingPage() {
             {['Next.js', 'TypeScript', 'FastAPI', 'PostgreSQL', 'Pydantic', 'TanStack Query', 'Playwright'].map((item) => <Badge key={item} variant="outline" className="bg-card px-3 py-1.5 text-muted-foreground">{item}</Badge>)}
           </div>
         </div>
+      </section>
+
+      <section id="pilote" className="landing-shell landing-section">
+        <Reveal className="grid gap-12 lg:grid-cols-[0.74fr_1.26fr] lg:gap-20">
+          <div>
+            <Badge variant="secondary" className="eyebrow">Du hackathon au pilote</Badge>
+            <h2 className="landing-title mt-4">Une preuve de produit aujourd’hui. Une preuve d’impact demain.</h2>
+            <p className="landing-lead mt-6 max-w-[43ch] text-muted-foreground">
+              Ariane a démontré qu’un parcours complet pouvait être construit. L’étape suivante consiste à mesurer son effet opérationnel dans un cadre encadré, sans déplacer la responsabilité du professionnel.
+            </p>
+            <Button asChild variant="outline" size="lg" className="mt-8">
+              <a href="https://github.com/idris404/Ariane/blob/main/docs/PILOT.md">
+                Découvrir la démarche pilote ↗
+              </a>
+            </Button>
+          </div>
+          <div className="grid gap-4">
+            {pilotStages.map(([number, title, text], index) => (
+              <Reveal key={number} delay={index * 70}>
+                <Card role="article" className="landing-card">
+                  <CardContent className="grid gap-4 p-6 sm:grid-cols-[auto_1fr] sm:gap-6 sm:p-7">
+                    <Badge variant="secondary" className="h-fit text-primary">{number}</Badge>
+                    <div>
+                      <h3 className="landing-subtitle">{title}</h3>
+                      <p className="mt-2 max-w-2xl leading-7 text-muted-foreground">{text}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Reveal>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       <section className="landing-shell landing-section">

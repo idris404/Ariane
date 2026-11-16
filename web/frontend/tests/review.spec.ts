@@ -18,9 +18,15 @@ test('public landing presents the award, product and responsible-use boundary', 
       name: 'Rattraper le retard. Garder l’expertise.',
     }),
   ).toBeVisible()
-  await expect(page.getByText('Prix de la meilleure solution pour les patients')).toBeVisible()
+  await expect(
+    page
+      .locator('[data-slot="badge"]')
+      .filter({ hasText: 'Prix de la meilleure solution pour les patients' }),
+  ).toBeVisible()
   await expect(page.getByText('6 → 1 mois')).toBeVisible()
   await expect(page.getByLabel('Vidéo de démonstration Ariane')).toBeVisible()
+  await expect(page.getByText('Une preuve de produit aujourd’hui. Une preuve d’impact demain.')).toBeVisible()
+  await expect(page.getByText('À mesurer en pilote', { exact: true })).toBeVisible()
   await expect(page.getByText('Accélérer la préparation. Jamais la décision.')).toBeVisible()
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

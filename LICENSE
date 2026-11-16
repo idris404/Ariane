@@ -1,6 +1,6 @@
 ARIANE PROPRIETARY LICENSE
 
-Copyright (c) 2026 Ariane. All rights reserved.
+Copyright (c) 2026 Ariane project rights holders. All rights reserved.
 
 This repository and its contents are made available solely for viewing,
 evaluation, and demonstration of the Ariane project.
@@ -9,6 +9,10 @@ No permission is granted to use, copy, modify, reproduce, publish, distribute,
 sublicense, sell, commercialize, deploy, or create derivative works from any
 part of this repository without prior written authorization from the rights
 holders.
+
+No patent, trademark, trade name, branding, or other intellectual-property
+right is granted by access to this repository. The Ariane name, logos, visual
+identity, screenshots, and presentation media remain protected materials.
 
 The repository is provided "as is", without warranty of any kind. It is a
 hackathon demonstrator and is not a clinically validated medical device.

@@ -2,60 +2,94 @@
   <img src="web/frontend/public/brand/ariane-lockup.png" alt="Ariane" width="360">
 </p>
 
-<p align="center"><strong>Rendre du temps à l’expertise biologique.</strong></p>
+<h1 align="center">Rattraper le retard. Garder l’expertise.</h1>
 
 <p align="center">
-  <strong>🏆 Prix de la meilleure solution pour les patients</strong><br>
-  AI for Health · Paris · 13–15 novembre 2026
+  Ariane prépare la revue immunologique répétitive pour rendre de la capacité aux équipes,<br>
+  sans automatiser la décision du biologiste.
 </p>
 
 <p align="center">
+  <strong>🏆 Prix de la meilleure solution pour les patients</strong><br>
+  Hackathon AI for Health · Paris · 13–15 novembre 2026
+</p>
+
+<p align="center">
+  <a href="#pourquoi-ariane">Pourquoi Ariane</a> ·
   <a href="#démonstration">Démonstration</a> ·
   <a href="#démarrage-local">Démarrage local</a> ·
-  <a href="docs/ARCHITECTURE.md">Architecture</a> ·
+  <a href="docs/PILOT.md">Démarche pilote</a> ·
   <a href="docs/RESPONSIBLE_USE.md">Usage responsable</a>
 </p>
 
 ![File de validation du démonstrateur Ariane](web/frontend/public/showcase/signing-queue-full.png)
 
-## Le projet
+## Pourquoi Ariane
 
-La revue immunologique en transplantation demande de reconstituer un historique, de confronter des résultats successifs et d’identifier les dossiers qui nécessitent une attention particulière. Cette charge répétitive réduit le temps disponible pour les situations complexes.
+La revue immunologique en transplantation demande de reconstituer des historiques, de rapprocher des résultats successifs et de repérer les dossiers qui nécessitent une lecture approfondie. Lorsque cette préparation répétitive monopolise le temps expert, la file grandit plus vite qu’elle ne se résorbe.
 
-**Ariane prépare cette revue sans prendre la décision.** Le démonstrateur organise des données synthétiques, présente leur évolution dans le temps, sépare les dossiers proposés à la signature de ceux à consulter en détail et conserve une validation humaine explicite.
+**Ariane transforme cette accumulation en une file de travail lisible et priorisée.** Le produit réunit l’historique synthétique d’un dossier, expose les informations absentes ou incertaines et distingue deux parcours :
 
-En 50 heures, le projet est passé d’un besoin terrain à un parcours fonctionnel réunissant une interface complète, une API, une base locale, un pipeline de données déterministe et des tests automatisés.
+- **À signer** : le dossier est préparé pour une dernière vérification professionnelle ;
+- **À consulter** : le dossier reste visible pour une revue plus approfondie.
 
-## Ce que montre Ariane
+Le biologiste conserve la décision et déclenche lui-même toute validation.
 
-- import et analyse simulés de dossiers synthétiques ;
-- cockpit de dossiers avec recherche, filtres, tri et pagination ;
-- fiche patient avec historique et évolution sérique ;
-- file **À signer** pour les dossiers préparés à la validation ;
-- file **À consulter** pour les suivis nécessitant une lecture approfondie ;
-- signature déclenchée uniquement par une action humaine ;
-- fonctionnement local avec un backend et une base PostgreSQL.
+## La proposition de valeur
 
-## Résultat présenté au jury
+| Problème opérationnel | Réponse d’Ariane | Valeur recherchée |
+| --- | --- | --- |
+| L’historique doit être reconstruit dossier par dossier. | Les résultats et événements sont réunis dans une lecture longitudinale. | Réduire le temps passé à retrouver le contexte. |
+| La routine et les cas complexes partagent la même file. | Deux parcours rendent immédiatement visibles les dossiers à approfondir. | Concentrer le temps expert là où il est le plus utile. |
+| Les informations absentes peuvent être difficiles à repérer. | Les données manquantes et les limites restent explicites. | Éviter qu’une absence d’information devienne une conclusion favorable. |
+| Le retard s’accumule. | La préparation et la priorisation visent à rendre de la capacité à l’équipe. | Ramener une file estimée à six mois vers un mois, à confirmer en pilote. |
 
-Sur le scénario de démonstration composé de **1 000 profils synthétiques** :
+L’objectif **6 → 1 mois** est une ambition opérationnelle issue du besoin terrain. Il ne s’agit pas d’un résultat déjà obtenu : il doit être mesuré avec une équipe pilote avant toute communication comme performance.
+
+## Ce que nous avons construit en 50 heures
+
+- une landing publique cohérente avec l’identité Ariane ;
+- un cockpit avec recherche, filtres, tri et pagination ;
+- une fiche synthétique avec historique et évolution sérique ;
+- des files **À signer** et **À consulter** ;
+- une signature déclenchée uniquement par une action humaine ;
+- une API FastAPI, une base PostgreSQL locale et un pipeline déterministe ;
+- des contrats frontend/backend validés aux frontières ;
+- des tests automatisés du pipeline, de l’API et des parcours web.
+
+Le prix remporté valide la pertinence de la proposition présentée au jury. Il ne constitue pas une validation clinique du produit.
+
+## Résultat du scénario synthétique
+
+Le scénario présenté au jury contient **1 000 profils entièrement synthétiques** :
 
 | Parcours | Profils | Rôle dans la démonstration |
 | --- | ---: | --- |
-| Préparés pour validation | 714 | Le professionnel vérifie avant de signer. |
+| Préparés pour validation | 714 | Le professionnel vérifie chaque dossier avant de signer. |
 | Conservés pour revue approfondie | 286 | Le dossier reste visible dans la file de consultation. |
 
-Ces nombres décrivent le jeu de démonstration. Ils ne constituent ni une performance clinique ni une estimation de résultats sur des patients réels.
+Ces nombres décrivent la distribution contrôlée du démonstrateur. Ils ne mesurent ni une performance clinique, ni un gain de temps, ni une prévalence réelle.
 
 ## Démonstration
 
-La landing page et la démonstration sont intégrées au frontend :
+La présentation et le produit partagent le même frontend :
 
-- `/` : présentation du projet, du prix, de l’architecture et des garde-fous ;
-- `/login` : accès au démonstrateur ;
-- vidéo : [`demo-ariane.mp4`](web/frontend/public/showcase/demo-ariane.mp4).
+- `/` — storytelling, prix, impact visé, architecture et garde-fous ;
+- `/login` — entrée du démonstrateur local ;
+- [`demo-ariane.mp4`](web/frontend/public/showcase/demo-ariane.mp4) — parcours vidéo court.
 
 Après le démarrage local, ouvrir <http://localhost:5173>.
+
+## De la preuve de produit à la preuve d’impact
+
+| Déjà démontré | À mesurer en pilote |
+| --- | --- |
+| Un parcours complet, local et reproductible | Le temps de préparation et de revue |
+| Une interface testée sur des données synthétiques | L’évolution de la taille et de l’ancienneté de la file |
+| Une validation humaine explicite | Les reprises et corrections avant validation |
+| Une proposition récompensée pour sa valeur patient | L’adoption et la compréhension par les professionnels |
+
+La [démarche pilote](docs/PILOT.md) décrit les indicateurs, les étapes de cadrage et les conditions nécessaires avant toute expérimentation. Une future version professionnelle pourrait ajouter des protocoles versionnés, un audit renforcé, une gestion des accès et un déploiement adapté à l’environnement cible.
 
 ## Architecture
 
@@ -74,7 +108,7 @@ Pipeline déterministe ──► FastAPI ──► PostgreSQL
 
 | Couche | Technologies |
 | --- | --- |
-| Présentation et application | Next.js 16, React 19, TypeScript, Tailwind CSS |
+| Présentation et application | Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui |
 | État et validation frontend | TanStack Query, Zod, React Hook Form |
 | API | FastAPI, Pydantic, SQLAlchemy |
 | Données | PostgreSQL, pipeline Python déterministe |
@@ -90,13 +124,13 @@ Le backend reste la source de vérité des données et des règles. Le frontend 
 - Python 3.12 et [`uv`](https://docs.astral.sh/uv/) ;
 - Docker avec Compose.
 
-### 1. Base PostgreSQL
+### 1. Lancer PostgreSQL
 
 ```bash
 docker compose -f dependencies/compose.yml up -d
 ```
 
-### 2. Backend et données synthétiques
+### 2. Lancer l’API et charger le scénario
 
 ```bash
 cd web
@@ -107,7 +141,7 @@ uv run python -m app.seed
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 3. Frontend
+### 3. Lancer le frontend
 
 ```bash
 cd web/frontend
@@ -116,9 +150,13 @@ npm ci
 npm run dev
 ```
 
-Le frontend est disponible sur <http://localhost:5173> et l’API sur <http://localhost:8000>.
+| Service | URL locale |
+| --- | --- |
+| Landing et démonstrateur | <http://localhost:5173> |
+| API | <http://localhost:8000> |
+| OpenAPI | <http://localhost:8000/docs> |
 
-Le scénario complet est détaillé dans [`docs/DEMO.md`](docs/DEMO.md).
+Le scénario guidé et son plan de secours sont documentés dans [`docs/DEMO.md`](docs/DEMO.md).
 
 ## Vérifications
 
@@ -140,26 +178,36 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 -m hla_data_model.validator data/scenarios
 ```
 
-## Limites assumées
+## Usage responsable
 
-- données exclusivement synthétiques ;
-- aucune validation clinique du démonstrateur ;
+Ariane est un démonstrateur de hackathon et non un dispositif médical cliniquement validé.
+
+- données exclusivement synthétiques dans ce dépôt ;
 - aucune décision autonome de transplantation ;
 - aucune prédiction de rejet ou recommandation thérapeutique ;
 - aucune intégration officielle à LymFIP ;
-- résultats finaux soumis à une validation humaine.
+- incertitudes et informations manquantes conservées ;
+- validation finale explicitement humaine.
 
-Lire [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) avant de réutiliser le démonstrateur dans une présentation.
+Lire [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) avant toute présentation ou réutilisation du démonstrateur.
 
 ## Documentation
 
-- [`docs/PRODUCT.md`](docs/PRODUCT.md) — problème, proposition de valeur et parcours ;
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — composants, flux et responsabilités ;
-- [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md) — données synthétiques et reproductibilité ;
-- [`docs/DEMO.md`](docs/DEMO.md) — lancement et scénario de démonstration ;
-- [`docs/HACKATHON.md`](docs/HACKATHON.md) — contexte, réalisation et prix ;
-- [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) — limites médicales et communication responsable.
+| Document | Contenu |
+| --- | --- |
+| [`docs/PRODUCT.md`](docs/PRODUCT.md) | Problème, proposition de valeur et périmètre produit |
+| [`docs/PILOT.md`](docs/PILOT.md) | Passage du démonstrateur à une évaluation encadrée |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Composants, flux et responsabilités |
+| [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md) | Données synthétiques et reproductibilité |
+| [`docs/DEMO.md`](docs/DEMO.md) | Lancement, scénario et plan de secours |
+| [`docs/HACKATHON.md`](docs/HACKATHON.md) | Contexte, réalisation en 50 heures et prix |
+| [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) | Limites médicales et communication responsable |
+| [`BRAND.md`](BRAND.md) | Usage du nom, des logos et des médias Ariane |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Retours, collaborations et données interdites |
+| [`SECURITY.md`](SECURITY.md) | Signalement privé et informations à ne jamais publier |
 
-## Licence
+## Licence et droits
 
-Ce projet est publié à des fins de présentation et d’évaluation. **Il n’est pas open source.** Le code, la marque et les médias sont protégés par la licence propriétaire du dépôt. Toute utilisation, reproduction, distribution ou exploitation commerciale nécessite une autorisation écrite préalable. Voir [`LICENSE`](LICENSE) et [`BRAND.md`](BRAND.md).
+Ce dépôt est visible à des fins de présentation et d’évaluation, mais **il n’est pas open source**. Aucun droit d’utilisation, de modification, de distribution, de déploiement ou d’exploitation commerciale n’est accordé sans autorisation écrite préalable.
+
+Des droits commerciaux, de recherche ou d’évaluation peuvent être accordés séparément dans le cadre d’un accord écrit. Voir [`LICENSE`](LICENSE), [`BRAND.md`](BRAND.md) et [`CONTRIBUTING.md`](CONTRIBUTING.md).
