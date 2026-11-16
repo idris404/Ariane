@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   },
   description:
     'Démonstrateur de revue immunologique construit sur des données synthétiques, avec validation humaine obligatoire.',
-  metadataBase: new URL('https://github.com/idris404/Hackathon-Adopt-AI'),
+  metadataBase: new URL('https://github.com/idris404/Ariane'),
   openGraph: {
     title: 'Ariane · Rendre du temps à l’expertise biologique',
     description:

@@ -5,8 +5,8 @@
 This section records the frontend state before the public showcase and Next.js
 migration. For the current implementation, see the 2026-11-16 update below.
 
-The requested repository is `idris404/Hackathon-Adopt-AI`, local checkout
-`Hackathon-Adopt-AI`, branch `main`. The initial working tree was clean.
+The repository is now published as `idris404/Ariane`; the local checkout keeps
+its historical `Hackathon-Adopt-AI` directory name. The initial working tree was clean.
 The similarly named `Hackathon AdoptAI` checkout points to the old `HLA-twin`
 repository and was not modified.
 

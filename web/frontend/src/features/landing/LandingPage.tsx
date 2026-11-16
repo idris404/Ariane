@@ -224,7 +224,7 @@ export function LandingPage() {
           <p className="mt-3 text-sm text-muted-foreground">La revue, en perspective.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <a href="https://github.com/idris404/Hackathon-Adopt-AI" className="inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Voir le dépôt GitHub</a>
+          <a href="https://github.com/idris404/Ariane" className="inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Voir le dépôt GitHub</a>
           <Link href={ROUTES.login} className="button-primary">Ouvrir le démonstrateur</Link>
         </div>
         <p className="text-xs text-muted-foreground">© 2026 Ariane · Tous droits réservés</p>
