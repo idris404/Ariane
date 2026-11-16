@@ -199,6 +199,7 @@ Lire [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) avant toute présentat
 | [`docs/PILOT.md`](docs/PILOT.md) | Passage du démonstrateur à une évaluation encadrée |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Composants, flux et responsabilités |
 | [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md) | Données synthétiques et reproductibilité |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Déploiement Vercel Services et Neon |
 | [`docs/DEMO.md`](docs/DEMO.md) | Lancement, scénario et plan de secours |
 | [`docs/HACKATHON.md`](docs/HACKATHON.md) | Contexte, réalisation en 50 heures et prix |
 | [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) | Limites médicales et communication responsable |

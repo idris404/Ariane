@@ -22,6 +22,19 @@ def test_database_url_uses_the_async_driver_and_escapes_special_characters() -> 
     assert rendered.startswith(f"{ASYNC_DB_DRIVER}://{DB_FIELDS['db_user']}:")
 
 
+def test_database_url_accepts_a_neon_dsn_without_exposing_or_forwarding_libpq_options() -> None:
+    secret = "postgresql://ariane:secret@ep-demo-pooler.eu.neon.tech/ariane?sslmode=require&channel_binding=require"
+
+    settings = Settings(_env_file=None, DATABASE_URL=secret)  # type: ignore[call-arg]
+    url = settings.database_url
+
+    assert url.drivername == ASYNC_DB_DRIVER
+    assert url.host == "ep-demo-pooler.eu.neon.tech"
+    assert url.query == {}
+    assert settings.database_connect_args == {"ssl": "require"}
+    assert secret not in repr(settings)
+
+
 def test_optional_settings_fall_back_to_the_defaults(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -48,6 +61,7 @@ def test_the_password_is_not_exposed_when_printing_the_settings() -> None:
 
 
 def test_missing_database_settings_are_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DATABASE_URL", raising=False)
     for name in ("DB_USER", "DB_PASSWORD", "DB_NAME", "DB_PORT"):
         monkeypatch.delenv(name, raising=False)
 
