@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { env } from '../../app/env'
+import { env } from '../../core/env'
 import { API_V1_PREFIX, CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE } from '../../constants/api'
 
 // Un 4xx métier renvoie { detail: "CODE_STABLE" } ; un 422 renvoie une liste, qu'on ignore ici.
@@ -21,7 +21,7 @@ type ApiRequest = { method?: 'GET' | 'POST'; body?: unknown }
 
 // Le cookie de session est HttpOnly : il est posé et envoyé par le navigateur (credentials: include).
 export async function apiFetch(path: string, { method = 'GET', body }: ApiRequest = {}): Promise<Response> {
-  const response = await fetch(`${env.VITE_API_URL}${API_V1_PREFIX}${path}`, {
+  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${API_V1_PREFIX}${path}`, {
     method,
     credentials: 'include',
     ...(body === undefined

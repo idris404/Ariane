@@ -15,9 +15,9 @@ export default defineConfig({
     { name: 'mobile', use: { viewport: { width: 360, height: 800 }, reducedMotion: 'reduce' } },
   ],
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5181 --strictPort',
-    env: { VITE_API_URL: 'http://127.0.0.1:8000' },
-    url: 'http://127.0.0.1:5181',
+    command: 'npx next dev -H 127.0.0.1 -p 5181',
+    env: { NEXT_PUBLIC_API_URL: 'http://127.0.0.1:8000' },
+    url: 'http://127.0.0.1:5181/login',
     reuseExistingServer: false,
   },
 })

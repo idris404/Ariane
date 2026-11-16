@@ -24,7 +24,7 @@ test('on arrival no data is requested and each screen shows an empty component',
   const requests = await mockApi(page, { imported: false })
 
   await page.goto(ROUTES.dashboard)
-  await expect(page).toHaveTitle('Ariane · Revue immunologique')
+  await expect(page).toHaveTitle('Ariane · Rendre du temps à l’expertise biologique')
   const logo = page.getByRole('link', { name: 'Ariane — accueil' }).getByRole('img', { name: 'Ariane' })
   await expect(logo).toBeVisible()
   expect(await logo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)

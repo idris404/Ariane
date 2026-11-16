@@ -1,10 +1,8 @@
-// Nom du segment dynamique de ROUTES.fiche : l'identifiant du patient (UUID, jamais son patient_id).
-export const FICHE_ID_PARAM = 'id'
-
 export const ROUTES = {
-  login: '/',
+  landing: '/',
+  login: '/login',
   dashboard: '/dashboard',
-  fiche: `/fiche/:${FICHE_ID_PARAM}`,
+  fiche: '/fiche/[id]',
   toSign: '/a-signer',
   toConsult: '/a-consulter',
 } as const
