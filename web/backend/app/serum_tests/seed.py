@@ -85,6 +85,11 @@ def _check_headers(headers: Sequence[str]) -> None:
         raise SeedError(f"colonnes absentes du CSV : {', '.join(sorted(missing))}")
 
 
+def read_serum_patient_ids(csv_path: Path) -> frozenset[str]:
+    """Les `patient_id` qui ont au moins un prélèvement dans le CSV (le jeu de patients à charger)."""
+    return frozenset(row[CSV_COLUMN_PATIENT_ID] for _, row in read_csv_rows(csv_path, _check_headers))
+
+
 def read_serum_values(csv_path: Path) -> Iterator[dict[str, object]]:
     for line, row in read_csv_rows(csv_path, _check_headers):
         yield build_serum_values(row, line)

@@ -230,6 +230,28 @@ async def test_replaying_the_full_seed_changes_nothing(
     assert len(synthetic.stored) == ROWS
 
 
+async def test_a_patient_set_limits_the_patients_and_what_hangs_from_them(
+    csv_path: Path,
+    patients: FakePatientRepository,
+    synthetic: FakeSyntheticPatientRepository,
+    serum: FakeSerumTestRepository,
+    history: FakePatientHistoryRepository,
+) -> None:
+    wanted = {"P-1", "P-2"}
+
+    first = await run_seed(
+        csv_path, patients, synthetic, serum, history, SeedStage.PATIENTS, patient_ids=wanted
+    )
+    second = await run_seed(csv_path, patients, synthetic, serum, history, SeedStage.SYNTHETIC_PATIENTS)
+
+    assert first.patients == PatientSeedReport(read=2, inserted=2, skipped=ROWS - 2)
+    assert {v["patient_id"] for v in patients.stored.values()} == wanted
+    # Les patients synthétiques suivent : ceux dont le patient n'existe pas sont écartés.
+    assert second.synthetic_patients == SyntheticSeedReport(
+        read=ROWS, inserted=2, without_patient=ROWS - 2
+    )
+
+
 async def test_only_featured_adds_the_featured_record_and_nothing_else(
     csv_path: Path,
     patients: FakePatientRepository,
@@ -330,6 +352,13 @@ def test_the_history_report_counts_events_without_a_patient() -> None:
     assert "7 événements, 7 insérés, 0 déjà présents, 0 sans patient" in line
 
 
+def test_the_patients_report_tells_how_many_rows_were_left_out_of_the_set() -> None:
+    line = describe(SeedReport(PatientSeedReport(read=999, inserted=999, skipped=50001), None))[0]
+
+    assert "999 lignes lues, 999 insérés, 0 déjà présents, 50001 hors du jeu (ignorés)" in line
+    assert "hors du jeu" not in describe(SeedReport(PatientSeedReport(read=1, inserted=1), None))[0]
+
+
 def test_the_featured_report_tells_how_much_was_inserted() -> None:
     line = describe(SeedReport(None, None, featured_patient=FEATURED_REPORT))[0]
 
@@ -395,6 +424,14 @@ def test_reset_recreates_both_tables_so_it_cannot_be_combined_with_only(
 
     with pytest.raises(SystemExit):
         parse_args()
+
+
+def test_the_whole_patients_csv_is_loaded_only_when_asked(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["seed"])
+    assert parse_args().all_patients is False
+
+    monkeypatch.setattr(sys, "argv", ["seed", "--all-patients"])
+    assert parse_args().all_patients is True
 
 
 def test_reset_alone_is_accepted(monkeypatch: pytest.MonkeyPatch) -> None:

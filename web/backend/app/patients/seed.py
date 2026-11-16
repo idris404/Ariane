@@ -8,10 +8,9 @@ fictifs et déterministes. Le message d'une erreur ne contient jamais le contenu
 
 import random
 import uuid
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date
-from itertools import batched
 from pathlib import Path
 
 from app.constants.patients import (
@@ -34,8 +33,9 @@ REQUIRED_CSV_COLUMNS = frozenset({CSV_COLUMN_PATIENT_ID, CSV_COLUMN_BIRTH, CSV_C
 
 @dataclass(frozen=True)
 class PatientSeedReport:
-    read: int
+    read: int  # les lignes retenues (celles du jeu demandé)
     inserted: int
+    skipped: int = 0  # les lignes du CSV hors du jeu demandé : ni lues ni insérées
 
 
 def patient_uuid_for(code: str) -> uuid.UUID:
@@ -94,9 +94,25 @@ def read_patient_values(csv_path: Path) -> Iterator[dict[str, object]]:
         yield build_patient_values(row, line)
 
 
-async def seed_patients(repository: PatientRepository, csv_path: Path) -> PatientSeedReport:
-    read = inserted = 0
-    for batch in batched(read_patient_values(csv_path), SEED_BATCH_SIZE):
+async def seed_patients(
+    repository: PatientRepository,
+    csv_path: Path,
+    only_patient_ids: Collection[str] | None = None,
+) -> PatientSeedReport:
+    """Insère les patients du CSV. `only_patient_ids` limite le jeu : les autres lignes sont
+    comptées « hors jeu » et ne sont pas insérées (`None` : tout le CSV)."""
+    read = inserted = skipped = 0
+    batch: list[dict[str, object]] = []
+    for line, row in read_csv_rows(csv_path, _check_headers):
+        if only_patient_ids is not None and (row[CSV_COLUMN_PATIENT_ID] or "") not in only_patient_ids:
+            skipped += 1
+            continue
+        batch.append(build_patient_values(row, line))
+        if len(batch) == SEED_BATCH_SIZE:
+            inserted += await repository.add_many_ignoring_existing(batch)
+            read += len(batch)
+            batch = []
+    if batch:
         inserted += await repository.add_many_ignoring_existing(batch)
         read += len(batch)
-    return PatientSeedReport(read=read, inserted=inserted)
+    return PatientSeedReport(read=read, inserted=inserted, skipped=skipped)

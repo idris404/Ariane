@@ -75,7 +75,7 @@ cp .env.example .env
 | PostgreSQL | `docker compose -f ./dependencies/compose.yml up -d` | racine du dépôt |
 | Backend | `uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` | `web/backend/` |
 | Frontend | `npm run dev -- --strictPort` | `web/frontend/` |
-| Seed : patients, synthétiques, tests sériques, historique d'événements, patient mis en avant, compte de démonstration | `uv run python -m app.seed [--csv CHEMIN] [--serum-csv CHEMIN] [--only patients\|synthetic\|serum\|history\|featured\|users] [--reset]` | `web/backend/` |
+| Seed : patients, synthétiques, tests sériques, historique d'événements, patient mis en avant, compte de démonstration | `uv run python -m app.seed [--csv CHEMIN] [--serum-csv CHEMIN] [--only patients\|synthetic\|serum\|history\|featured\|users] [--all-patients] [--reset]` | `web/backend/` |
 
 - Backend : <http://localhost:8000> (documentation OpenAPI sur `/docs`)
 - Frontend : <http://localhost:5173>

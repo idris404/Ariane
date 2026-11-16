@@ -12,6 +12,7 @@ from app.constants.featured_patient import FEATURED_PATIENT
 from app.constants.patient_history import HistoryKind
 from app.constants.patients import Gender
 from app.constants.serum_tests import SERUM_POSITIVE_THRESHOLD, SerumProfile
+from app.constants.signatures import SIGN_QUEUE_PROFILE
 from app.featured_patient.seed import (
     FeaturedSeedReport,
     build_history_values,
@@ -49,19 +50,25 @@ def test_the_patient_row_has_the_identity_and_a_stable_id() -> None:
     assert values["id"] == patient_uuid_for(FEATURED_PATIENT.patient_id)
 
 
-def test_the_serum_follow_up_is_fluctuating_with_outputs_from_the_threshold() -> None:
+def test_the_featured_patient_belongs_to_the_sign_queue() -> None:
+    # La file « À signer » liste les profils constants : il y figure, en tête (tri par `patient_id`).
+    assert FEATURED_PATIENT.profile == SIGN_QUEUE_PROFILE == SerumProfile.CONSTANT
+
+
+def test_the_serum_follow_up_is_constant_with_outputs_from_the_threshold() -> None:
     rows = build_serum_values(FEATURED_PATIENT)
 
     assert len(rows) == len(FEATURED_PATIENT.serum_tests)
-    assert {row["profile"] for row in rows} == {SerumProfile.FLUCTUATING.value}
+    assert {row["profile"] for row in rows} == {SerumProfile.CONSTANT.value}
     for row in rows:
         assert row["patient_id"] == FEATURED_PATIENT.patient_id
         assert row["graft_date"] == FEATURED_PATIENT.graft_date
         assert row["id"] == serum_test_uuid_for(FEATURED_PATIENT.patient_id, row["test_date"])
         for antigen in ANTIGENS:
             assert row[f"{antigen}_output"] == int(row[antigen] >= SERUM_POSITIVE_THRESHOLD)
-    # Fluctuant : au moins un antigène passe du négatif au positif d'un prélèvement à l'autre.
-    assert {row["b12_output"] for row in rows} == {0, 1}
+    # Constant : aucun antigène ne varie d'un prélèvement à l'autre.
+    for antigen in ANTIGENS:
+        assert len({row[antigen] for row in rows}) == 1
 
 
 def test_a_patient_has_one_serum_test_per_date() -> None:

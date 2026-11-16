@@ -47,11 +47,22 @@ class FeaturedPatient:
     events: tuple[FeaturedEvent, ...]
 
 
+# Un prélèvement par an ; profil A (constant) : chaque antigène garde la même valeur à tous les prélèvements.
+FEATURED_TEST_DATES: Final = (
+    date(2021, 4, 12),
+    date(2022, 4, 11),
+    date(2023, 4, 10),
+    date(2024, 4, 8),
+    date(2025, 4, 14),
+    date(2026, 4, 13),
+)
+FEATURED_STABLE_VALUES: Final = {"b12": 120, "b13": 640, "dr53": 365, "dr51": 1180, "dq10": 290}
+
 # Dossier fictif de démonstration, mis en avant : le nom est un nom d'affichage choisi par l'équipe,
 # aucune valeur ci-dessous ne provient d'une personne réelle ni d'un résultat clinique.
 # `patient_id` : « DEMO- » se classe avant « HIS- » et « SYN- », donc ce patient ouvre toute liste
-# triée par `patient_id` (la liste « À consulter »). Âgé de 28 ans à la date de naissance ci-dessous
-# (jusqu'au 19 juin 2027). Profil `C` (fluctuant) : il fait partie des cas « À consulter ».
+# triée par `patient_id` (la file « À signer »). Âgé de 28 ans à la date de naissance ci-dessous
+# (jusqu'au 19 juin 2027). Profil `A` (constant) : il fait partie des cas « À signer ».
 FEATURED_PATIENT: Final = FeaturedPatient(
     patient_id="DEMO-0001",
     firstname="Kylian",
@@ -61,15 +72,10 @@ FEATURED_PATIENT: Final = FeaturedPatient(
     city="Paris",
     country="France",
     graft_date=date(2020, 9, 14),
-    profile=SerumProfile.FLUCTUATING,
-    # Un prélèvement par an ; B12, B13 et DR51 fluctuent autour du seuil, DR53 et DQ10 restent stables.
-    serum_tests=(
-        FeaturedSerumTest(date(2021, 4, 12), b12=120, b13=640, dr53=365, dr51=80, dq10=290),
-        FeaturedSerumTest(date(2022, 4, 11), b12=980, b13=90, dr53=365, dr51=1180, dq10=290),
-        FeaturedSerumTest(date(2023, 4, 10), b12=40, b13=710, dr53=365, dr51=60, dq10=290),
-        FeaturedSerumTest(date(2024, 4, 8), b12=1520, b13=150, dr53=365, dr51=940, dq10=290),
-        FeaturedSerumTest(date(2025, 4, 14), b12=210, b13=830, dr53=365, dr51=120, dq10=290),
-        FeaturedSerumTest(date(2026, 4, 13), b12=760, b13=60, dr53=365, dr51=55, dq10=290),
+    profile=SerumProfile.CONSTANT,
+    serum_tests=tuple(
+        FeaturedSerumTest(test_date, **FEATURED_STABLE_VALUES)
+        for test_date in FEATURED_TEST_DATES
     ),
     events=(
         FeaturedEvent(
