@@ -7,16 +7,16 @@ import '@/index.css'
 // oxlint-disable-next-line react/only-export-components -- Next.js layouts export metadata by design.
 export const metadata: Metadata = {
   title: {
-    default: 'Ariane · Rattraper le retard, garder l’expertise',
+    default: 'Ariane · Clear the backlog, keep the expertise',
     template: '%s · Ariane',
   },
   description:
-    'Ariane prépare la revue immunologique pour aider les équipes à résorber le retard accumulé, avec validation humaine obligatoire.',
-  metadataBase: new URL('https://github.com/idris404/Ariane'),
+    'Ariane prepares immunological review work to help teams clear accumulated backlog while keeping human validation mandatory.',
+  metadataBase: new URL('https://arianex.vercel.app'),
   openGraph: {
-    title: 'Ariane · Rattraper le retard, garder l’expertise',
+    title: 'Ariane · Clear the backlog, keep the expertise',
     description:
-      'Prix de la meilleure solution pour les patients — objectif opérationnel : ramener six mois de file accumulée vers un mois, à confirmer en pilote.',
+      'Best Patient Solution — operational target: move from six months of accumulated backlog toward one month, to be confirmed in a pilot.',
     images: ['/showcase/signing-queue-full.png'],
   },
   icons: { icon: '/brand/ariane-symbol.png' },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
         <Providers>{children}</Providers>
       </body>

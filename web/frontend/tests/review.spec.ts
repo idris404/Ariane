@@ -15,19 +15,30 @@ test('public landing presents the award, product and responsible-use boundary', 
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Rattraper le retard. Garder l’expertise.',
+      name: 'Clear the backlog. Keep the expertise.',
     }),
   ).toBeVisible()
   await expect(
     page
       .locator('[data-slot="badge"]')
-      .filter({ hasText: 'Prix de la meilleure solution pour les patients' }),
+      .filter({ hasText: 'Best Patient Solution Award' }),
   ).toBeVisible()
-  await expect(page.getByText('6 → 1 mois')).toBeVisible()
-  await expect(page.getByLabel('Vidéo de démonstration Ariane')).toBeVisible()
-  await expect(page.getByText('Une preuve de produit aujourd’hui. Une preuve d’impact demain.')).toBeVisible()
-  await expect(page.getByText('À mesurer en pilote', { exact: true })).toBeVisible()
-  await expect(page.getByText('Accélérer la préparation. Jamais la décision.')).toBeVisible()
+  await expect(page.getByText('6 → 1 months')).toBeVisible()
+  await expect(page.getByLabel('Ariane demonstration video')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play video' }).first()).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Enter fullscreen' })).toBeVisible()
+  await expect(page.getByText('Product proof today. Impact proof tomorrow.')).toBeVisible()
+  await expect(page.getByText('To measure in a pilot', { exact: true })).toBeVisible()
+  await expect(page.getByText('Accelerate preparation. Never the decision.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible()
+  await expect(page.getByText('44 secondes · parcours local · données synthétiques')).toHaveCount(0)
+  await expect(page.getByText('TanStack Query')).toHaveCount(0)
+  await page.getByLabel('Language').selectOption('fr')
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Rattraper le retard. Garder l’expertise.' }),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Lire la vidéo' }).first()).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze()
