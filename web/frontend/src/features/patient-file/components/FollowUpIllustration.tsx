@@ -1,5 +1,8 @@
 import { flexRender } from '@tanstack/react-table'
 import type { LegacyReactTable } from '@tanstack/react-table/legacy'
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { mockClinical, type PatientFile, type RenalRow } from '../utils'
 import { SyntheticDataBadge } from '../../../shared/components/DemoNotice'
 import { SurfaceState } from '../../../shared/components/SurfaceState'
@@ -12,11 +15,9 @@ export function FollowUpIllustration({
   table: LegacyReactTable<RenalRow>
 }) {
   return (
-    <details className="panel p-5">
-      <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-3 font-semibold">
-        <span aria-hidden="true">＋</span>Parcours et suivi illustratifs{' '}
-        <SyntheticDataBadge simulated />
-      </summary>
+    <Collapsible className="panel p-5">
+      <CollapsibleTrigger asChild><Button variant="ghost" className="group -ml-3 min-h-11 flex-wrap justify-start font-semibold"><span aria-hidden="true" className="transition-transform group-data-[state=open]:rotate-45">＋</span>Parcours et suivi illustratifs <SyntheticDataBadge simulated /></Button></CollapsibleTrigger>
+      <CollapsibleContent>
       <p className="mt-3 mb-5 text-sm text-muted-foreground">
         Exemples fixes issus de la maquette, avec des dates dérivées de la greffe. Ces valeurs,
         traitements et mentions de revue ne sont pas une évaluation de ce dossier.
@@ -126,34 +127,34 @@ export function FollowUpIllustration({
               aria-label="Fonction rénale simulée"
               tabIndex={0}
             >
-              <table className="w-full text-left text-sm">
-                <caption className="sr-only">Exemples simulés de fonction rénale</caption>
-                <thead className="bg-background text-xs text-muted-foreground">
+              <Table className="text-left">
+                <TableCaption className="sr-only">Exemples simulés de fonction rénale</TableCaption>
+                <TableHeader className="bg-background text-xs text-muted-foreground">
                   {table.getHeaderGroups().map((group) => (
-                    <tr key={group.id}>
+                    <TableRow key={group.id}>
                       {group.headers.map((header) => (
-                        <th scope="col" key={header.id} className="px-3 py-2 font-medium">
+                        <TableHead scope="col" key={header.id} className="px-3 py-2">
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                        </th>
+                        </TableHead>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))}
-                </thead>
-                <tbody>
+                </TableHeader>
+                <TableBody>
                   {table.getRowModel().rows.map((row) => (
-                    <tr
+                    <TableRow
                       key={row.id}
                       className={row.original.emphasized ? 'bg-brand-soft' : undefined}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="px-3 py-2">
+                        <TableCell key={cell.id} className="px-3 py-2">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
+                        </TableCell>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               DFGe estimé · valeurs fictives calées sur la date de greffe.
@@ -197,7 +198,8 @@ export function FollowUpIllustration({
           </article>
         </div>
       </div>
-    </details>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 

@@ -1,6 +1,7 @@
 import { cn } from 'cn'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { IMPORT_ACCEPT_ATTRIBUTE } from '../../../constants/import'
 import { useFileDropzone } from '../hooks/useFileDropzone'
 
@@ -43,7 +44,7 @@ export function ImportDropzone({ onFiles }: { onFiles: (files: File[]) => void }
       <Button type="button" variant="outline" onClick={dropzone.openPicker}>
         Parcourir mes fichiers
       </Button>
-      <input
+      <Input
         ref={inputRef}
         type="file"
         multiple

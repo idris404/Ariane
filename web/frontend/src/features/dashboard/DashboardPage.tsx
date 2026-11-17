@@ -1,4 +1,10 @@
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { flexRender } from '@tanstack/react-table'
 
 import { MOCK_KPI } from '../../constants/dashboard'
@@ -57,59 +63,40 @@ export function DashboardPage() {
           <header className="flex shrink-0 items-center justify-between gap-3 px-5 pt-5">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-2xl font-semibold">Liste des patients</h2>
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {list.total}
-              </span>
+              <Badge variant="secondary">{list.total}</Badge>
             </div>
-            <button
+            <Button
               type="button"
               disabled
+              variant="outline"
+              size="sm"
               title="Export non disponible dans ce démonstrateur"
-              className="rounded-lg disabled:opacity-60 border border-border bg-card px-3 py-2 text-sm"
             >
               Exporter
-            </button>
+            </Button>
           </header>
 
           <div className="mt-4 flex shrink-0 flex-wrap items-center gap-2 px-5">
             <label className="sr-only" htmlFor="patient-search">
               Rechercher un patient
             </label>
-            <input
+            <Input
               id="patient-search"
               value={list.draft}
               onChange={(event) => list.onSearchChange(event.target.value)}
               placeholder="Rechercher un identifiant, un nom…"
-              className="h-11 min-w-0 basis-full sm:basis-64 flex-1 rounded-lg border border-border px-3 text-sm"
+              className="min-w-0 basis-full sm:basis-64 flex-1"
             />
             <label className="sr-only" htmlFor="patient-gender">
               Sexe
             </label>
-            <select
-              id="patient-gender"
-              value={list.gender ?? ''}
-              onChange={(event) => list.onGenderChange(event.target.value)}
-              className="h-10 rounded-lg border border-border bg-card px-3 text-sm"
-            >
-              <option value="">Tous les sexes</option>
-              <option value="F">{GENDER_LABELS.F}</option>
-              <option value="M">{GENDER_LABELS.M}</option>
-            </select>
+            <Select value={list.gender ?? 'all'} onValueChange={(value) => list.onGenderChange(value === 'all' ? '' : value)}>
+              <SelectTrigger id="patient-gender" className="w-[10rem]"><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="all">Tous les sexes</SelectItem><SelectItem value="F">{GENDER_LABELS.F}</SelectItem><SelectItem value="M">{GENDER_LABELS.M}</SelectItem></SelectContent>
+            </Select>
             <span className="flex flex-wrap items-center gap-2">
-              <select
-                aria-label="Type de suppléance"
-                disabled
-                className="h-10 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground"
-              >
-                <option>Toute suppléance</option>
-              </select>
-              <select
-                aria-label="Statut du dossier"
-                disabled
-                className="h-10 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground"
-              >
-                <option>Tous les statuts</option>
-              </select>
+              <Select disabled value="all"><SelectTrigger aria-label="Type de suppléance" className="w-[11rem] text-muted-foreground"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Toute suppléance</SelectItem></SelectContent></Select>
+              <Select disabled value="all"><SelectTrigger aria-label="Statut du dossier" className="w-[10rem] text-muted-foreground"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tous les statuts</SelectItem></SelectContent></Select>
             </span>
           </div>
 
@@ -134,45 +121,47 @@ export function DashboardPage() {
             ) : null}
 
             {list.errorMessage === null && list.total > 0 ? (
-              <table className="w-full text-left text-sm">
-                <caption className="sr-only">
+              <Table className="text-left">
+                <TableCaption className="sr-only">
                   Dossiers synthétiques disponibles pour la revue
-                </caption>
-                <thead className="sticky top-0 z-10 bg-background text-xs text-muted-foreground">
+                </TableCaption>
+                <TableHeader className="sticky top-0 z-10 bg-background text-xs text-muted-foreground">
                   {list.table.getHeaderGroups().map((group) => (
-                    <tr key={group.id}>
+                    <TableRow key={group.id}>
                       {group.headers.map((header) => (
-                        <th scope="col" key={header.id} className="px-5 py-2 font-medium">
+                        <TableHead scope="col" key={header.id} className="px-5 py-2">
                           {header.column.getCanSort() ? (
-                            <button
+                            <Button
                               type="button"
-                              className="font-medium"
+                              variant="ghost"
+                              size="sm"
+                              className="-ml-3 font-medium"
                               onClick={header.column.getToggleSortingHandler()}
                             >
                               {flexRender(header.column.columnDef.header, header.getContext())}
                               {header.column.getIsSorted() === 'asc' ? ' ↑' : null}
                               {header.column.getIsSorted() === 'desc' ? ' ↓' : null}
-                            </button>
+                            </Button>
                           ) : (
                             flexRender(header.column.columnDef.header, header.getContext())
                           )}
-                        </th>
+                        </TableHead>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))}
-                </thead>
-                <tbody>
+                </TableHeader>
+                <TableBody>
                   {list.table.getRowModel().rows.map((row) => (
-                    <tr key={row.id} className="border-t border-border">
+                    <TableRow key={row.id}>
                       {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="px-5 py-3">
+                        <TableCell key={cell.id} className="px-5 py-3">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
+                        </TableCell>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             ) : null}
           </div>
 
@@ -182,43 +171,35 @@ export function DashboardPage() {
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <label htmlFor="page-size">Afficher</label>
-              <select
-                id="page-size"
-                value={list.pageSize}
-                onChange={(event) => list.onPageSizeChange(Number(event.target.value))}
-                className="h-9 rounded-lg border border-border bg-card px-2"
-              >
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {size} par page
-                  </option>
-                ))}
-              </select>
-              <button
+              <Select value={String(list.pageSize)} onValueChange={(value) => list.onPageSizeChange(Number(value))}>
+                <SelectTrigger id="page-size" className="h-9 w-[8.5rem]"><SelectValue /></SelectTrigger>
+                <SelectContent>{PAGE_SIZE_OPTIONS.map((size) => <SelectItem key={size} value={String(size)}>{size} par page</SelectItem>)}</SelectContent>
+              </Select>
+              <Button
                 type="button"
-                className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+                variant="outline"
+                size="sm"
                 onClick={() => list.table.previousPage()}
                 disabled={!list.table.getCanPreviousPage()}
               >
                 Précédent
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+                variant="outline"
+                size="sm"
                 onClick={() => list.table.nextPage()}
                 disabled={!list.table.getCanNextPage()}
               >
                 Suivant
-              </button>
+              </Button>
             </div>
           </footer>
         </section>
 
-        <details className="panel p-5">
-          <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-3 font-semibold">
-            <span aria-hidden="true">＋</span>Illustrations du suivi{' '}
-            <SyntheticDataBadge simulated />
-          </summary>
+        <Collapsible className="panel p-5">
+          <CollapsibleTrigger asChild><Button variant="ghost" className="group -ml-3 min-h-11 flex-wrap justify-start font-semibold"><span aria-hidden="true" className="transition-transform group-data-[state=open]:rotate-45">＋</span>Illustrations du suivi <SyntheticDataBadge simulated /></Button></CollapsibleTrigger>
+          <CollapsibleContent>
           <p className="mt-3 mb-5 text-sm text-muted-foreground">
             Chiffres et dossiers fixes de la maquette. Ils ne décrivent pas la liste ci-dessus et ne
             mesurent aucune performance clinique.
@@ -319,7 +300,8 @@ export function DashboardPage() {
               </article>
             </div>
           </div>
-        </details>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </AppShell>
   )

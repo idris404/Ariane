@@ -1,3 +1,5 @@
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+
 import type { SerumEvolution } from '../schemas/serum'
 import { SurfaceState } from './SurfaceState'
 
@@ -43,44 +45,44 @@ export function SerumGrid({ evolution }: { evolution: SerumEvolution }) {
       aria-label="Résultats sériques par année"
       tabIndex={0}
     >
-      <table className="w-full text-left text-sm">
-        <caption className="sr-only">
+      <Table className="text-left">
+        <TableCaption className="sr-only">
           Valeurs et interprétations sériques fournies par le serveur
-        </caption>
-        <thead className="bg-background text-xs text-muted-foreground">
-          <tr>
-            <th scope="col" className="w-20 px-3 py-2 font-medium">
+        </TableCaption>
+        <TableHeader className="bg-background text-xs text-muted-foreground">
+          <TableRow>
+            <TableHead scope="col" className="w-20 px-3 py-2">
               Année
-            </th>
+            </TableHead>
             {headers.map((antigen) => (
-              <th scope="col" key={antigen.code} className="px-3 py-2 text-center font-medium">
+              <TableHead scope="col" key={antigen.code} className="px-3 py-2 text-center">
                 {antigen.label}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {evolution.years.map((year) => (
-            <tr key={year.test_date} className="border-t border-border">
-              <th scope="row" className="px-3 py-3 text-left font-medium">
+            <TableRow key={year.test_date}>
+              <TableHead scope="row" className="px-3 py-3 text-left font-medium text-foreground">
                 {year.year}
-              </th>
+              </TableHead>
               {headers.map((header) => {
                 const antigen = year.antigens.find((point) => point.code === header.code)
                 return (
-                  <td key={header.code} className="px-3 py-3 text-center">
+                  <TableCell key={header.code} className="px-3 py-3 text-center">
                     {antigen ? (
                       <Result output={antigen.output} value={antigen.value} />
                     ) : (
                       <span className="text-xs text-muted-foreground">— Non transmis</span>
                     )}
-                  </td>
+                  </TableCell>
                 )
               })}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

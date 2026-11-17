@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ROUTES } from '../../constants/routes'
 import { BrandedVideo } from './BrandedVideo'
 import { Reveal } from './Reveal'
@@ -112,28 +113,26 @@ export function LandingPage() {
   useEffect(() => { document.documentElement.lang = locale }, [locale])
 
   return (
-    <main className="landing min-h-screen overflow-hidden bg-background text-foreground">
+    <main className="landing min-h-screen overflow-x-clip bg-background text-foreground">
       <a href="#contenu" className="skip-link">{copy.skip}</a>
-      <header className="landing-shell flex items-center justify-between gap-3 py-5 sm:gap-5 sm:py-6">
+      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-xl">
+      <div className="landing-shell flex items-center justify-between gap-3 py-3 sm:gap-5 sm:py-4">
         <Link href={ROUTES.landing} aria-label={copy.home} className="flex shrink-0 items-center"><img src="/ariane-logo.png" alt="Ariane" className="h-auto w-24 sm:w-44" /></Link>
         <nav className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex" aria-label={copy.navigation}><a href="#solution" className="hover:text-foreground">{copy.nav[0]}</a><a href="#impact" className="hover:text-foreground">{copy.nav[1]}</a><a href="#demo" className="hover:text-foreground">{copy.nav[2]}</a><a href="#pilote" className="hover:text-foreground">{copy.nav[3]}</a></nav>
         <div className="flex items-center gap-2">
-          <div className="relative flex items-center text-muted-foreground transition-colors hover:text-foreground">
-            <label className="sr-only" htmlFor="landing-language">Language</label>
-            <select
-              id="landing-language"
-              value={locale}
-              onChange={(event) => setLocale(event.target.value as Locale)}
-              className="h-8 cursor-pointer appearance-none rounded-md border-0 bg-transparent py-0 pr-4 pl-1 text-xs font-semibold text-current outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-            >
-              <option value="en">EN</option>
-              <option value="fr">FR</option>
-            </select>
-            <span aria-hidden="true" className="pointer-events-none absolute right-0.5 text-[10px]">⌄</span>
-          </div>
+          <Select value={locale} onValueChange={(value) => setLocale(value as Locale)}>
+            <SelectTrigger aria-label="Language" className="h-8 w-[3.25rem] gap-1 border-0 px-1 text-xs font-semibold text-muted-foreground shadow-none hover:text-foreground focus-visible:ring-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="min-w-[4.5rem]">
+              <SelectItem value="en">EN</SelectItem>
+              <SelectItem value="fr">FR</SelectItem>
+            </SelectContent>
+          </Select>
           <Button asChild size="sm" variant="outline" className="px-3"><a href="https://github.com/idris404/Ariane" target="_blank" rel="noreferrer">GitHub</a></Button>
           <Button asChild className="hidden md:inline-flex"><Link href={ROUTES.login}>{copy.open}</Link></Button>
         </div>
+      </div>
       </header>
 
       <section id="contenu" aria-labelledby="hero-title" className="landing-shell grid items-center gap-12 pt-10 pb-20 lg:grid-cols-[0.92fr_1.08fr] lg:pt-16 lg:pb-28">

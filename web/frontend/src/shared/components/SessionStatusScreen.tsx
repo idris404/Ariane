@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+
 import { BrandMark } from './BrandMark'
 import { HumanValidationBanner } from './DemoNotice'
 import { SESSION_CHECK_MESSAGE, SESSION_ERROR_MESSAGE } from '../../constants/auth'
@@ -16,13 +18,12 @@ export function SessionStatusScreen({ isError, onRetry }: SessionStatusScreenPro
           <p role="alert" className="text-sm text-warning-foreground">
             {SESSION_ERROR_MESSAGE}
           </p>
-          <button
+          <Button
             type="button"
             onClick={onRetry}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
           >
             Réessayer
-          </button>
+          </Button>
         </>
       ) : (
         <p role="status" className="text-sm text-muted-foreground">
