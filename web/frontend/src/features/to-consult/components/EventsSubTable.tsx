@@ -1,3 +1,5 @@
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+
 import type { HistoryEventRow } from '../../../shared/utils/cases'
 
 // Sous-tableau des événements d'un patient, déplié sous sa ligne (comme la grille des tests).
@@ -15,35 +17,35 @@ export function EventsSubTable({
       aria-label={`Événements de ${patientName}`}
       tabIndex={0}
     >
-      <table className="w-full text-left text-sm">
-        <caption className="sr-only">
+      <Table className="text-left">
+        <TableCaption className="sr-only">
           Événements synthétiques transmis par le serveur, du plus ancien au plus récent
-        </caption>
-        <thead className="bg-background text-xs text-muted-foreground">
-          <tr>
-            <th scope="col" className="w-48 px-3 py-2 font-medium">
+        </TableCaption>
+        <TableHeader className="bg-background text-xs text-muted-foreground">
+          <TableRow>
+            <TableHead scope="col" className="w-48 px-3 py-2">
               Date
-            </th>
-            <th scope="col" className="px-3 py-2 font-medium">
+            </TableHead>
+            <TableHead scope="col" className="px-3 py-2">
               Événement
-            </th>
-            <th scope="col" className="px-3 py-2 font-medium">
+            </TableHead>
+            <TableHead scope="col" className="px-3 py-2">
               Détail
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {events.map((event) => (
-            <tr key={event.id} className="border-t border-border">
-              <td className="px-3 py-2 align-top text-muted-foreground">
+            <TableRow key={event.id}>
+              <TableCell className="px-3 py-2 align-top text-muted-foreground">
                 <time dateTime={event.dateIso}>{event.dateLabel}</time>
-              </td>
-              <td className="px-3 py-2 align-top font-medium">{event.title}</td>
-              <td className="px-3 py-2 align-top text-muted-foreground">{event.detail}</td>
-            </tr>
+              </TableCell>
+              <TableCell className="px-3 py-2 align-top font-medium">{event.title}</TableCell>
+              <TableCell className="px-3 py-2 align-top text-muted-foreground">{event.detail}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

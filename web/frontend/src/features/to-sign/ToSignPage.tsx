@@ -1,3 +1,7 @@
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+
 import { IMPORT_EMPTY } from '../../constants/import'
 import { MOCK_SIGN_KPI } from '../../constants/to-sign'
 import { SyntheticDataBadge } from '../../shared/components/DemoNotice'
@@ -8,11 +12,11 @@ import { useToSign } from './hooks/useToSign'
 
 function Kpi({ label, value, note }: { label: string; value: number | string; note: string }) {
   return (
-    <article className="rounded-xl border border-border bg-card p-4">
+    <Card role="article" className="rounded-xl p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-2 text-4xl font-bold">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{note}</p>
-    </article>
+    </Card>
   )
 }
 
@@ -79,11 +83,9 @@ export function ToSignPage() {
             )}
           </section>
         )}
-        <details className="panel p-5">
-          <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-3 font-semibold">
-            <span aria-hidden="true">＋</span>Indicateurs de maquette{' '}
-            <SyntheticDataBadge simulated />
-          </summary>
+        <Collapsible className="panel p-5">
+          <CollapsibleTrigger asChild><Button variant="ghost" className="group -ml-3 min-h-11 flex-wrap justify-start font-semibold"><span aria-hidden="true" className="transition-transform group-data-[state=open]:rotate-45">＋</span>Indicateurs de maquette <SyntheticDataBadge simulated /></Button></CollapsibleTrigger>
+          <CollapsibleContent>
           <p className="mt-3 mb-5 text-sm text-muted-foreground">
             Hypothèses illustratives. Aucune performance clinique mesurée.
           </p>
@@ -109,7 +111,8 @@ export function ToSignPage() {
               note={MOCK_SIGN_KPI.reviewTimeNote}
             />
           </div>
-        </details>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </AppShell>
   )

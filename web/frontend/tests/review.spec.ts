@@ -15,19 +15,35 @@ test('public landing presents the award, product and responsible-use boundary', 
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Rattraper le retard. Garder l’expertise.',
+      name: 'Clear the backlog. Keep the expertise.',
     }),
   ).toBeVisible()
   await expect(
     page
       .locator('[data-slot="badge"]')
-      .filter({ hasText: 'Prix de la meilleure solution pour les patients' }),
+      .filter({ hasText: 'Best Patient Solution Award' }),
   ).toBeVisible()
-  await expect(page.getByText('6 → 1 mois')).toBeVisible()
-  await expect(page.getByLabel('Vidéo de démonstration Ariane')).toBeVisible()
-  await expect(page.getByText('Une preuve de produit aujourd’hui. Une preuve d’impact demain.')).toBeVisible()
-  await expect(page.getByText('À mesurer en pilote', { exact: true })).toBeVisible()
-  await expect(page.getByText('Accélérer la préparation. Jamais la décision.')).toBeVisible()
+  await expect(page.getByText('6 → 1 months')).toBeVisible()
+  await expect(page.getByLabel('Ariane demonstration video')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play video' }).first()).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Enter fullscreen' })).toBeVisible()
+  await expect(page.getByText('Product proof today. Impact proof tomorrow.')).toBeVisible()
+  await expect(page.getByText('To measure in a pilot', { exact: true })).toBeVisible()
+  await expect(page.getByText('Accelerate preparation. Never the decision.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible()
+  const navigation = page.locator('header')
+  await page.evaluate(() => window.scrollTo(0, 900))
+  await expect.poll(async () => Math.round((await navigation.boundingBox())?.y ?? -1)).toBe(0)
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await expect(page.getByText('44 secondes · parcours local · données synthétiques')).toHaveCount(0)
+  await expect(page.getByText('TanStack Query')).toHaveCount(0)
+  await page.getByLabel('Language').click()
+  await page.getByRole('option', { name: 'FR' }).click()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Rattraper le retard. Garder l’expertise.' }),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Lire la vidéo' }).first()).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze()
@@ -87,11 +103,13 @@ test('dashboard search, filters and sorting still send server query parameters',
   await assertLayout(page)
   await page.getByLabel('Rechercher un patient', { exact: true }).fill('Ada')
   await expect(page).toHaveURL(/search=Ada/)
-  await page.getByLabel('Sexe', { exact: true }).selectOption('F')
+  await page.getByLabel('Sexe', { exact: true }).click()
+  await page.getByRole('option', { name: 'Femme' }).click()
   await expect(page).toHaveURL(/gender=F/)
   await page.getByRole('button', { name: 'Naissance' }).click()
   await expect(page).toHaveURL(/sort_by=birth/)
-  await page.getByLabel('Afficher', { exact: true }).selectOption('50')
+  await page.getByLabel('Afficher', { exact: true }).click()
+  await page.getByRole('option', { name: '50 par page' }).click()
   await expect(page).toHaveURL(/page_size=50/)
   expect(requests.some((r) => r.path === '/patients')).toBe(true)
   await page.getByText('Illustrations du suivi', { exact: false }).click()

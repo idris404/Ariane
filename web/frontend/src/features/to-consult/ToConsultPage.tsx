@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+
 import { IMPORT_EMPTY } from '../../constants/import'
 import { SurfaceState } from '../../shared/components/SurfaceState'
 import { AppShell } from '../../shared/components/AppShell'
@@ -54,22 +56,24 @@ export function ToConsultPage() {
                   Page {toConsult.page}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
+                  <Button
                     type="button"
-                    className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+                    variant="outline"
+                    size="sm"
                     onClick={() => toConsult.table.previousPage()}
                     disabled={!toConsult.table.getCanPreviousPage()}
                   >
                     Précédent
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
+                    variant="outline"
+                    size="sm"
                     onClick={() => toConsult.table.nextPage()}
                     disabled={!toConsult.table.getCanNextPage()}
                   >
                     Suivant
-                  </button>
+                  </Button>
                 </div>
               </footer>
             )}

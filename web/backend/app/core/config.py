@@ -1,9 +1,9 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import EmailStr, Field, SecretStr
+from pydantic import EmailStr, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy import URL
+from sqlalchemy import URL, make_url
 
 from app.constants.auth import PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH
 from app.constants.database import ASYNC_DB_DRIVER, DEFAULT_DB_HOST
@@ -18,18 +18,54 @@ class Settings(BaseSettings):
         env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore"
     )
 
-    db_user: str
-    db_password: SecretStr
-    db_name: str
-    db_port: int
+    # En production, Vercel/Neon fournit une URL complète. Les champs séparés restent disponibles
+    # pour Docker Compose et le développement local.
+    database_dsn: SecretStr | None = Field(default=None, validation_alias="DATABASE_URL")
+    db_user: str | None = None
+    db_password: SecretStr | None = None
+    db_name: str | None = None
+    db_port: int | None = None
     db_host: str = DEFAULT_DB_HOST
 
     frontend_url: str = DEFAULT_FRONTEND_URL
     # Sûr par défaut : mettre COOKIE_SECURE=false uniquement en développement local (HTTP).
     cookie_secure: bool = True
 
+    @model_validator(mode="after")
+    def require_database_configuration(self) -> "Settings":
+        if self.database_dsn is not None:
+            return self
+        missing = [
+            name
+            for name, value in (
+                ("DB_USER", self.db_user),
+                ("DB_PASSWORD", self.db_password),
+                ("DB_NAME", self.db_name),
+                ("DB_PORT", self.db_port),
+            )
+            if value is None
+        ]
+        if missing:
+            raise ValueError(f"configuration PostgreSQL manquante : {', '.join(missing)}")
+        return self
+
     @property
     def database_url(self) -> URL:
+        if self.database_dsn is not None:
+            source = make_url(self.database_dsn.get_secret_value())
+            # asyncpg reçoit SSL via `connect_args`. Les options libpq de Neon ne doivent pas être
+            # transmises telles quelles au pilote Python.
+            query = {
+                key: value
+                for key, value in source.query.items()
+                if key not in {"sslmode", "channel_binding"}
+            }
+            return source.set(drivername=ASYNC_DB_DRIVER, query=query)
+
+        assert self.db_user is not None
+        assert self.db_password is not None
+        assert self.db_name is not None
+        assert self.db_port is not None
         return URL.create(
             ASYNC_DB_DRIVER,
             username=self.db_user,
@@ -38,6 +74,14 @@ class Settings(BaseSettings):
             port=self.db_port,
             database=self.db_name,
         )
+
+    @property
+    def database_connect_args(self) -> dict[str, str]:
+        if self.database_dsn is None:
+            return {}
+        source = make_url(self.database_dsn.get_secret_value())
+        sslmode = source.query.get("sslmode")
+        return {"ssl": "require"} if sslmode not in (None, "disable") else {}
 
 
 class SeedSettings(BaseSettings):

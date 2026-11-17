@@ -2,6 +2,8 @@ import { flexRender } from '@tanstack/react-table'
 import type { LegacyReactTable } from '@tanstack/react-table/legacy'
 import { Fragment, type ReactNode } from 'react'
 
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+
 import { ACTIONS_COLUMN_ID, CONSULT_PANELS, type ConsultPanel } from '../../../constants/to-consult'
 import { SerumGrid, SerumLegend } from '../../../shared/components/SerumEvolution'
 import type { PatientCase } from '../../../shared/utils/cases'
@@ -21,43 +23,43 @@ type ConsultTableProps = {
 export function ConsultTable({ table, panels, empty }: ConsultTableProps) {
   return (
     <div className="data-scroll" role="region" aria-label="Liste des cas à consulter" tabIndex={0}>
-      <table className="w-full text-left text-sm">
-        <caption className="sr-only">Cas au suivi sérique fluctuant à consulter</caption>
-        <thead className="bg-background text-xs text-muted-foreground">
+      <Table className="text-left">
+        <TableCaption className="sr-only">Cas au suivi sérique fluctuant à consulter</TableCaption>
+        <TableHeader className="bg-background text-xs text-muted-foreground">
           {table.getHeaderGroups().map((group) => (
-            <tr key={group.id}>
+            <TableRow key={group.id}>
               {group.headers.map((header) => (
-                <th
+                <TableHead
                   scope="col"
                   key={header.id}
                   className={`px-5 py-2 font-medium ${header.column.id === ACTIONS_COLUMN_ID ? 'text-right' : ''}`}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
+                </TableHead>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody>
+        </TableHeader>
+        <TableBody>
           {table.getRowModel().rows.length === 0 ? (
-            <tr className="border-t border-border">
-              <td colSpan={table.getVisibleLeafColumns().length} className="p-5">
+            <TableRow>
+              <TableCell colSpan={table.getVisibleLeafColumns().length} className="p-5">
                 {empty}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ) : null}
           {table.getRowModel().rows.map((row) => (
             <Fragment key={row.id}>
-              <tr className="border-t border-border">
+              <TableRow>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-5 py-3 align-middle">
+                  <TableCell key={cell.id} className="px-5 py-3 align-middle">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
               {panels[row.id] === undefined ? null : (
-                <tr id={detailsRowId(row.id)} className="border-t border-border bg-background">
-                  <td colSpan={row.getVisibleCells().length} className="px-5 py-4">
+                <TableRow id={detailsRowId(row.id)} className="bg-background hover:bg-background">
+                  <TableCell colSpan={row.getVisibleCells().length} className="px-5 py-4">
                     {panels[row.id] === CONSULT_PANELS.events ? (
                       <EventsSubTable
                         patientName={row.original.name}
@@ -71,13 +73,13 @@ export function ConsultTable({ table, panels, empty }: ConsultTableProps) {
                         </div>
                       </div>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
             </Fragment>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

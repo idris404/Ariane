@@ -11,7 +11,12 @@ class Base(DeclarativeBase):
 
 
 # La connexion n'est ouverte qu'à la première requête, pas à l'import.
-engine = create_async_engine(get_settings().database_url, pool_pre_ping=True)
+settings = get_settings()
+engine = create_async_engine(
+    settings.database_url,
+    connect_args=settings.database_connect_args,
+    pool_pre_ping=True,
+)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

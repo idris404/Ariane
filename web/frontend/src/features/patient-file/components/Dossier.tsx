@@ -1,5 +1,7 @@
 import type { LegacyReactTable } from '@tanstack/react-table/legacy'
 
+import { Button } from '@/components/ui/button'
+
 import { mockClinical, type PatientFile, type RenalRow } from '../utils'
 import { RecipientTimeline } from '../../../shared/components/RecipientTimeline'
 import { ReviewLimits } from './ReviewLimits'
@@ -17,22 +19,21 @@ export function Dossier({ file, table }: { file: PatientFile; table: LegacyReact
           <h1 className="mt-1 text-4xl font-bold">Fiche patient</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             type="button"
             disabled
+            variant="outline"
             title="Export non disponible dans ce démonstrateur"
-            className="rounded-lg disabled:opacity-60 border border-border bg-card px-3 py-2 text-sm"
           >
             Exporter le dossier
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             disabled
             title="Modification non disponible dans ce démonstrateur"
-            className="rounded-lg disabled:opacity-60 bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
           >
             Modifier le dossier
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -68,15 +69,9 @@ export function Dossier({ file, table }: { file: PatientFile; table: LegacyReact
         aria-label="Sections du dossier"
         className="flex flex-wrap gap-3 text-sm font-semibold text-primary"
       >
-        <a href="#recipient-timeline" className="rounded-lg border border-border bg-card px-4 py-3">
-          ↓ Historique du receveur
-        </a>
-        <a href="#serum-history" className="rounded-lg border border-border bg-card px-4 py-3">
-          ↓ Évolution sérique
-        </a>
-        <a href="#review-limits" className="rounded-lg border border-border bg-card px-4 py-3">
-          ↓ Limites et incertitudes
-        </a>
+        <Button asChild variant="outline"><a href="#recipient-timeline">↓ Historique du receveur</a></Button>
+        <Button asChild variant="outline"><a href="#serum-history">↓ Évolution sérique</a></Button>
+        <Button asChild variant="outline"><a href="#review-limits">↓ Limites et incertitudes</a></Button>
       </nav>
       <RecipientTimeline history={file.history} />
       <SerumProfile evolution={file.serumEvolution} />
