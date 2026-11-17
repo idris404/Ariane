@@ -1,81 +1,81 @@
-# Du démonstrateur au pilote
+# From Demonstrator to Pilot
 
-## Objectif
+## Purpose
 
-Ariane dispose aujourd’hui d’une preuve de produit : un parcours local, reproductible et testé qui prépare une revue immunologique à partir de données synthétiques, tout en maintenant une validation humaine explicite.
+Ariane currently provides product proof: a local, reproducible, tested workflow that prepares immunological review from synthetic data while keeping human validation explicit.
 
-L’étape suivante n’est pas de déployer le démonstrateur tel quel. Elle consiste à vérifier, dans un cadre autorisé et supervisé, si la préparation proposée peut réellement rendre de la capacité à une équipe sans diminuer la qualité de la revue.
+The next step is not to deploy the demonstrator unchanged. It is to determine, in an authorized and supervised setting, whether this preparation can genuinely restore team capacity without reducing review quality.
 
-L’ambition de ramener une file accumulée de **six mois vers un mois** est un objectif opérationnel à mesurer. Ce n’est ni un résultat déjà obtenu, ni une promesse contractuelle, ni une performance clinique.
+Moving an accumulated backlog from **six months toward one month** is an operational target to be measured. It is not an achieved result, contractual promise, or clinical performance claim.
 
-## Ce qui est déjà démontré
+## What has already been demonstrated
 
-- un parcours complet de l’import simulé à la validation humaine ;
-- une lecture longitudinale de profils synthétiques ;
-- deux files distinctes pour préparer la validation et approfondir la revue ;
-- un backend déterministe qui reste la source de vérité ;
-- une interface qui expose les données manquantes et les limites ;
-- une exécution locale, des tests automatisés et un scénario reproductible ;
-- le **prix de la meilleure solution pour les patients** au hackathon AI for Health.
+- a complete workflow from simulated import to human validation;
+- a longitudinal view of synthetic profiles;
+- separate queues for prepared validation and deeper review;
+- a deterministic backend that remains the source of truth;
+- an interface that exposes missing data and limitations;
+- local execution, automated tests, and a reproducible scenario;
+- the **Best Patient Solution Award** at the AI for Health hackathon.
 
-## Ce que le pilote doit mesurer
+## What the pilot must measure
 
-### Capacité opérationnelle
+### Operational capacity
 
-- temps nécessaire pour préparer puis relire un dossier ;
-- volume de dossiers revus sur une période définie ;
-- taille et ancienneté de la file avant, pendant et après l’expérimentation ;
-- nombre de reprises manuelles nécessaires avant validation.
+- time required to prepare and review a record;
+- number of records reviewed over a defined period;
+- backlog size and age before, during, and after the evaluation;
+- manual rework required before validation.
 
-### Qualité et sécurité
+### Quality and safety
 
-- données manquantes ou contradictoires détectées ;
-- écarts entre la préparation proposée et la revue du professionnel ;
-- corrections apportées avant toute validation ;
-- traçabilité des règles déclenchées, de leur version et de l’action humaine.
+- detected missing or contradictory data;
+- differences between Ariane's preparation and professional review;
+- corrections made before any validation;
+- traceability of triggered rules, their versions, and human actions.
 
 ### Adoption
 
-- compréhension des informations et des limites affichées ;
-- charge perçue par les utilisateurs ;
-- motifs de non-utilisation, de correction ou de retour au parcours habituel.
+- understanding of displayed information and limitations;
+- perceived user workload;
+- reasons for non-use, correction, or return to the usual workflow.
 
-Aucun seuil de succès n’est fixé dans ce dépôt. Les critères, définitions et valeurs attendues doivent être convenus avec les professionnels, les responsables qualité et les parties juridiques avant l’expérimentation.
+This repository defines no success threshold. Criteria, definitions, and expected values must be agreed with professionals, quality leads, and legal stakeholders before evaluation.
 
-## Parcours proposé
+## Proposed pathway
 
-### 1. Cadrage
+### 1. Scoping
 
-- valider le vocabulaire, les règles, les contre-exemples et les responsabilités ;
-- définir le protocole d’évaluation et les indicateurs ;
-- documenter la gouvernance, la sécurité et le cadre d’utilisation des données.
+- validate vocabulary, rules, counterexamples, and responsibilities;
+- define the evaluation protocol and indicators;
+- document governance, security, and the data-use framework.
 
-### 2. Évaluation rétrospective encadrée
+### 2. Supervised retrospective evaluation
 
-- travailler uniquement dans un environnement autorisé ;
-- comparer la préparation d’Ariane à une revue professionnelle de référence ;
-- documenter chaque désaccord, information manquante et limite observée.
+- work only in an authorized environment;
+- compare Ariane's preparation with reference professional review;
+- document every disagreement, missing item, and observed limitation.
 
-Cette phase n’est pas implémentée dans le dépôt et ne doit pas être menée avec des données réelles sans autorisation et gouvernance adaptées.
+This phase is not implemented in the repository and must not use real data without appropriate authorization and governance.
 
-### 3. Pilote en mode supervisé
+### 3. Supervised pilot
 
-- utiliser Ariane comme outil de préparation, jamais comme décideur ;
-- conserver la validation professionnelle à chaque étape ;
-- suivre les indicateurs définis au cadrage ;
-- prévoir un arrêt immédiat et un retour au processus habituel en cas d’incertitude.
+- use Ariane as a preparation tool, never as a decision-maker;
+- preserve professional validation at every step;
+- monitor the indicators defined during scoping;
+- provide immediate shutdown and return to the usual process when uncertainty arises.
 
-### 4. Décision de suite
+### 4. Continuation decision
 
-Les résultats du pilote doivent permettre de décider s’il faut arrêter, corriger, prolonger l’évaluation ou préparer une version professionnelle. Une suite produit pourrait inclure des protocoles versionnés, un audit renforcé, une gestion des accès et un déploiement adapté à l’environnement cible.
+Pilot results should determine whether to stop, correct, extend the evaluation, or prepare a professional version. Future development could include versioned protocols, stronger auditing, access management, and deployment adapted to the target environment.
 
-## Conditions non négociables
+## Non-negotiable conditions
 
-- aucune décision autonome de transplantation ;
-- aucune affirmation de validation clinique sans évaluation formelle ;
-- aucune donnée patient réelle dans ce dépôt ;
-- aucune règle médicale nouvelle sans validation professionnelle ;
-- aucune intégration à un système tiers sans documentation et autorisation ;
-- une validation humaine visible et traçable jusqu’à la décision finale.
+- no autonomous transplant decision;
+- no clinical-validation claim without formal evaluation;
+- no real patient data in this repository;
+- no new medical rule without professional validation;
+- no third-party integration without documentation and authorization;
+- visible, traceable human validation through the final decision.
 
-Voir également [Usage responsable](RESPONSIBLE_USE.md), [Vision produit](PRODUCT.md) et [Architecture](ARCHITECTURE.md).
+See also [Responsible Use](RESPONSIBLE_USE.md), [Product Vision](PRODUCT.md), and [Architecture](ARCHITECTURE.md).

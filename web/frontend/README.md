@@ -1,17 +1,18 @@
-# Frontend Ariane
+# Ariane frontend
 
-Application Next.js 16 avec App Router, React 19, TypeScript strict et Tailwind CSS 4.
+Next.js 16 application using the App Router, React 19, strict TypeScript, and
+Tailwind CSS 4.
 
 ## Routes
 
-| Route | Accès | Contenu |
+| Route | Access | Content |
 | --- | --- | --- |
-| `/` | Public | Landing, prix, vidéo, architecture et limites |
-| `/login` | Public | Connexion au démonstrateur local |
-| `/dashboard` | Session | Cockpit et import simulé |
-| `/fiche/[id]` | Session | Historique et évolution sérique |
-| `/a-signer` | Session | Dossiers préparés pour validation |
-| `/a-consulter` | Session | Dossiers à examiner en détail |
+| `/` | Public | Landing page, award, video, architecture, and limitations |
+| `/login` | Public | Local demonstrator sign-in |
+| `/dashboard` | Session | Workspace overview and simulated import |
+| `/fiche/[id]` | Session | Patient history and serum evolution |
+| `/a-signer` | Session | Cases prepared for human validation |
+| `/a-consulter` | Session | Cases requiring detailed review |
 
 ## Configuration
 
@@ -20,9 +21,9 @@ cp .env.example .env
 npm ci
 ```
 
-`NEXT_PUBLIC_API_URL` indique l’origine du backend FastAPI, sans `/api/v1`.
+`NEXT_PUBLIC_API_URL` defines the FastAPI backend origin without `/api/v1`.
 
-## Commandes
+## Commands
 
 ```bash
 npm run dev        # http://localhost:5173
@@ -30,21 +31,24 @@ npm run lint
 npm run typecheck
 npm run test:ui
 npm run build
-npm run start      # build de production sur :5173
+npm run start      # production build on :5173
 ```
 
-Les tests Playwright utilisent des réponses synthétiques contrôlées et bloquent les appels vers Internet. Ils ne signent aucun dossier dans une base locale réelle.
+Playwright tests use controlled synthetic responses and block internet access.
+They never sign a case in a real local database.
 
-## Organisation
+## Structure
 
 ```text
-app/               routes Next.js et layouts
-src/features/      pages et logique par parcours
-src/shared/        composants, schémas, appels API et hooks communs
-src/components/ui/ composants d’interface
-src/constants/     valeurs partagées du frontend
-public/brand/      identité Ariane
-public/showcase/   captures et vidéo de démonstration
+app/               Next.js routes and layouts
+src/features/      pages and workflow-specific logic
+src/shared/        shared components, schemas, API calls, and hooks
+src/components/ui/ interface components
+src/constants/     shared frontend values
+public/brand/      Ariane identity assets
+public/showcase/   demonstration screenshots and video
 ```
 
-La direction artistique est documentée dans [`../doc/rigueur-calme.md`](../doc/rigueur-calme.md). Les limites de communication sont décrites dans [`../../docs/RESPONSIBLE_USE.md`](../../docs/RESPONSIBLE_USE.md).
+The visual direction is documented in
+[`../doc/rigueur-calme.md`](../doc/rigueur-calme.md). Communication boundaries
+are defined in [`../../docs/RESPONSIBLE_USE.md`](../../docs/RESPONSIBLE_USE.md).

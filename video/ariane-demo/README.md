@@ -1,32 +1,34 @@
-# Vidéo de démonstration Ariane
+# Ariane demo video
 
-Projet Remotion isolé pour produire la vidéo courte de présentation d’Ariane.
+Standalone Remotion project used to produce Ariane's short presentation video.
 
-## Prévisualiser
+## Preview
 
 ```bash
 npm ci
 npm run dev -- --no-open
 ```
 
-Ouvrir ensuite <http://localhost:3000/ArianeDemo>.
+Then open <http://localhost:3000/ArianeDemo>.
 
 ## Composition
 
-La composition `ArianeDemo` dure 44 secondes en 1920 × 1080 à 30 images par seconde. Elle comprend quatre scènes éditables :
+The `ArianeDemo` composition is 44 seconds long, rendered at 1920 × 1080 and
+30 frames per second. It contains four editable scenes:
 
-1. le retard accumulé ;
-2. l’objectif opérationnel 6 → 1 mois ;
-3. le parcours réel du démonstrateur ;
-4. la validation humaine et le prix remporté.
+1. the accumulated backlog;
+2. the operational target of moving from six months to one month;
+3. the demonstrator's actual workflow;
+4. human validation and the award received.
 
-L’objectif 6 → 1 mois reste explicitement présenté comme une ambition à confirmer en pilote.
+The six-to-one-month target is explicitly presented as an ambition that must be
+validated through a pilot.
 
-## Vérifier
+## Verify
 
 ```bash
 npm run lint
 npm run build
 ```
 
-Le dossier `out/` est réservé aux exports et n’est pas versionné.
+The `out/` directory is reserved for exports and is not version-controlled.

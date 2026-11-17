@@ -1,44 +1,44 @@
-# Usage responsable
+# Responsible Use
 
-## Statut du projet
+## Project status
 
-Ariane est un démonstrateur de hackathon. Il ne constitue ni un dispositif médical validé ni un système autonome de décision en transplantation.
+Ariane is a hackathon demonstrator. It is neither a validated medical device nor an autonomous transplant decision system.
 
-## Données
+## Data
 
-- toutes les données du dépôt sont synthétiques ;
-- aucun secret ou identifiant patient réel ne doit être ajouté ;
-- les données de démonstration doivent rester clairement identifiées ;
-- une valeur absente ne doit jamais être transformée en résultat favorable.
+- all repository data is synthetic;
+- no real patient identifier or secret may be added;
+- demonstration data must remain clearly labeled;
+- a missing value must never be converted into a favorable result.
 
-## Décision humaine
+## Human decision
 
-Le produit prépare et présente des informations. Une personne qualifiée vérifie le dossier et déclenche elle-même toute signature. Un modèle de langage éventuel peut reformuler des facteurs structurés, mais ne doit pas calculer ou modifier un résultat.
+The product prepares and presents information. A qualified person checks the record and explicitly initiates every signature. A language model may rephrase structured factors but must never compute or change a result.
 
-## Affirmations interdites
+## Prohibited claims
 
-Ne pas présenter Ariane comme :
+Do not present Ariane as:
 
-- un outil de diagnostic ;
-- une recommandation thérapeutique ;
-- une prédiction du rejet ;
-- une validation clinique automatisée ;
-- une intégration existante à LymFIP ;
-- une solution testée sur de vrais patients.
+- a diagnostic tool;
+- a treatment recommendation;
+- a rejection prediction system;
+- automated clinical validation;
+- an existing LymFIP integration;
+- a solution tested on real patients.
 
-## Chiffres de démonstration
+## Demonstration figures
 
-Les nombres 1 000, 714 et 286 décrivent le scénario synthétique présenté. L’objectif de ramener une file accumulée de six mois vers un mois reste une hypothèse opérationnelle à mesurer dans un futur pilote. Il ne doit pas être présenté comme un résultat déjà obtenu, une promesse contractuelle ou une performance clinique.
+The figures 1,000, 714, and 286 describe the presented synthetic scenario. Moving an accumulated backlog from six months toward one month remains an operational hypothesis to be measured in a future pilot. It must not be presented as an achieved result, contractual promise, or clinical performance claim.
 
-## Passage à une expérimentation réelle
+## Moving toward real-world evaluation
 
-Une expérimentation demanderait au minimum :
+At minimum, an evaluation would require:
 
-1. validation explicite des règles et contre-exemples ;
-2. cadre juridique et gouvernance des données ;
-3. environnement autorisé et sécurisé ;
-4. évaluation rétrospective documentée ;
-5. mesure des erreurs, incertitudes et temps de revue ;
-6. supervision et validation professionnelles à chaque étape.
+1. explicit validation of rules and counterexamples;
+2. a legal framework and data governance;
+3. an authorized, secured environment;
+4. documented retrospective evaluation;
+5. measurement of errors, uncertainty, and review time;
+6. professional supervision and validation at every step.
 
-Voir [Du démonstrateur au pilote](PILOT.md) pour les indicateurs proposés et les limites de l’évaluation.
+See [From Demonstrator to Pilot](PILOT.md) for proposed indicators and evaluation boundaries.

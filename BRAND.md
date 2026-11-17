@@ -1,15 +1,15 @@
-# Marque Ariane
+# Ariane Brand
 
-Le nom **Ariane**, son logo, son symbole, son mot-symbole, sa direction artistique et ses médias de présentation ne sont pas couverts par une licence open source.
+The **Ariane** name, logo, symbol, wordmark, visual identity, and presentation media are not covered by an open-source license.
 
-Leur présence dans ce dépôt autorise uniquement leur consultation dans le cadre de la présentation du projet. Toute reproduction, adaptation ou utilisation publique ou commerciale nécessite une autorisation écrite préalable.
+Their presence in this repository only authorizes viewing them as part of the project presentation. Any reproduction, adaptation, or public or commercial use requires prior written permission.
 
-Les éléments actifs de la marque se trouvent dans `web/frontend/public/brand/`.
+The active brand assets are located in `web/frontend/public/brand/`.
 
-| Fichier | Usage prévu |
+| File | Intended use |
 | --- | --- |
-| `ariane-symbol.png` | Symbole seul, avatar ou icône de dépôt |
-| `ariane-wordmark.png` | Nom Ariane sans symbole |
-| `ariane-lockup.png` | Composition complète pour les présentations et le README |
+| `ariane-symbol.png` | Standalone symbol, avatar, or repository icon |
+| `ariane-wordmark.png` | Ariane name without the symbol |
+| `ariane-lockup.png` | Complete lockup for presentations and the README |
 
-Ne pas modifier les proportions, recolorer, déformer ou recomposer ces éléments sans validation préalable. La présence d’un fichier dans le dépôt ne constitue pas une autorisation de réutilisation.
+Do not alter the proportions, recolor, distort, or recompose these assets without prior approval. The presence of a file in the repository does not grant permission to reuse it.

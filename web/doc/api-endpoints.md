@@ -1,82 +1,76 @@
-# Catalogue des endpoints
+# Endpoint catalog
 
-Base URL en local : `http://localhost:8000/api/v1`. Toutes les routes métier vivent sous `/api/v1` ([D-01](api-decisions.md#d-01--versionnement-par-préfixe-apiv1)). Les décisions derrière chaque comportement sont dans [api-decisions.md](api-decisions.md) ; les renvois `D-xx` y mènent.
+Local base URL: `http://localhost:8000/api/v1`.
 
-Dernière mise à jour : 2026-11-15 · 17 opérations.
+Last updated: 2026-11-15 · 17 operations.
 
-## Vue d'ensemble
+## Overview
 
-| Méthode | Chemin | Protection | Rôle |
+| Method | Path | Protection | Purpose |
 | --- | --- | --- | --- |
-| `GET` | `/analysis/result` | **Publique** | Résultat d'analyse du modèle (cas synthétique) |
-| `POST` | `/auth/register` | Publique | Inscription |
-| `POST` | `/auth/login` | Publique | Connexion (pose le cookie de session) |
-| `POST` | `/auth/logout` | Session | Déconnexion de l'appareil courant |
-| `POST` | `/auth/logout-all` | Session | Déconnexion de tous les appareils |
-| `GET` · `PATCH` | `/users/me` | Session | Lire / modifier son profil |
-| `GET` · `PATCH` · `DELETE` | `/users/{id}` | Session **superutilisateur** | Gestion d'un utilisateur |
-| `GET` | `/patients` | Session | Liste paginée des patients, avec leurs tests sériques |
-| `GET` | `/patients/{id}` | Session | Un patient, avec ses tests sériques |
-| `GET` | `/synthetic-patients` | Session | Liste paginée des patients synthétiques |
-| `GET` | `/patients/{id}/synthetic-patients` | Session | Les patients synthétiques d'un patient |
-| `GET` | `/signatures/queue` | Session | File « À signer » : les cas simples à valider |
-| `POST` | `/signatures` | Session | Signer (valider) le cas d'un patient |
-| `GET` | `/consultations/queue` | Session | File « À consulter » : les cas au suivi sérique fluctuant, paginés |
+| `GET` | `/analysis/result` | Public | Fixed synthetic analysis result |
+| `POST` | `/auth/register` | Public | Register an account |
+| `POST` | `/auth/login` | Public | Sign in and set the session cookie |
+| `POST` | `/auth/logout` | Session | Revoke the current session |
+| `POST` | `/auth/logout-all` | Session | Revoke all current-user sessions |
+| `GET`, `PATCH` | `/users/me` | Session | Read or update the current profile |
+| `GET`, `PATCH`, `DELETE` | `/users/{id}` | Superuser | Manage one user |
+| `GET` | `/patients` | Session | Paginated patients with serum tests |
+| `GET` | `/patients/{id}` | Session | One patient with serum tests |
+| `GET` | `/synthetic-patients` | Session | Paginated synthetic profiles |
+| `GET` | `/patients/{id}/synthetic-patients` | Session | Synthetic profiles for one patient |
+| `GET` | `/signatures/queue` | Session | Simple cases awaiting validation |
+| `POST` | `/signatures` | Session | Validate one patient case |
+| `GET` | `/consultations/queue` | Session | Fluctuating cases requiring review |
 
-**Protection « Session »** : cookie `HttpOnly` posé par `POST /auth/login`. Le client doit l'envoyer avec chaque requête (`credentials: "include"`). Sans session valide : `401`.
+A session is the `HttpOnly` cookie set by `/auth/login`; clients must send it
+with `credentials: "include"`. Without a valid active session, protected routes
+return `401`.
 
-**Identifiants, à ne pas confondre** : `id` est l'**UUID** d'un patient (clé technique, utilisé dans les URL) ; `patient_id` est son **identifiant fonctionnel** unique, du type `HIS-00355` ou `SYN-0001` (utilisé pour la liaison avec les patients synthétiques et les tests sériques, et dans les filtres). Voir [D-13](api-decisions.md#d-13--la-liaison-se-fait-par-patient_id-pas-par-id).
+`id` is a patient's technical UUID and is used in URLs. `patient_id` is the
+stable functional identifier, such as `HIS-00355`, and is used for joins and
+filters. Do not interchange them.
 
-## Conventions communes
+## Common conventions
 
-### Listes paginées
-
-Les endpoints de liste (`/patients`, `/synthetic-patients`, `/patients/{id}/synthetic-patients`) renvoient tous la même enveloppe ([D-04](api-decisions.md#d-04--listes-uniformes-paginées-triées-et-filtrées-côté-serveur)) :
+List endpoints return:
 
 ```json
-{ "items": [ … ], "total": 51000, "page": 1, "page_size": 20 }
+{ "items": [], "total": 1000, "page": 1, "page_size": 20 }
 ```
 
-| Paramètre | Type | Défaut | Contrainte |
+| Parameter | Type | Default | Constraint |
 | --- | --- | --- | --- |
-| `page` | entier | `1` | ≥ 1 |
-| `page_size` | entier | `20` | entre 1 et **100** |
-| `sort_by` | énumération | selon l'endpoint | valeurs listées par endpoint ; toute autre → `422` |
-| `sort_order` | `asc` \| `desc` | `asc` | |
+| `page` | integer | `1` | at least 1 |
+| `page_size` | integer | `20` | 1 to 100 |
+| `sort_by` | endpoint-specific enum | endpoint-specific | unknown values return `422` |
+| `sort_order` | `asc` or `desc` | `asc` | |
 
-- `total` compte **tous** les résultats correspondant aux filtres, pas seulement la page.
-- Les valeurs `NULL` arrivent **toujours en dernier**, dans les deux sens de tri. L'ordre reste stable d'une page à l'autre ([D-05](api-decisions.md#d-05--tri-sur-liste-blanche-valeurs-nulles-en-dernier-ordre-stable)).
-- Un **paramètre inconnu** est refusé (`422`), pas ignoré ([D-06](api-decisions.md#d-06--validation-stricte-des-query-params)). Un paramètre **vide** (`?search=`) est accepté et équivaut à l'absence de filtre.
-- Une page au-delà de la fin renvoie `items: []` avec le `total` correct.
+Totals include every filtered result. Null values sort last in both directions,
+and ties are stable. Unknown query parameters return `422`; empty search fields
+behave as absent filters. Text search is case-insensitive but accent-sensitive.
+Literal `%` and `_` are escaped rather than treated as SQL wildcards.
 
-### Recherche et filtres texte
+### Error format
 
-- `search` : « contient », sans tenir compte de la casse, `%` et `_` traités comme du texte. **Sensible aux accents** (« andre » ne trouve pas « André »). Voir [D-07](api-decisions.md#d-07--recherche-insensible-à-la-casse-sensible-aux-accents).
-- Les filtres texte exacts (`city`, `country`, `patient_id`, `jeu`, `phase`, …) comparent l'égalité complète, sans tenir compte de la casse (« rein » ne trouve pas « Rein-Pancréas »).
-
-### Erreurs
-
-| Code | Corps | Quand |
+| Status | Body | Meaning |
 | --- | --- | --- |
-| `401` | `{"detail": "Unauthorized"}` | Pas de session valide ou compte inactif |
-| `403` | `{"detail": "Forbidden"}` | Session valide mais droits insuffisants (`/users/{id}`) |
-| `404` | `{"detail": "PATIENT_NOT_FOUND"}` | Patient inconnu |
-| `409` | `{"detail": "PATIENT_ALREADY_SIGNED"}` | Patient déjà signé (`POST /signatures`) |
-| `400` | `{"detail": "LOGIN_BAD_CREDENTIALS"}` | Identifiants invalides (même code pour email inconnu, mauvais mot de passe ou compte désactivé) |
-| `405` | `{"detail": "Method Not Allowed"}` | Écriture tentée sur une ressource en lecture seule ([D-09](api-decisions.md#d-09--patients-et-patients-synthétiques-en-lecture-seule)) |
-| `422` | `{"detail": [ {loc, msg, type}, … ]}` | Entrée invalide : format de FastAPI, un objet par champ fautif |
+| `400` | `{"detail":"LOGIN_BAD_CREDENTIALS"}` | Invalid or disabled credentials |
+| `401` | `{"detail":"Unauthorized"}` | Missing or invalid session |
+| `403` | `{"detail":"Forbidden"}` | Insufficient privileges |
+| `404` | `{"detail":"PATIENT_NOT_FOUND"}` | Unknown patient |
+| `409` | `{"detail":"PATIENT_ALREADY_SIGNED"}` | Duplicate signature |
+| `422` | FastAPI validation details | Invalid input |
 
-Les erreurs métier ont un `detail` **constant et stable** (code en majuscules), à tester côté client ; ne pas dépendre d'un message libre ([D-03](api-decisions.md#d-03--erreurs-métier-à-code-stable-converties-à-un-seul-endroit)).
+Business error codes are stable constants. Validation errors retain FastAPI's
+standard `422` structure.
 
----
+## Analysis
 
-## Analyse
+### `GET /analysis/result`
 
-### `GET /analysis/result` — publique
-
-Renvoie le résultat du modèle pour un cas. **Aucune authentification** ([D-02](api-decisions.md#d-02--toutes-les-routes-métier-exigent-une-session-une-seule-exception)). Données **synthétiques uniquement** : `synthetic` vaut toujours `true` ([D-10](api-decisions.md#d-10--le-résultat-danalyse-est-public-parce-quil-est-synthétique)).
-
-Pas de paramètre. Réponse `200` :
+Public, parameter-free, and synthetic-only. The schema enforces
+`synthetic: true`; it must never be reused for real patient results.
 
 ```json
 {
@@ -102,222 +96,116 @@ Pas de paramètre. Réponse `200` :
   "ruleset_version": "pending_review",
   "uncertainties": [],
   "human_validation_required": true,
-  "provenance": { "source_record_copied": false, "generator_version": "demo-v1" }
+  "provenance": {
+    "source_record_copied": false,
+    "generator_version": "demo-v1"
+  }
 }
 ```
 
-Les champs de statut sont des chaînes libres, les listes vides n'ont pas de schéma d'éléments connu ([D-11](api-decisions.md#d-11--types-lâches-là-où-le-format-nest-pas-connu)).
+Unknown result collections remain loosely typed until the medical contract is
+validated.
 
----
+## Authentication and users
 
-## Authentification et utilisateurs
+| Endpoint | Request | Success |
+| --- | --- | --- |
+| `POST /auth/register` | `{email, password}`; password 12–256 characters | `201`, user without password data |
+| `POST /auth/login` | `{email, password}` | `204`, session cookie set |
+| `POST /auth/logout` | none | `204`, current token revoked |
+| `POST /auth/logout-all` | none | `204`, all current-user tokens revoked |
+| `GET /users/me` | none | `200`, current user |
+| `PATCH /users/me` | fields to update | `200`, updated user |
+| `/users/{id}` | superuser only | `200` or `204` |
 
-Détail du mécanisme (cookie, Argon2id, durée de session) : `CLAUDE.md`, section « Authentification ».
-
-| Endpoint | Corps | Succès | Erreurs |
-| --- | --- | --- | --- |
-| `POST /auth/register` | JSON `{email, password}` (mot de passe 12–256 caractères) | `201`, l'utilisateur (jamais de mot de passe ni de hash) | `400` (email déjà utilisé), `422` |
-| `POST /auth/login` | JSON `{email, password}` | `204`, cookie de session posé | `400 LOGIN_BAD_CREDENTIALS`, `422` |
-| `POST /auth/logout` | — | `204`, session courante révoquée côté serveur | `401` |
-| `POST /auth/logout-all` | — | `204`, toutes les sessions de l'utilisateur révoquées | `401` |
-| `GET /users/me` | — | `200`, l'utilisateur | `401` |
-| `PATCH /users/me` | JSON, champs à modifier | `200`, l'utilisateur | `400`, `401`, `422` |
-| `GET` · `PATCH` · `DELETE /users/{id}` | — / JSON / — | `200` / `200` / `204` | `401`, `403`, `404`, `422` |
-
----
+Passwords and password hashes never appear in responses.
 
 ## Patients
 
-Table `patients` : identité uniquement. Les prénoms, noms, villes et pays sont **fictifs** ([D-14](api-decisions.md#d-14--identités-fictives-et-déterministes)). Chaque patient embarque ses tests sériques (`serum_tests`) et son historique d'événements (`history`), liés par `patient_id`. Ces listes sont vides si rien n'a été seedé pour lui.
+Patient identities, locations, histories, and serum values are deterministic
+and synthetic. Serum `*_output` values equal `1` when the simulated antigen
+value is at least 500. This threshold describes the demonstrator dataset and
+must not be presented as a validated clinical rule.
 
-L'historique vient de `data-model/data/serum_test_history.csv`. Ce sont des valeurs **synthétiques** de démonstration, pas des résultats biologiques cliniques. `*_output` vaut `1` si la valeur de l'antigène est ≥ 500, sinon `0`.
+### Patient response
 
-### Objet `SerumTest`
+```text
+id, patient_id, firstname, lastname, birth, gender, city, country, created_at,
+serum_tests[], serum_evolution, history[]
+```
 
-| Champ | Type | Remarque |
-| --- | --- | --- |
-| `id` | UUID | Déduit de `patient_id` + `test_date` |
-| `patient_id` | texte | Identifiant fonctionnel du patient (ex. `HIS-00355`) |
-| `graft_date`, `test_date` | date ISO | |
-| `b12`, `b13`, `dr53`, `dr51`, `dq10` | entier | Valeur simulée (noms du CSV en minuscules : `B12` → `b12`) |
-| `b12_output`, `b13_output`, `dr53_output`, `dr51_output`, `dq10_output` | `0` \| `1` | Positivité au seuil 500 |
-| `profile` | `A` \| `B` \| `C` | Stabilité complète, fluctuations partielles, très fluctuant |
-
-Les tests d'un patient sont triés par `test_date` croissante.
-
-### Objet `serum_evolution`
-
-Présent sur chaque `Patient`, calculé à partir de `serum_tests` (pas de requête supplémentaire). `profile` et `label` sont `null` sans prélèvement. Le libellé est celui du prélèvement le plus ancien.
-
-| Champ | Type | Remarque |
-| --- | --- | --- |
-| `profile` | `A` \| `B` \| `C` ou `null` | |
-| `label` | texte ou `null` | `constant` (A), `intermédiaire` (B), `fluctuant` (C) |
-| `years` | liste | Une entrée par prélèvement, dans l'ordre de `test_date` |
-| `years[].year` | entier | Année de `test_date` |
-| `years[].test_date` | date ISO | |
-| `years[].antigens` | liste | Toujours B12, B13, DR53, DR51, DQ10, dans cet ordre |
-| `years[].antigens[].code` | texte | Colonne (`b12`, …) |
-| `years[].antigens[].label` | texte | Nom affiché (`B12`, …) |
-| `years[].antigens[].value` | entier | Valeur simulée |
-| `years[].antigens[].output` | `0` \| `1` | `1` si la valeur est ≥ 500 |
-
-L'historique d'événements (`history`) n'est pas lu dans un CSV. Il est seedé pour dix patients de démonstration, dont les UUID listés sont ceux de `patients_synthetiques.id` (pas l'UUID d'URL). La liaison se fait par `patient_id` (`HIS-00055`, `SYN-0038`, `HIS-00355`, `HIS-00073`, `HIS-00407`, `SYN-0712`, `HIS-00584`, `HIS-00485`, `HIS-00047`, `HIS-00230`). Les textes sont des **exemples fictifs**, pas des données cliniques. Les dates sont calées sur la date de greffe du CSV. Les événements d'un patient sont triés par `occurred_on` croissante.
-
-### Objet `PatientHistory`
-
-| Champ | Type | Remarque |
-| --- | --- | --- |
-| `id` | UUID | Déduit de `patient_id` + code d'événement |
-| `patient_id` | texte | Identifiant fonctionnel du patient (ex. `HIS-00355`) |
-| `kind` | `illness` \| `accident` \| `transfusion` \| `preop` \| `graft` \| `postop` \| `consultation` | |
-| `title`, `detail` | texte | Libellés fictifs (« Greffe rénale », « Accident », « Transfusion », « Autre pathologie », …) |
-| `occurred_on` | date ISO | |
-
-### Objet `Patient`
-
-| Champ | Type | Remarque |
-| --- | --- | --- |
-| `id` | UUID | Clé technique ; c'est lui qui est dans les URL |
-| `patient_id` | texte | Identifiant fonctionnel **unique** (ex. `HIS-00355`) |
-| `firstname`, `lastname` | texte | |
-| `birth` | date ISO ou `null` | `null` quand la source n'a pas de date de naissance |
-| `gender` | `M` \| `F` | |
-| `city`, `country` | texte | |
-| `created_at` | date-heure ISO | |
-| `serum_tests` | liste de `SerumTest` | `[]` si le patient n'a pas de tests sériques |
-| `history` | liste de `PatientHistory` | `[]` si le patient n'est pas dans les dix de démonstration |
+`serum_tests` are ordered by `test_date`. `serum_evolution` groups the same
+simulated B12, B13, DR53, DR51, and DQ10 values by date. `history` contains
+fictional events and is ordered by `occurred_on`.
 
 ### `GET /patients`
 
-Liste paginée. Paramètres, en plus de la pagination ci-dessus :
+Additional filters:
 
-| Paramètre | Type | Effet |
-| --- | --- | --- |
-| `search` | texte, ≤ 100 caractères | Cherche dans `patient_id`, `firstname` **et** `lastname`. Chaque mot doit être trouvé (`jean dup`), dans n'importe lequel des trois champs |
-| `gender` | `M` \| `F` | Filtre exact |
-| `city`, `country` | texte, ≤ 100 | Égalité exacte, sans tenir compte de la casse |
-| `birth_from`, `birth_to` | date ISO | Bornes **incluses** sur `birth`. Les patients sans date de naissance sont exclus dès qu'une borne est donnée. `birth_from` > `birth_to` → `422` |
-| `sort_by` | `patient_id` \| `firstname` \| `lastname` \| `birth` \| `gender` \| `city` \| `country` \| `created_at` | Défaut : `lastname` |
+| Parameter | Behavior |
+| --- | --- |
+| `search` | all words must match `patient_id`, first name, or last name |
+| `gender` | exact `M` or `F` |
+| `city`, `country` | case-insensitive exact match |
+| `birth_from`, `birth_to` | inclusive ISO-date bounds |
+| `sort_by` | `patient_id`, `firstname`, `lastname`, `birth`, `gender`, `city`, `country`, or `created_at` |
 
-Réponse `200` : `{items: [Patient], total, page, page_size}`. Chaque `Patient` contient `serum_tests` et `history`. Erreurs : `401`, `422`.
+The default sort is `lastname`. Reversed birth bounds return `422`.
 
 ### `GET /patients/{id}`
 
-Un patient par son UUID, avec `serum_tests` et `history`. `200` : un `Patient`. Erreurs : `401`, `404 PATIENT_NOT_FOUND`, `422` (`id` n'est pas un UUID ; un `patient_id` comme `HIS-00355` n'est **pas** accepté ici).
+Returns one patient by UUID. An unknown UUID returns
+`404 PATIENT_NOT_FOUND`; a functional `patient_id` in the path returns `422`.
 
----
+## Synthetic patients
 
-## Patients synthétiques
-
-Table `patients_synthetiques` : une ligne du CSV `patients_synthetiques_v3.csv`. Un patient peut en avoir plusieurs ([D-13](api-decisions.md#d-13--la-liaison-se-fait-par-patient_id-pas-par-id)).
-
-### Objet `SyntheticPatient`
-
-Chaque élément porte **67 champs** : `id` (UUID), `created_at`, et les **65 colonnes du CSV**, sous leur nom (en minuscules : `hla_A` du CSV devient `hla_a`). Extrait :
-
-```json
-{
-  "id": "…",
-  "created_at": "…",
-  "patient_id": "SYN-0001",
-  "jeu": "actuel",
-  "synthetic": true,
-  "date_reference": "2026-11-14",
-  "date_naissance": "1991-01-25",
-  "age": 35,
-  "sexe": "M",
-  "phase": "pre_greffe",
-  "…": "…",
-  "_issue_statut": "…",
-  "_verite_tgi": 0.3826
-}
-```
-
-- `patient_id` est le `patient_id` du **patient** (clé étrangère vers `patients.patient_id`), pas son UUID.
-- Les colonnes préfixées par `_` sont les **vérités terrain du générateur** (résultats à retrouver), exposées telles quelles ([D-16](api-decisions.md#d-16--les-vérités-terrain-sont-exposées-mais-non-triables)). Elles gardent leur `_` dans le JSON.
-- Les colonnes parfois vides dans le CSV sont `null` ; les listes (dates, HLA) sont des chaînes libres telles que dans le CSV.
-- La liste complète des colonnes est dans le schéma OpenAPI (`SyntheticPatientRead`).
+Each response exposes `id`, `created_at`, and the 65 CSV fields under their
+lowercase API names. Nullable CSV cells become `null`. `_`-prefixed generator
+truth fields are returned by alias but cannot be filtered or sorted. These
+fields are pending a product decision and must not be treated as clinical
+ground truth.
 
 ### `GET /synthetic-patients`
 
-Liste paginée, en plus de la pagination ci-dessus :
+| Parameter | Behavior |
+| --- | --- |
+| `search` | substring of `patient_id` |
+| `patient_id` | case-insensitive exact match |
+| `sexe` | exact `M` or `F` |
+| `jeu`, `phase`, `statut_parcours`, `organe` | case-insensitive exact match |
+| `sort_by` | allowlisted identity, date, phase, status, organ, or creation fields |
 
-| Paramètre | Type | Effet |
-| --- | --- | --- |
-| `search` | texte, ≤ 100 | « Contient » dans le `patient_id` (`syn-00`) |
-| `patient_id` | texte, ≤ 50 | `patient_id` **exact** (sans tenir compte de la casse). Renvoie une page vide si le patient n'existe pas, voir l'endpoint imbriqué ci-dessous |
-| `sexe` | `M` \| `F` | Filtre exact |
-| `jeu`, `phase`, `statut_parcours`, `organe` | texte, ≤ 100 | Égalité exacte, sans tenir compte de la casse |
-| `sort_by` | `patient_id` \| `date_reference` \| `date_naissance` \| `age` \| `jeu` \| `phase` \| `statut_parcours` \| `statut_date` \| `organe` \| `created_at` | Défaut : `patient_id`. Les colonnes `_…` ne sont **pas** triables |
-
-Réponse `200` : `{items: [SyntheticPatient], total, page, page_size}`. Erreurs : `401`, `422`. Une page de 100 éléments pèse environ 179 Ko ([D-17](api-decisions.md#d-17--taille-de-page-plafonnée-à-100)).
+Returns the common paginated envelope. A page of 100 records is approximately
+179 KB with the current schema.
 
 ### `GET /patients/{id}/synthetic-patients`
 
-Les patients synthétiques **d'un patient**, par l'UUID `id` du patient. Paramètres : uniquement `sort_by`, `sort_order`, `page`, `page_size` (mêmes valeurs que ci-dessus) ; le patient est dans l'URL, donc `patient_id`, `search` ou `jeu` donnent `422`.
+Accepts only pagination and sorting parameters. A known patient with no
+synthetic record returns an empty `200` page; an unknown patient returns
+`404 PATIENT_NOT_FOUND`.
 
-| Cas | Réponse |
-| --- | --- |
-| Patient connu, avec des patients synthétiques | `200`, la page |
-| Patient connu, sans patient synthétique | `200`, `items: []`, `total: 0` |
-| **Patient inconnu** | `404 PATIENT_NOT_FOUND` |
-| `id` qui n'est pas un UUID | `422` |
-
-La différence entre « patient sans patient synthétique » (`200` vide) et « patient inexistant » (`404`) est volontaire ([D-15](api-decisions.md#d-15--lendpoint-imbriqué-distingue-patient-inconnu-et-liste-vide)) ; `GET /synthetic-patients?patient_id=` ne fait pas cette distinction.
-
----
-
-## Signatures
-
-Table `patient_signatures` : la validation d'un cas simple par un soignant ([D-23](api-decisions.md#d-23--signature-clinique-des-cas-simples)). Une signature par patient, sans annulation.
+## Human validation queues
 
 ### `GET /signatures/queue`
 
-Les cas synthétiques constants proposés à la validation humaine. Un cas est éligible si le patient a un prélèvement de profil sérique `A` (constant) et aucune signature. Tri stable par `patient_id`. Pas de paramètre.
-
-Réponse `200` :
+Returns up to five unsigned constant-profile cases plus `remaining`:
 
 ```json
-{ "items": [ Patient, … ], "remaining": 714 }
+{ "items": [], "remaining": 714 }
 ```
 
-- `items` : au plus **5** `Patient`, au même format que `GET /patients/{id}` (avec `serum_evolution`).
-- `remaining` : le nombre total de cas éligibles, page comprise.
-
-Erreurs : `401`.
+Eligibility is demonstrator logic pending professional review. Every item is a
+full Patient response and still requires human validation.
 
 ### `POST /signatures`
 
-Corps JSON `{"patient_id": "<UUID du patient>"}` : l'UUID `id`, pas le `patient_id` fonctionnel. Un champ inconnu est refusé.
-
-Réponse `201` :
-
-```json
-{ "patient_id": "HIS-00001", "signed_by": "<UUID de l'utilisateur>", "signed_at": "2026-11-14T18:05:00Z" }
-```
-
-Le patient quitte alors la file. Erreurs : `401`, `404 PATIENT_NOT_FOUND`, `409 PATIENT_ALREADY_SIGNED`, `422`.
-
----
-
-## Consultations
-
-Cas à lire, pas à signer ([D-24](api-decisions.md#d-24--file-à-consulter--les-profils-fluctuants)). Aucune écriture.
+Request body: `{"patient_id":"<patient UUID>"}`. The value is the technical
+UUID despite the field name. Success returns `201` with the functional
+`patient_id`, `signed_by`, and server-generated `signed_at`. Unknown patients
+return `404`; repeated signatures return `409`.
 
 ### `GET /consultations/queue`
 
-Les cas synthétiques au suivi sérique fluctuant. Un cas est à consulter si le patient a un prélèvement de profil sérique `C` (fluctuant) ; une éventuelle signature n'entre pas en compte. Tri stable par `patient_id`.
-
-Paramètres de requête : `page` (≥ 1, défaut 1) et `page_size` (1 à 100, défaut 20). Un paramètre inconnu est refusé (`422`).
-
-Réponse `200` :
-
-```json
-{ "items": [ Patient, … ], "total": 100, "page": 1, "page_size": 20 }
-```
-
-- `items` : les `Patient` de la page, au même format que `GET /patients/{id}` (avec `serum_evolution` et `history`).
-- `total` : le nombre total de cas à consulter, toutes pages confondues.
-
-Erreurs : `401`, `422`.
+Returns profile `C` cases in the common paginated envelope. A signature does
+not remove a case from this review-only queue. The current synthetic dataset
+contains 286 such cases; this is a demo count, not a clinical statistic.

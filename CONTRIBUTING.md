@@ -1,9 +1,9 @@
-# Contributions
+# Contributing
 
-Ariane est un projet propriétaire et n’est pas distribué sous une licence open source.
+Ariane is a proprietary project and is not distributed under an open-source license.
 
-Le dépôt public sert à présenter et évaluer le démonstrateur. Il n’accepte pas de contribution de code non sollicitée. Une pull request, un patch ou toute autre proposition de modification ne transfère aucun droit et ne garantit ni examen ni intégration.
+The public repository is intended to present and evaluate the demonstrator. Unsolicited code contributions are not accepted. A pull request, patch, or other proposed change transfers no rights and does not guarantee review or integration.
 
-Les retours sur le produit, la documentation ou l’accessibilité peuvent être proposés dans les issues du dépôt. Ne jamais y publier de donnée patient, d’information de santé identifiable, de secret, de règle clinique non validée ou de contenu confidentiel.
+Feedback about the product, documentation, or accessibility may be submitted through repository issues. Never publish patient data, identifiable health information, secrets, unvalidated clinical rules, or confidential content.
 
-Toute collaboration de recherche, d’évaluation ou de développement doit faire l’objet d’un accord écrit préalable définissant notamment les droits d’utilisation, la confidentialité, la gouvernance des données et les responsabilités.
+Any research, evaluation, or development collaboration requires a prior written agreement defining, among other matters, usage rights, confidentiality, data governance, and responsibilities.

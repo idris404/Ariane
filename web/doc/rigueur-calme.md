@@ -1,4 +1,4 @@
-# HLA Twin — Rigueur calme
+# HLA Twin — Calm rigor
 
 ## Scope and audit (2026-11-15)
 

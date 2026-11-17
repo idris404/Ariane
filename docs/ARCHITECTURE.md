@@ -1,56 +1,53 @@
-# Architecture d’Ariane
+# Ariane Architecture
 
-## Vue d’ensemble
+## Overview
 
 ```text
 data-model/                    web/backend/                 web/frontend/
 ┌─────────────────────┐       ┌─────────────────────┐      ┌─────────────────────┐
-│ Profils synthétiques│       │ API FastAPI         │      │ Landing publique    │
-│ Historique sérique  │──────►│ Services métier     │─────►│ Cockpit de dossiers │
-│ Contrats et règles  │       │ Accès PostgreSQL    │      │ Fiche et files      │
+│ Synthetic profiles  │       │ FastAPI API         │      │ Public landing page │
+│ Serum history       │──────►│ Domain services     │─────►│ Record dashboard    │
+│ Contracts and rules │       │ PostgreSQL access   │      │ Files and queues    │
 └─────────────────────┘       └─────────────────────┘      └─────────────────────┘
                                          │                            │
-                                         └──────── validation humaine ┘
+                                         └──────── human validation ──┘
 ```
 
 ## Frontend
 
-Le frontend utilise Next.js avec l’App Router. La route `/` sert la présentation publique et `/login` ouvre le démonstrateur. Les écrans de données sont protégés côté client par la vérification de session du backend.
+The frontend uses Next.js with the App Router. The `/` route serves the public presentation and `/login` opens the demonstrator. Data screens are protected on the client through backend session verification.
 
-Les routes principales sont :
-
-| Route | Rôle |
+| Route | Purpose |
 | --- | --- |
-| `/` | Landing page publique et vidéo de démonstration |
-| `/login` | Connexion au démonstrateur local |
-| `/dashboard` | Liste, recherche, filtres, tri et import simulé |
-| `/fiche/[id]` | Historique et évolution sérique d’un dossier |
-| `/a-signer` | Dossiers préparés pour vérification et signature |
-| `/a-consulter` | Dossiers conservés pour une revue approfondie |
+| `/` | Public landing page and demonstration video |
+| `/login` | Local demonstrator sign-in |
+| `/dashboard` | List, search, filters, sorting, and simulated import |
+| `/fiche/[id]` | Record history and serum evolution |
+| `/a-signer` | Records prepared for verification and signature |
+| `/a-consulter` | Records retained for deeper review |
 
-TanStack Query gère l’état serveur. Zod vérifie les réponses avant leur utilisation. Le frontend ne transforme pas une valeur manquante en conclusion favorable et n’implémente pas de seuil médical.
+TanStack Query manages server state. Zod validates responses before use. The frontend never turns missing values into favorable conclusions and does not implement medical thresholds.
 
 ## Backend
 
-Le backend FastAPI sépare les routes, services, dépôts et entités. Pydantic valide les entrées et les sorties. SQLAlchemy accède à PostgreSQL.
+The FastAPI backend separates routes, services, repositories, and entities. Pydantic validates inputs and outputs. SQLAlchemy accesses PostgreSQL.
 
-Les capacités utilisées par le parcours incluent :
+The demonstrated workflow includes:
 
-- session par cookie HTTP-only ;
-- consultation paginée des patients ;
-- lecture d’un dossier et de son historique ;
-- file de signature ;
-- file de consultation ;
-- enregistrement explicite d’une signature.
+- HTTP-only cookie sessions;
+- paginated patient browsing;
+- record and history retrieval;
+- signature and consultation queues;
+- explicit signature recording.
 
-## Données
+## Data
 
-Le dossier `data-model/` contient les schémas, le pipeline et les scénarios synthétiques. Le seed du backend charge les profils, les tests sériques et les événements nécessaires au parcours local.
+The `data-model/` directory contains schemas, the pipeline, and synthetic scenarios. The backend seed loads the profiles, serum tests, and events required for the local workflow.
 
-Les identifiants de démonstration sont stables. Les entrées sont reproductibles et ne contiennent aucune donnée patient réelle.
+Demonstration identifiers are stable. Inputs are reproducible and contain no real patient data.
 
-## Contrat et limites
+## Contract and boundaries
 
-Le contrat entre le frontend et le backend est l’API HTTP : modèles Pydantic côté serveur et schémas Zod côté client. Le backend reste la source de vérité.
+The frontend/backend contract is the HTTP API: Pydantic models on the server and Zod schemas on the client. The backend remains the source of truth.
 
-Certaines valeurs du prototype sont encore des éléments de scénario ou de maquette. Elles doivent rester identifiées comme synthétiques, simulées ou non validées. Voir [Usage responsable](RESPONSIBLE_USE.md).
+Some prototype values remain scenario or mock elements. They must stay labeled as synthetic, simulated, or unvalidated. See [Responsible Use](RESPONSIBLE_USE.md).

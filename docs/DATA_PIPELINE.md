@@ -1,44 +1,44 @@
-# Pipeline de données synthétiques
+# Synthetic Data Pipeline
 
-## Objectif
+## Purpose
 
-Le pipeline fournit des données déterministes pour développer, tester et démontrer Ariane sans utiliser de données patient réelles.
+The pipeline provides deterministic data for developing, testing, and demonstrating Ariane without using real patient data.
 
-## Contenu
+## Contents
 
 ```text
 data-model/
-├── data/                    profils et historiques synthétiques
-├── protocols/               configuration versionnée du démonstrateur
-├── schemas/                 contrats JSON
-├── src/hla_data_model/      normalisation, analyse et validation
-└── tests/                   cas nominaux, absences et contradictions
+├── data/                    synthetic profiles and histories
+├── protocols/               versioned demonstrator configuration
+├── schemas/                 JSON contracts
+├── src/hla_data_model/      normalization, analysis, and validation
+└── tests/                   nominal, missing-data, and contradiction cases
 ```
 
-## Principes
+## Principles
 
-- mêmes entrées, mêmes résultats ;
-- identifiants synthétiques stables ;
-- séparation entre données d’entrée et vérités du générateur ;
-- validation des structures avant consommation ;
-- absence de dépendance réseau pendant le cœur de la démonstration ;
-- obligation de validation humaine dans les restitutions.
+- identical inputs produce identical outputs;
+- stable synthetic identifiers;
+- separation between input data and generator ground truth;
+- structure validation before consumption;
+- no network dependency in the core demonstration workflow;
+- human validation remains mandatory in every output.
 
-## Utilisation par l’application
+## Application usage
 
-Le seed du backend charge par défaut 999 profils disposant d’un historique sérique et un dossier synthétique mis en avant, soit les 1 000 profils du scénario. Il charge aussi les événements fictifs dans PostgreSQL. L’option `--all-patients` permet de charger les 51 000 profils sources. Le frontend récupère ces données uniquement après la fin de l’import simulé.
+By default, the backend seed loads 999 profiles with serum history plus one featured synthetic record, for a total of 1,000 scenario profiles. It also loads fictional events into PostgreSQL. The `--all-patients` option loads all 51,000 source profiles. The frontend retrieves this data only after the simulated import finishes.
 
-L’import visible dans l’interface raconte le parcours du produit : le navigateur ne transmet actuellement aucun fichier patient au backend.
+The visible import explains the product workflow. The browser currently sends no patient file to the backend.
 
-## Vérification
+## Verification
 
-Depuis `data-model/` :
+From `data-model/`:
 
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 -m hla_data_model.validator data/scenarios
 ```
 
-## Interprétation
+## Interpretation
 
-Les résultats du pipeline servent à démontrer le fonctionnement du produit. Ils ne démontrent aucune sensibilité, spécificité, performance clinique ou capacité de généralisation.
+Pipeline results demonstrate product behavior. They do not establish sensitivity, specificity, clinical performance, or generalizability.

@@ -1,8 +1,8 @@
-# Démonstration locale
+# Local Demonstration
 
-## Préparation
+## Preparation
 
-La démonstration repose sur trois processus locaux : PostgreSQL, FastAPI et Next.js.
+The demonstration uses three local processes: PostgreSQL, FastAPI, and Next.js.
 
 ### PostgreSQL
 
@@ -30,29 +30,29 @@ npm ci
 npm run dev
 ```
 
-Ouvrir <http://localhost:5173>.
+Open <http://localhost:5173>.
 
-## Parcours conseillé
+## Recommended walkthrough
 
-1. Présenter la landing et le prix remporté.
-2. Montrer la vidéo courte si le temps est limité.
-3. Ouvrir `/login` et se connecter avec le compte local créé par le seed.
-4. Lancer l’import simulé depuis le cockpit.
-5. Ouvrir la file **À signer** et développer les résultats d’un dossier.
-6. Montrer qu’une signature exige une action explicite.
-7. Ouvrir la file **À consulter** et afficher l’historique d’un dossier fluctuant.
-8. Rappeler que les données sont synthétiques et que la validation reste humaine.
+1. Present the landing page and award.
+2. Show the short video when time is limited.
+3. Open `/login` and sign in with the local account created by the seed.
+4. Start the simulated import from the dashboard.
+5. Open the **Ready to sign** queue and expand a record's results.
+6. Show that signing requires an explicit action.
+7. Open the **Needs review** queue and display a fluctuating record's history.
+8. Remind the audience that all data is synthetic and validation remains human.
 
-## Plan de secours
+## Fallback plan
 
-- vidéo locale : `web/frontend/public/showcase/demo-ariane.mp4` ;
-- capture principale : `web/frontend/public/showcase/signing-queue-full.png` ;
-- landing disponible sans connexion au backend ;
-- seed reproductible pour reconstruire les données de démonstration.
+- local video: `web/frontend/public/showcase/demo-ariane.mp4`;
+- main screenshot: `web/frontend/public/showcase/signing-queue-full.png`;
+- landing page available without a backend connection;
+- reproducible seed to rebuild demonstration data.
 
-## Arrêt
+## Shutdown
 
-Arrêter les serveurs avec `Ctrl+C`, puis :
+Stop the servers with `Ctrl+C`, then run:
 
 ```bash
 docker compose -f dependencies/compose.yml down

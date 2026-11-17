@@ -1,49 +1,38 @@
-# Déploiement Vercel et Neon
+# Vercel and Neon Deployment
 
-La production publique utilise un projet Vercel Services : Next.js est le service public et
-FastAPI reste privé. Le navigateur appelle `/api/backend/*` sur la même origine ; la route Next.js
-transmet uniquement les chemins `/api/v1/*` au service Python. Le cookie de session reste ainsi
-HTTP-only, `Secure` et rattaché au domaine public.
+The public production environment uses a Vercel Services project: Next.js is the public service and FastAPI remains private. The browser calls `/api/backend/*` on the same origin; the Next.js route forwards only `/api/v1/*` paths to the Python service. The session cookie therefore remains HTTP-only, `Secure`, and scoped to the public domain.
 
-Neon héberge uniquement les données synthétiques du démonstrateur. Utiliser une connexion poolée et
-chiffrée, fournie à FastAPI dans le secret `DATABASE_URL`.
+Neon hosts only synthetic demonstrator data. Use an encrypted pooled connection supplied to FastAPI through the `DATABASE_URL` secret.
 
-## Variables de production
+## Production variables
 
-| Service | Variable | Valeur attendue |
+| Service | Variable | Expected value |
 | --- | --- | --- |
 | frontend | `NEXT_PUBLIC_API_URL` | `/api/backend` |
-| backend | `DATABASE_URL` | URL Neon poolée avec `sslmode=require` |
-| backend | `FRONTEND_URL` | URL publique Vercel |
+| backend | `DATABASE_URL` | Pooled Neon URL with `sslmode=require` |
+| backend | `FRONTEND_URL` | Public Vercel URL |
 | backend | `COOKIE_SECURE` | `true` |
 
-`BACKEND_URL` n'est pas un secret à saisir : Vercel le fournit au frontend grâce au service binding
-déclaré dans `vercel.json`.
+`BACKEND_URL` is not a manually entered secret. Vercel provides it to the frontend through the service binding declared in `vercel.json`.
 
-Les identifiants du compte de démonstration ne doivent pas vivre dans le processus de l'API. Ils sont
-utilisés uniquement pendant le seed via `SEED_USER_EMAIL` et `SEED_USER_PASSWORD`, puis retirés de
-l'environnement d'exécution.
+Demonstration account credentials must not remain in the API process. They are used only during seeding through `SEED_USER_EMAIL` and `SEED_USER_PASSWORD`, then removed from the runtime environment.
 
-## Initialisation
+## Initialization
 
-Depuis une machine autorisée, avec `DATABASE_URL`, `SEED_USER_EMAIL` et `SEED_USER_PASSWORD` chargés
-sans les écrire dans le dépôt :
+From an authorized machine, load `DATABASE_URL`, `SEED_USER_EMAIL`, and `SEED_USER_PASSWORD` without writing them to the repository, then run:
 
 ```bash
 cd web/backend
 uv run python -m app.seed
 ```
 
-Le seed est rejouable et charge par défaut 1 000 profils entièrement synthétiques. Ne jamais utiliser
-`--reset` sur une base existante sans vérifier les signatures et comptes à conserver.
+The seed is repeatable and loads 1,000 entirely synthetic profiles by default. Never use `--reset` on an existing database without first checking which signatures and accounts must be retained.
 
-## Vérifications avant publication
+## Pre-release checks
 
 ```bash
 cd web/backend && uv run pytest
 cd web/frontend && npm run lint && npm run typecheck && npm run test:ui && npm run build
 ```
 
-Après le déploiement, vérifier la landing, la vidéo, la connexion, les deux files, une fiche patient,
-la signature explicite et la déconnexion. Toute communication publique doit conserver les mentions
-« données synthétiques », « objectif à mesurer » et « validation humaine obligatoire ».
+After deployment, verify the landing page, video, sign-in, both queues, one patient file, explicit signing, and sign-out. Public communication must retain the statements **synthetic data**, **target to be measured**, and **human validation required**.

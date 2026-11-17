@@ -2,135 +2,135 @@
   <img src="web/frontend/public/brand/ariane-lockup.png" alt="Ariane" width="360">
 </p>
 
-<h1 align="center">Rattraper le retard. Garder l’expertise.</h1>
+<h1 align="center">Clear the backlog. Keep the expertise.</h1>
 
 <p align="center">
-  Ariane prépare la revue immunologique répétitive pour rendre de la capacité aux équipes,<br>
-  sans automatiser la décision du biologiste.
+  Ariane prepares repetitive immunological review work to restore team capacity,<br>
+  without automating the biologist's decision.
 </p>
 
 <p align="center">
-  <strong>🏆 Prix de la meilleure solution pour les patients</strong><br>
-  Hackathon AI for Health · Paris · 13–15 novembre 2026
+  <strong>🏆 Best Patient Solution Award</strong><br>
+  AI for Health Hackathon · Paris · November 13–15, 2026
 </p>
 
 <p align="center">
-  <a href="#pourquoi-ariane">Pourquoi Ariane</a> ·
-  <a href="#démonstration">Démonstration</a> ·
-  <a href="#démarrage-local">Démarrage local</a> ·
-  <a href="docs/PILOT.md">Démarche pilote</a> ·
-  <a href="docs/RESPONSIBLE_USE.md">Usage responsable</a>
+  <a href="#why-ariane">Why Ariane</a> ·
+  <a href="#demo">Demo</a> ·
+  <a href="#local-setup">Local setup</a> ·
+  <a href="docs/PILOT.md">Pilot approach</a> ·
+  <a href="docs/RESPONSIBLE_USE.md">Responsible use</a>
 </p>
 
-![File de validation du démonstrateur Ariane](web/frontend/public/showcase/signing-queue-full.png)
+![Ariane demonstrator validation queue](web/frontend/public/showcase/signing-queue-full.png)
 
-## Pourquoi Ariane
+## Why Ariane
 
-La revue immunologique en transplantation demande de reconstituer des historiques, de rapprocher des résultats successifs et de repérer les dossiers qui nécessitent une lecture approfondie. Lorsque cette préparation répétitive monopolise le temps expert, la file grandit plus vite qu’elle ne se résorbe.
+Immunological review in transplantation requires professionals to reconstruct histories, compare successive results, and identify records that need deeper review. When this repetitive preparation consumes expert time, the backlog grows faster than the team can clear it.
 
-**Ariane transforme cette accumulation en une file de travail lisible et priorisée.** Le produit réunit l’historique synthétique d’un dossier, expose les informations absentes ou incertaines et distingue deux parcours :
+**Ariane turns this accumulation into a clear, prioritized work queue.** The product brings together a synthetic record history, exposes missing or uncertain information, and separates two workflows:
 
-- **À signer** : le dossier est préparé pour une dernière vérification professionnelle ;
-- **À consulter** : le dossier reste visible pour une revue plus approfondie.
+- **Ready to sign**: the record is prepared for a final professional check;
+- **Needs review**: the record remains visible for deeper review.
 
-Le biologiste conserve la décision et déclenche lui-même toute validation.
+The biologist retains the decision and explicitly initiates every validation.
 
-## La proposition de valeur
+## Value proposition
 
-| Problème opérationnel | Réponse d’Ariane | Valeur recherchée |
+| Operational problem | Ariane's response | Intended value |
 | --- | --- | --- |
-| L’historique doit être reconstruit dossier par dossier. | Les résultats et événements sont réunis dans une lecture longitudinale. | Réduire le temps passé à retrouver le contexte. |
-| La routine et les cas complexes partagent la même file. | Deux parcours rendent immédiatement visibles les dossiers à approfondir. | Concentrer le temps expert là où il est le plus utile. |
-| Les informations absentes peuvent être difficiles à repérer. | Les données manquantes et les limites restent explicites. | Éviter qu’une absence d’information devienne une conclusion favorable. |
-| Le retard s’accumule. | La préparation et la priorisation visent à rendre de la capacité à l’équipe. | Ramener une file estimée à six mois vers un mois, à confirmer en pilote. |
+| History must be reconstructed record by record. | Results and events are combined into a longitudinal view. | Reduce time spent recovering context. |
+| Routine and complex cases share the same queue. | Two workflows make records requiring deeper review immediately visible. | Focus expert time where it is most useful. |
+| Missing information can be difficult to identify. | Missing data and limitations remain explicit. | Prevent missing information from becoming a favorable conclusion. |
+| The backlog keeps growing. | Preparation and prioritization aim to restore team capacity. | Move an estimated six-month backlog toward one month, subject to pilot confirmation. |
 
-L’objectif **6 → 1 mois** est une ambition opérationnelle issue du besoin terrain. Il ne s’agit pas d’un résultat déjà obtenu : il doit être mesuré avec une équipe pilote avant toute communication comme performance.
+The **6 → 1 month** target is an operational ambition based on the field need. It is not an achieved result and must be measured with a pilot team before being communicated as performance.
 
-## Ce que nous avons construit en 50 heures
+## What we built in 50 hours
 
-- une landing publique cohérente avec l’identité Ariane ;
-- un cockpit avec recherche, filtres, tri et pagination ;
-- une fiche synthétique avec historique et évolution sérique ;
-- des files **À signer** et **À consulter** ;
-- une signature déclenchée uniquement par une action humaine ;
-- une API FastAPI, une base PostgreSQL locale et un pipeline déterministe ;
-- des contrats frontend/backend validés aux frontières ;
-- des tests automatisés du pipeline, de l’API et des parcours web.
+- a public landing page consistent with the Ariane identity;
+- a dashboard with search, filters, sorting, and pagination;
+- a synthetic patient file with history and serum evolution;
+- **Ready to sign** and **Needs review** queues;
+- a signature triggered only by an explicit human action;
+- a FastAPI API, local PostgreSQL database, and deterministic pipeline;
+- frontend/backend contracts validated at system boundaries;
+- automated tests for the pipeline, API, and web workflows.
 
-Le prix remporté valide la pertinence de la proposition présentée au jury. Il ne constitue pas une validation clinique du produit.
+The award recognizes the relevance of the proposal presented to the jury. It does not constitute clinical validation of the product.
 
-## Résultat du scénario synthétique
+## Synthetic scenario result
 
-Le scénario présenté au jury contient **1 000 profils entièrement synthétiques** :
+The scenario presented to the jury contains **1,000 entirely synthetic profiles**:
 
-| Parcours | Profils | Rôle dans la démonstration |
+| Workflow | Profiles | Role in the demonstration |
 | --- | ---: | --- |
-| Préparés pour validation | 714 | Le professionnel vérifie chaque dossier avant de signer. |
-| Conservés pour revue approfondie | 286 | Le dossier reste visible dans la file de consultation. |
+| Prepared for validation | 714 | A professional checks every record before signing. |
+| Kept for deeper review | 286 | The record remains visible in the review queue. |
 
-Ces nombres décrivent la distribution contrôlée du démonstrateur. Ils ne mesurent ni une performance clinique, ni un gain de temps, ni une prévalence réelle.
+These figures describe the demonstrator's controlled distribution. They do not measure clinical performance, time savings, or real-world prevalence.
 
-## Démonstration
+## Demo
 
-La présentation et le produit partagent le même frontend :
+The presentation and product share the same frontend:
 
-- `/` — storytelling, prix, impact visé, architecture et garde-fous ;
-- `/login` — entrée du démonstrateur local ;
-- [`demo-ariane.mp4`](web/frontend/public/showcase/demo-ariane.mp4) — parcours vidéo court.
+- `/` — storytelling, award, target impact, architecture, and safeguards;
+- `/login` — entry point to the local demonstrator;
+- [`demo-ariane.mp4`](web/frontend/public/showcase/demo-ariane.mp4) — short product walkthrough.
 
-Après le démarrage local, ouvrir <http://localhost:5173>.
+After starting the project locally, open <http://localhost:5173>.
 
-## De la preuve de produit à la preuve d’impact
+## From product proof to impact proof
 
-| Déjà démontré | À mesurer en pilote |
+| Already demonstrated | To measure in a pilot |
 | --- | --- |
-| Un parcours complet, local et reproductible | Le temps de préparation et de revue |
-| Une interface testée sur des données synthétiques | L’évolution de la taille et de l’ancienneté de la file |
-| Une validation humaine explicite | Les reprises et corrections avant validation |
-| Une proposition récompensée pour sa valeur patient | L’adoption et la compréhension par les professionnels |
+| A complete, local, reproducible workflow | Preparation and review time |
+| An interface tested with synthetic data | Changes in backlog size and age |
+| Explicit human validation | Rework and corrections before validation |
+| A proposal recognized for patient value | Professional adoption and understanding |
 
-La [démarche pilote](docs/PILOT.md) décrit les indicateurs, les étapes de cadrage et les conditions nécessaires avant toute expérimentation. Une future version professionnelle pourrait ajouter des protocoles versionnés, un audit renforcé, une gestion des accès et un déploiement adapté à l’environnement cible.
+The [pilot approach](docs/PILOT.md) describes the indicators, scoping steps, and conditions required before any evaluation. A future professional version could add versioned protocols, stronger audit capabilities, access management, and deployment adapted to the target environment.
 
 ## Architecture
 
 ```text
-Données synthétiques
-        │
-        ▼
-Pipeline déterministe ──► FastAPI ──► PostgreSQL
-                              │
-                              ▼
-                       Next.js / React
-                              │
-                              ▼
-                       Validation humaine
+Synthetic data
+      │
+      ▼
+Deterministic pipeline ──► FastAPI ──► PostgreSQL
+                               │
+                               ▼
+                        Next.js / React
+                               │
+                               ▼
+                        Human validation
 ```
 
-| Couche | Technologies |
+| Layer | Technologies |
 | --- | --- |
-| Présentation et application | Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui |
-| État et validation frontend | TanStack Query, Zod, React Hook Form |
+| Presentation and application | Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui |
+| Frontend state and validation | TanStack Query, Zod, React Hook Form |
 | API | FastAPI, Pydantic, SQLAlchemy |
-| Données | PostgreSQL, pipeline Python déterministe |
-| Vérification | Pytest, unittest, Playwright, axe-core |
+| Data | PostgreSQL, deterministic Python pipeline |
+| Verification | Pytest, unittest, Playwright, axe-core |
 
-Le backend reste la source de vérité des données et des règles. Le frontend valide les réponses reçues et les présente sans recalculer une interprétation médicale.
+The backend remains the source of truth for data and rules. The frontend validates received responses and presents them without recomputing medical interpretation.
 
-## Démarrage local
+## Local setup
 
-### Prérequis
+### Requirements
 
-- Node.js 22 ou plus récent ;
-- Python 3.12 et [`uv`](https://docs.astral.sh/uv/) ;
-- Docker avec Compose.
+- Node.js 22 or newer;
+- Python 3.12 and [`uv`](https://docs.astral.sh/uv/);
+- Docker with Compose.
 
-### 1. Lancer PostgreSQL
+### 1. Start PostgreSQL
 
 ```bash
 docker compose -f dependencies/compose.yml up -d
 ```
 
-### 2. Lancer l’API et charger le scénario
+### 2. Start the API and load the scenario
 
 ```bash
 cd web
@@ -141,7 +141,7 @@ uv run python -m app.seed
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 3. Lancer le frontend
+### 3. Start the frontend
 
 ```bash
 cd web/frontend
@@ -150,15 +150,15 @@ npm ci
 npm run dev
 ```
 
-| Service | URL locale |
+| Service | Local URL |
 | --- | --- |
-| Landing et démonstrateur | <http://localhost:5173> |
+| Landing page and demonstrator | <http://localhost:5173> |
 | API | <http://localhost:8000> |
 | OpenAPI | <http://localhost:8000/docs> |
 
-Le scénario guidé et son plan de secours sont documentés dans [`docs/DEMO.md`](docs/DEMO.md).
+The guided scenario and fallback plan are documented in [`docs/DEMO.md`](docs/DEMO.md).
 
-## Vérifications
+## Verification
 
 ```bash
 # Frontend
@@ -172,43 +172,43 @@ npm run build
 cd ../backend
 uv run pytest
 
-# Pipeline de données
+# Data pipeline
 cd ../../data-model
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 -m hla_data_model.validator data/scenarios
 ```
 
-## Usage responsable
+## Responsible use
 
-Ariane est un démonstrateur de hackathon et non un dispositif médical cliniquement validé.
+Ariane is a hackathon demonstrator, not a clinically validated medical device.
 
-- données exclusivement synthétiques dans ce dépôt ;
-- aucune décision autonome de transplantation ;
-- aucune prédiction de rejet ou recommandation thérapeutique ;
-- aucune intégration officielle à LymFIP ;
-- incertitudes et informations manquantes conservées ;
-- validation finale explicitement humaine.
+- exclusively synthetic data in this repository;
+- no autonomous transplant decision;
+- no rejection prediction or treatment recommendation;
+- no official LymFIP integration;
+- uncertainty and missing information remain visible;
+- final validation is explicitly human.
 
-Lire [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) avant toute présentation ou réutilisation du démonstrateur.
+Read [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) before presenting or reusing the demonstrator.
 
 ## Documentation
 
-| Document | Contenu |
+| Document | Contents |
 | --- | --- |
-| [`docs/PRODUCT.md`](docs/PRODUCT.md) | Problème, proposition de valeur et périmètre produit |
-| [`docs/PILOT.md`](docs/PILOT.md) | Passage du démonstrateur à une évaluation encadrée |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Composants, flux et responsabilités |
-| [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md) | Données synthétiques et reproductibilité |
-| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Déploiement Vercel Services et Neon |
-| [`docs/DEMO.md`](docs/DEMO.md) | Lancement, scénario et plan de secours |
-| [`docs/HACKATHON.md`](docs/HACKATHON.md) | Contexte, réalisation en 50 heures et prix |
-| [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) | Limites médicales et communication responsable |
-| [`BRAND.md`](BRAND.md) | Usage du nom, des logos et des médias Ariane |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Retours, collaborations et données interdites |
-| [`SECURITY.md`](SECURITY.md) | Signalement privé et informations à ne jamais publier |
+| [`docs/PRODUCT.md`](docs/PRODUCT.md) | Problem, value proposition, and product scope |
+| [`docs/PILOT.md`](docs/PILOT.md) | Transition from demonstrator to supervised evaluation |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Components, flows, and responsibilities |
+| [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md) | Synthetic data and reproducibility |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Vercel Services and Neon deployment |
+| [`docs/DEMO.md`](docs/DEMO.md) | Startup, walkthrough, and fallback plan |
+| [`docs/HACKATHON.md`](docs/HACKATHON.md) | Context, 50-hour build, and award |
+| [`docs/RESPONSIBLE_USE.md`](docs/RESPONSIBLE_USE.md) | Medical boundaries and responsible communication |
+| [`BRAND.md`](BRAND.md) | Use of the Ariane name, logos, and media |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Feedback, collaboration, and prohibited data |
+| [`SECURITY.md`](SECURITY.md) | Private reporting and information that must never be published |
 
-## Licence et droits
+## License and rights
 
-Ce dépôt est visible à des fins de présentation et d’évaluation, mais **il n’est pas open source**. Aucun droit d’utilisation, de modification, de distribution, de déploiement ou d’exploitation commerciale n’est accordé sans autorisation écrite préalable.
+This repository is visible for presentation and evaluation purposes, but **it is not open source**. No right to use, modify, distribute, deploy, or commercially exploit the project is granted without prior written permission.
 
-Des droits commerciaux, de recherche ou d’évaluation peuvent être accordés séparément dans le cadre d’un accord écrit. Voir [`LICENSE`](LICENSE), [`BRAND.md`](BRAND.md) et [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Commercial, research, or evaluation rights may be granted separately under a written agreement. See [`LICENSE`](LICENSE), [`BRAND.md`](BRAND.md), and [`CONTRIBUTING.md`](CONTRIBUTING.md).

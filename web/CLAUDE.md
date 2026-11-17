@@ -1,112 +1,117 @@
-# Contexte du projet
+# Project context
 
-## Problématique
+## Purpose and safety boundary
 
-Préparer la revue immunologique de dossiers synthétiques de transplantation rénale afin de rendre du temps à l'expertise biologique. Ariane structure l'historique, l'évolution sérique et les files de travail ; le professionnel conserve toujours la validation finale.
+Ariane prepares the immunological review of synthetic kidney-transplant cases
+so biological experts can focus on interpretation. It structures patient
+history, serum evolution, and work queues; a professional always makes the
+final decision.
 
-- Le démonstrateur ne revendique aucune intégration officielle à LymFIP et ne remplace pas l'analyse du biologiste.
-- Ce sont des **données de santé** : les traiter comme sensibles (jamais dans les logs, jamais en dur dans le code ou les tests, accès protégé par l'authentification).
-- **Ne rien inventer sur Lymfip.** Le format de ses résultats, la manière de les obtenir (API, fichier, autre) et les règles d'analyse ne sont pas encore connus. Tant qu'ils ne sont pas fournis, ne pas supposer de schéma de données ni de règle métier : poser la question.
-- Points encore ouverts : comment l'application récupère les résultats, qui les consulte et sous quelle forme, qui les valide une fois l'étape manuelle supprimée. Voir « Problématique » dans `README.md`.
+- The demonstrator does not claim an official LymFIP integration and never
+  replaces a biologist's assessment.
+- Treat health-like data as sensitive: never log it, hard-code it in tests, or
+  expose it without authentication.
+- Do not invent LymFIP formats, access methods, medical rules, thresholds, or
+  interpretations. Ask for validated input when they are unknown.
+- Use synthetic data only. All results require human validation.
 
-## Architecture
+## Repository architecture
 
-Monorepo avec deux applications séparées (dans `web/`), plus les dépendances d'infrastructure, situées à la **racine du dépôt**, à côté de `web/` :
-
-```
+```text
 Hackathon-Adopt-AI/
-├── dependencies/       # Docker Compose (PostgreSQL + pgvector)
-│   ├── compose.yml
-│   └── volumes/        # données PostgreSQL — ignoré par git
+├── dependencies/       # PostgreSQL + pgvector Docker Compose
 └── web/
-    ├── backend/        # API Python (FastAPI)
-    └── frontend/       # Next.js App Router + React + TypeScript
+    ├── backend/        # FastAPI application
+    └── frontend/       # Next.js App Router application
 ```
 
-Dans ce fichier et dans `.claude/rules/`, les chemins `backend/…` et `frontend/…` sont relatifs à `web/`.
+Paths beginning with `backend/` or `frontend/` in this file are relative to
+`web/`.
 
 ## Stack
 
-### Backend — `backend/`
+The backend uses Python, FastAPI, SQLAlchemy, Pydantic, asyncpg, and uv. Every
+route validates both input and output and returns a Pydantic response model,
+never a SQLAlchemy entity directly.
 
-- **Python** avec **FastAPI**
-- **SQLAlchemy** pour l'accès aux données (ORM)
-- **Pydantic** pour la validation des **entrées et des sorties** : chaque route déclare un schéma de requête et un `response_model`. On ne renvoie jamais un modèle SQLAlchemy directement.
-- Gestion des dépendances avec **uv**
-- Point d'entrée : `app.main:app`
+The frontend uses Next.js 16, React 19, strict TypeScript, Zod, Tailwind CSS,
+Motion, GSAP, TanStack Query, TanStack Table, React Hook Form, and nuqs. Next.js
+routes live in `app/`; product screens and logic live in `src/features/`.
 
-### Frontend — `frontend/`
+PostgreSQL 17 with pgvector runs through `dependencies/compose.yml`. Secrets
+and connection settings belong in `.env`; `.env.example` contains safe local
+placeholders. Docker Compose reads `dependencies/.env` automatically, not
+`web/.env`; use `--env-file web/.env` when needed.
 
-- **Next.js 16 (App Router)** + **React** + **TypeScript en mode strict** (`"strict": true`, pas de `any` implicite)
-- **Zod** pour la validation des entrées (formulaires, paramètres) ; les types TypeScript sont inférés des schémas Zod (`z.infer`) plutôt que dupliqués à la main.
-- **Tailwind CSS** (plugin PostCSS `@tailwindcss/postcss`), **Motion** et **GSAP** pour le style et les animations.
-- Le dossier racine `app/` déclare les routes Next.js ; `src/features/` contient les écrans métier. **TanStack Query** gère les appels API, **TanStack Table** les tableaux, **React Hook Form** les formulaires et **nuqs** l'état dans l'URL via `nuqs/adapters/next/app`.
+## API and contracts
 
-### Base de données
+The local API base URL is `http://localhost:8000/api/v1`. OpenAPI remains at
+`/docs`, `/redoc`, and `/openapi.json`. Keep `doc/api-endpoints.md` and
+`doc/api-decisions.md` synchronized with code changes.
 
-- **PostgreSQL 17 avec l'extension pgvector** (image `pgvector/pgvector:pg17-trixie`), lancé via Docker Compose (`dependencies/compose.yml`, à la racine du dépôt). L'extension doit être activée dans la base (`CREATE EXTENSION IF NOT EXISTS vector;`).
-- La configuration (URL de connexion, secrets) passe par les variables d'environnement : `.env` n'est jamais commité, `.env.example` documente les variables attendues.
-- Le compose lit `DB_USER`, `DB_PASSWORD`, `DB_NAME` et `DB_PORT`, avec des valeurs par défaut pour le développement local. Docker Compose ne lit automatiquement que `dependencies/.env`, pas `web/.env` : pour utiliser `web/.env`, ajouter `--env-file web/.env` à la commande. Le backend doit se connecter avec les mêmes valeurs.
+`GET /api/v1/analysis/result` is the only public product route. It is allowed
+only because `AnalysisResultRead` enforces `synthetic: true`. Real or
+patient-level results must use a separate authenticated route.
 
-## API
+`patients.patient_id` is the stable functional identifier, while `patients.id`
+is the technical UUID used in URLs. Synthetic profiles, serum tests, and event
+history join through `patient_id`. All generated identities and events are
+fictional and deterministic.
 
-Base URL en local : `http://localhost:8000/api/v1`. Toutes les routes métier vivent sous `/api/<version>` (voir « Versionnement de l'API » dans `.claude/rules/backend.md`). La documentation OpenAPI reste à la racine : `/docs`, `/redoc`, `/openapi.json`. Le catalogue des endpoints et le journal des décisions sont dans `doc/` (`api-endpoints.md`, `api-decisions.md`) : les mettre à jour dans la même modification que le code, voir `doc/README.md`.
+The default seed loads 999 patients with serum history plus the featured
+synthetic case: 1,000 patients total, with 714 constant-profile cases proposed
+for signature and 286 fluctuating-profile cases proposed for review. These are
+demonstration figures, not clinical results.
 
-### Route publique : résultat d'analyse
+Run the seed from `web/backend/`:
 
-`GET /api/v1/analysis/result` ne demande **aucune authentification** (contexte `backend/app/analysis/`). C'est la seule exception à la règle « données de santé = accès authentifié », et elle ne tient que parce que la réponse est **synthétique** : le schéma `AnalysisResultRead` impose `synthetic: true` (`Literal[True]`) et le service sert pour l'instant le cas de démonstration `DEMO_ANALYSIS_RESULT` (`constants/analysis.py`). Les résultats d'un vrai patient ne doivent jamais passer par cette route : ils iront sur une route authentifiée, avec son propre schéma.
+```bash
+uv run python -m app.seed \
+  [--csv PATH] [--serum-csv PATH] \
+  [--only patients|synthetic|serum|history|featured|users] \
+  [--all-patients] [--reset]
+```
 
-## Patients et patients synthétiques
+The seed is deterministic, replayable, and transactional. It processes batches
+of 400 rows to stay under asyncpg's parameter limit. `create_all` does not
+migrate existing tables; after an entity change, rerun the seed with `--reset`.
+User and session tables are never part of that reset.
 
-Deux contextes backend, alimentés par le CSV `data-model/data/patients_synthetiques_v3.csv` (51 000 lignes, **synthétiques**) :
+## Authentication
 
-- **`patients`** (`backend/app/patients/`) : `id` (UUID, clé primaire technique), **`patient_id`** (identifiant fonctionnel **unique**, la colonne `patient_id` du CSV, ex. « HIS-00355 » ou « SYN-0001 »), `firstname`, `lastname`, `birth` (nullable), `gender` M/F, `city`, `country`, `created_at`. Le CSV ne contient que `patient_id`, `date_naissance` et `sexe` : prénom, nom, ville et pays sont **fictifs**, tirés de listes (`constants/patients.py`) de façon déterministe à partir du `patient_id`. L'`id` est déduit du `patient_id` (UUID v5) : il ne change pas d'un seed à l'autre. Les relations `Patient.serum_tests` (tri `test_date`) et `Patient.history` (tri `occurred_on`) sont en `lazy="raise"`, chargées par `selectinload` : `GET /patients` et `GET /patients/{id}` renvoient les tests et l'historique.
-- **`synthetic_patients`** (`backend/app/synthetic_patients/`) : table `patients_synthetiques`, **toutes les colonnes du CSV** (mêmes noms en minuscules, `hla_A` → `hla_a`) + `id` (clé primaire technique) et `created_at`. **La liaison se fait par `patient_id`** : `patients_synthetiques.patient_id` est une clé étrangère vers `patients.patient_id` (`ON DELETE CASCADE`), pas vers `patients.id`. Un patient peut avoir plusieurs patients synthétiques (`patient_id` n'est donc pas unique dans cette table ; relation `SyntheticPatient.patient`, chargement explicite requis : `lazy="raise"`). Le CSV a une ligne par `patient_id` : l'`id` d'un patient synthétique en est déduit, deux lignes de même `patient_id` seraient comptées « déjà présentes ». Les colonnes `_…` du CSV sont les vérités terrain du générateur, pas des entrées. Les colonnes catégorielles sont des `VARCHAR` libres (pas d'enum : les valeurs sont celles du CSV).
+Authentication uses FastAPI Users with an opaque database-backed token in an
+`HttpOnly`, `SameSite=lax` cookie. `Secure` is enabled unless
+`COOKIE_SECURE=false`. Passwords use Argon2id and are never logged or returned.
 
-- **`serum_tests`** (`backend/app/serum_tests/`) : table `serum_tests`, une ligne de `data-model/data/serum_test_history.csv`. Liaison par **`patient_id`** (clé étrangère vers `patients.patient_id`, `ON DELETE CASCADE`), pas par l'UUID. (`patient_id`, `test_date`) est unique. L'`id` est un UUID v5 de `patient_id|test_date`. Colonnes du CSV en minuscules (`B12` → `b12`, `B12_output` → `b12_output`). `*_output` vaut 1 si la valeur est ≥ 500. Valeurs **synthétiques**, pas des résultats cliniques.
-- **`patient_history`** (`backend/app/patient_history/`) : table `patient_history`, événements fictifs (pas un CSV). Liaison par **`patient_id`**, même clé étrangère. Réservé à dix patients de démonstration, listés dans `constants/patient_history.py` : l'UUID noté est `patients_synthetiques.id`, le lien est le `patient_id` (`HIS-00355`, etc.). Sept événements par patient, datés à partir de la greffe : autre pathologie, accident, transfusion, bilan préopératoire (J-1), greffe, suivi postopératoire (J+7), prochaine consultation (J+10). `kind` est un `VARCHAR` (`illness`, `accident`, `transfusion`, `preop`, `graft`, `postop`, `consultation`). L'`id` est un UUID v5 de `patient_id|code`.
-- **`signatures`** (`backend/app/signatures/`) : table `patient_signatures`, la validation d'un cas simple par un soignant (`patient_id` unique, `signed_by`, `signed_at`). Seule donnée saisie par les utilisateurs : `patient_id` n'est **pas** une clé étrangère, pour que `seed --reset` ne la touche pas. Le contexte lit le patient via le service `patients`.
-- **`consultations`** (`backend/app/consultations/`) : la liste « À consulter », en lecture seule (pas de table) : les patients dont un prélèvement est de profil sérique `C` (fluctuant), signés ou non. Profil dans `constants/consultations.py`. Le contexte lit `Patient` et `SerumTest` comme `signatures`.
+Public routes are registration and login. Product routes require
+`Depends(current_active_user)`. Logout revokes the current token; logout-all
+revokes every token owned by the current user. The frontend reads session state
+through `GET /users/me` and never reads the cookie directly.
 
-**Seed** : `uv run python -m app.seed [--csv CHEMIN] [--serum-csv CHEMIN] [--only patients|synthetic|serum|history|featured|users] [--all-patients] [--reset]` (depuis `backend/`). Six étapes, dans cet ordre : (1) les patients, avec leur `patient_id` : **par défaut, seulement ceux qui ont un historique sérique** (les `patient_id` de `serum_test_history.csv`, 999), auxquels s'ajoute le patient mis en avant : **1 000 patients**, 714 à signer et 286 à consulter, aucun sans suivi. `--all-patients` charge à la place tout le CSV (51 000 lignes) ; (2) les patients synthétiques **à partir des patients** ; (3) l'historique sérique ; (4) les événements fictifs ; (5) `featured` : le patient synthétique mis en avant, **Alex Martin** (compté dans les 714 à signer) (28 ans, profil sérique `A` constant, six prélèvements, un événement), dossier fictif écrit dans `constants/featured_patient.py` et ingéré par `featured_patient/seed.py` : l'étape crée son propre patient (hors CSV, sans patient synthétique), ne dépend d'aucune autre et se rejoue sans doublon ; son `patient_id` « DEMO-0001 » se classe avant « HIS- » et « SYN- », donc il ouvre la file « À signer » (triée par `patient_id`) ; (6) `users` : le compte de démonstration (`users/seed.py`), dont l'email et le mot de passe viennent de `web/.env` (`SEED_USER_EMAIL`, `SEED_USER_PASSWORD`, lues par `SeedSettings`, jamais par l'API) : l'étape est indépendante des CSV, passe dans sa propre session (l'adaptateur FastAPI Users fait son `commit`), ne touche pas un compte existant et n'est pas supprimée par `--reset`. Compte superutilisateur et vérifié (`constants/seed.py`), **développement local uniquement**. Les étapes 2 à 4 sont filtrées par `existing_patient_ids` (une ligne dont le `patient_id` n'existe pas est comptée « sans patient » et n'est pas insérée). `--serum-csv` défaut : `data-model/data/serum_test_history.csv`. Rejouable, atomique (une seule transaction), sans jamais afficher le contenu du fichier. Le CSV est lu en lots de 400 lignes : asyncpg refuse plus de 32 767 paramètres par requête (voir `constants/seed.py`).
+The public landing page is `/`; the local demonstrator sign-in is `/login`.
+Product data queries remain disabled until the simulated import has completed.
+The import reads and uploads no file; its completion flag lives in the current
+tab's `sessionStorage` and is cleared on logout.
 
-**Pas de migrations** : `create_all` ne modifie pas une table existante. Si le schéma de `patients`, `patients_synthetiques`, `serum_tests` ou `patient_history` a changé depuis sa création, le seed refuse (« schéma obsolète ») ; `--reset` supprime alors les quatre tables et les recrée (leurs données se régénèrent depuis les CSV et les événements fictifs, avec les mêmes `id`). Le backend (`lifespan`) ne vérifie pas le schéma : après un changement d'entité, relancer le seed avec `--reset`.
+Password reset, email verification, rate limiting, automatic session
+revocation after password changes, and database migrations are not implemented.
 
-**Routes** (session requise, pagination, recherche, filtres et tri côté serveur) :
+## Commands
 
-- `GET /api/v1/patients` (recherche `search` sur `patient_id`, prénom et nom) et `GET /api/v1/patients/{id}`. Dans les URL, `{id}` est l'**UUID** du patient, jamais son `patient_id`. Les deux réponses incluent `serum_tests` (tri `test_date`), `history` (tri `occurred_on`) et `serum_evolution` (le même suivi, rangé par année et par antigène, avec le libellé du profil : constant, intermédiaire, fluctuant), liés par `patient_id` (ex. `HIS-00355`).
-- `GET /api/v1/synthetic-patients` : filtres `search` (dans le `patient_id`), `patient_id` (exact, sans tenir compte de la casse), `sexe`, `jeu`, `phase`, `statut_parcours`, `organe` ; tri sur une liste blanche (`sort_by`, `sort_order`) ; réponse `{items, total, page, page_size}`. Chaque élément porte les 65 colonnes du CSV sous leur nom (les colonnes `_…` aussi : Pydantic interdit les champs préfixés par `_`, le schéma les lit et les renvoie par alias), plus `id` et `created_at`.
-- `GET /api/v1/patients/{id}/synthetic-patients` : les patients synthétiques d'un patient, paginés (`sort_by`, `sort_order`, `page`, `page_size` seulement : le patient est dans l'URL). L'URL désigne le patient par son `id` (UUID), le service en déduit son `patient_id` pour la liaison. **404 `PATIENT_NOT_FOUND` si le patient n'existe pas**, page vide s'il n'a aucun patient synthétique (≠ `?patient_id=` de la liste globale, qui renvoie une page vide dans les deux cas). Le contexte `synthetic_patients` vérifie le patient via le service `patients`, jamais son repository.
-- `GET /api/v1/signatures/queue` : au plus 5 cas à signer (profil sérique `A`, au plus 3 événements d'historique, pas encore signés), au format `Patient`, plus `remaining`. `POST /api/v1/signatures` `{patient_id: <UUID>}` : `201`, `404 PATIENT_NOT_FOUND`, `409 PATIENT_ALREADY_SIGNED`. Seuils dans `constants/signatures.py`.
-- `GET /api/v1/consultations/queue` : les cas au suivi sérique fluctuant (profil `C`), pagination uniforme (`page`, `page_size`, réponse `{items, total, page, page_size}`), éléments au format `Patient`. Route frontend `/a-consulter` (onglet « À consulter »).
-
-## Authentification
-
-Système **email / mot de passe**, implémenté côté backend FastAPI. Les skills Better Auth de `.claude/skills` (`create-auth`, `email-and-password-best-practices`, …) ciblent une stack TypeScript et ne s'appliquent pas ici.
-
-- Le backend est la source de vérité : toute validation côté frontend (Zod) est une aide à l'utilisateur, jamais une garantie de sécurité. Le backend revalide toujours avec Pydantic.
-- Le mot de passe n'est jamais stocké ni loggé en clair, ni renvoyé dans une réponse.
-- Bibliothèque : **FastAPI Users** (en mode maintenance : correctifs de sécurité seulement). Son adaptateur SQLAlchemy est **asynchrone** : l'auth utilise `AsyncSession` et `asyncpg`, ce qui déroge à l'exemple synchrone de `.claude/rules/backend.md`.
-- Session : jeton opaque **stocké en base** (table `accesstoken`), transporté par un cookie `HttpOnly` / `SameSite=lax`, `Secure` sauf `COOKIE_SECURE=false`. La déconnexion supprime la ligne : la session est révoquée côté serveur. Mots de passe hachés en **Argon2id** (paramètres dans `constants/auth.py`).
-- Routes (toutes sous `/api/v1`) : `POST /api/v1/auth/register`, `POST /api/v1/auth/login` (corps JSON `{email, password}`), `POST /api/v1/auth/logout` (appareil courant), `POST /api/v1/auth/logout-all` (tous les appareils : `SessionService.logout_all`), `GET` et `PATCH /api/v1/users/me`. Protéger une route : `Depends(current_active_user)` (`auth/dependencies.py`). Le login et le logout sont écrits dans `auth/router.py` (FastAPI Users impose un formulaire OAuth2 pour le login) ; seules l'inscription et `/users/me` viennent des routers de la librairie. Les identifiants invalides lèvent `InvalidCredentialsError`, convertie en `400 LOGIN_BAD_CREDENTIALS` dans `main.py`.
-- **Côté frontend** : la présentation publique est sur `/` et la connexion au démonstrateur sur `/login`. Il n'existe ni inscription ni mot de passe oublié. La session vit dans le cookie HttpOnly, le frontend ne la lit jamais : « qui est connecté » vient de `GET /users/me` (hook `useCurrentUser`, `null` sur 401). Le layout `app/(protected)/layout.tsx` utilise `AuthGate` pour protéger les routes métier ; `GuestGate` renvoie un utilisateur déjà connecté vers `/dashboard`. À la déconnexion, tout le cache TanStack Query est vidé avant le retour vers la présentation publique.
-- **Données chargées après l'import** : à l'arrivée sur le site, le frontend ne demande **aucune** donnée (ni `GET /patients`, ni la file « À signer », ni « À consulter » : les requêtes sont `enabled` seulement une fois l'import terminé) ; les trois écrans affichent un tableau vide avec un composant « empty ». La fin de l'analyse de la fenêtre d'import (`useImportAnalysis`) lève le drapeau `importedData` (`shared/utils/importedData.ts`, hook `useImportedData`), gardé dans le `sessionStorage` de l'onglet (un rechargement le garde) et remis à zéro à la déconnexion. L'import et l'analyse sont **simulés** (aucun fichier n'est lu ni envoyé).
-- **Pas encore en place** (décisions à prendre) : réinitialisation de mot de passe et vérification d'email (fournisseur d'envoi d'email non choisi), limitation de débit, révocation automatique des sessions au changement de mot de passe (la brique `SessionService.logout_all` existe, elle n'est pas encore appelée par `PATCH /users/me`), migrations (les tables sont créées au démarrage dans `main.py`).
-
-## Commandes
-
-| Action | Commande | Dossier |
+| Action | Command | Directory |
 | --- | --- | --- |
-| Lancer PostgreSQL | `docker compose -f ./dependencies/compose.yml up -d` | racine du dépôt |
-| Lancer le backend | `uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` | `web/backend/` |
-| Lancer le frontend | `npm run dev` | `web/frontend/` (port 5173) |
-| Ingérer patients, synthétiques, tests sériques, historique d'événements, patient mis en avant et compte de démonstration | `uv run python -m app.seed [--csv CHEMIN] [--serum-csv CHEMIN] [--only patients\|synthetic\|serum\|history\|featured\|users] [--all-patients] [--reset]` | `web/backend/` |
-| Tests backend (base mockée, sans PostgreSQL) | `uv run pytest` | `web/backend/` |
+| Start PostgreSQL | `docker compose -f ./dependencies/compose.yml up -d` | repository root |
+| Start backend | `uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` | `web/backend/` |
+| Start frontend | `npm run dev` | `web/frontend/` |
+| Run backend tests | `uv run pytest` | `web/backend/` |
 
-## Conventions
+## Engineering conventions
 
-- Backend et frontend ne partagent pas de code : le contrat entre les deux est l'API HTTP (schémas Pydantic côté serveur, schémas Zod côté client).
-- Toute donnée qui entre dans le système (corps de requête, query params, saisie utilisateur) est validée par un schéma ; toute donnée qui sort de l'API passe par un schéma de réponse Pydantic.
-- Aucune valeur en dur : toute valeur littérale qui porte un sens, y compris les valeurs des règles métier, est une constante du dossier global `backend/app/constants/` ou `frontend/src/constants/`. Les valeurs qui changent selon l'environnement et les secrets passent par la configuration (`.env`), jamais par les constantes. Détail dans `.claude/rules/`.
-- Ne jamais commiter de secrets : `.env`, `.venv`, `node_modules` et `dependencies/volumes` sont dans les `.gitignore`.
-- Design / UI : voir `DESIGN.md`.
+- The HTTP API is the frontend/backend contract: Pydantic on the server, Zod
+  on the client.
+- Validate every boundary and return structured errors.
+- Put meaningful literals in the appropriate constants directory. Put
+  environment-specific values and secrets in configuration.
+- Never commit `.env`, `.venv`, `node_modules`, or database volumes.
+- Follow the current Ariane visual system documented in
+  `doc/rigueur-calme.md`; `DESIGN.md` is a historical reference only.

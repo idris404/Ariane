@@ -1,27 +1,34 @@
 # Documentation
 
-Décisions et références du projet, côté **backend / API**. Ce dossier complète `README.md` (démarrage) et `CLAUDE.md` (conventions) sans les remplacer.
+Backend and API decisions and references. This directory complements
+`README.md` (setup) and `CLAUDE.md` (conventions) without replacing them.
 
-| Fichier | Contenu |
+| File | Content |
 | --- | --- |
-| [api-endpoints.md](api-endpoints.md) | Catalogue des endpoints : méthode, chemin, protection, paramètres, réponses, format des erreurs. C'est la référence à consulter pour **appeler** l'API. |
-| [api-decisions.md](api-decisions.md) | Journal des décisions prises sur l'API, avec le pourquoi et leurs conséquences. C'est la référence à consulter pour **comprendre ou faire évoluer** l'API. |
+| [api-endpoints.md](api-endpoints.md) | Endpoint catalog: method, path, protection, parameters, responses, and error format. Use it when **calling** the API. |
+| [api-decisions.md](api-decisions.md) | API decision log, including rationale and consequences. Use it to **understand or evolve** the API. |
 
-La documentation interactive générée par FastAPI reste la source exacte des schémas : `http://localhost:8000/docs` (OpenAPI : `/openapi.json`).
+FastAPI's generated interactive documentation remains the exact source for
+schemas: `http://localhost:8000/docs` (OpenAPI: `/openapi.json`).
 
-## Tenir cette documentation à jour
+## Keep this documentation current
 
-- **Un endpoint ajouté, retiré ou modifié** : mettre à jour `api-endpoints.md` dans la même modification que le code.
-- **Une décision prise** (comportement d'un endpoint, convention, compromis) : ajouter une entrée à `api-decisions.md`, à la suite, avec le numéro suivant. Ne pas renuméroter ; une décision remplacée est marquée « Remplacée par D-xx », pas supprimée.
-- Une entrée suit ce modèle :
+- When an endpoint is added, removed, or changed, update `api-endpoints.md` in
+  the same change as the code.
+- When a decision is made about endpoint behavior, conventions, or trade-offs,
+  append the next numbered entry to `api-decisions.md`. Never renumber entries.
+  Mark a superseded decision as “Superseded by D-xx” instead of deleting it.
+- Use this template:
 
 ```markdown
-### D-xx — Titre court
+### D-xx — Short title
 
-- **Statut** : Demandée | Choix de conception | À confirmer
-- **Décision** : ce qui a été retenu.
-- **Pourquoi** : la contrainte ou la raison.
-- **Conséquences** : ce que cela implique pour ceux qui appellent ou font évoluer l'API.
+- **Status**: Requested | Design choice | To be confirmed
+- **Decision**: what was selected.
+- **Why**: the constraint or rationale.
+- **Consequences**: implications for API consumers and maintainers.
 ```
 
-Statuts : **Demandée** = l'équipe l'a explicitement demandé ; **Choix de conception** = retenu pour appliquer les conventions du projet ; **À confirmer** = hypothèse faute de précision, à valider ou corriger.
+Statuses: **Requested** means explicitly requested by the team; **Design
+choice** records an implementation convention; **To be confirmed** marks an
+assumption that still requires validation or correction.

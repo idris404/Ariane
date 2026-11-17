@@ -1,63 +1,63 @@
-# Ariane — vision produit
+# Ariane — Product Vision
 
-## Le problème
+## The problem
 
-La revue immunologique en transplantation oblige les professionnels à rapprocher des résultats produits à des dates différentes, à reconstruire un historique et à repérer les données manquantes ou les évolutions qui nécessitent une lecture approfondie.
+Immunological review in transplantation requires professionals to compare results produced at different times, reconstruct histories, and identify missing data or changes requiring deeper review.
 
-Le démonstrateur explore une question opérationnelle : **comment préparer cette revue pour que le temps expert soit consacré en priorité aux dossiers qui le demandent ?**
+The demonstrator explores an operational question: **how can this review be prepared so that expert time is focused first on the records that require it?**
 
-## La proposition
+## The proposal
 
-Ariane rassemble l’historique synthétique d’un dossier, rend son évolution lisible et l’oriente vers l’une des deux files du prototype :
+Ariane brings together a synthetic record history, makes its evolution readable, and routes it to one of two prototype queues:
 
-- **À signer** : le dossier est préparé pour une dernière vérification ;
-- **À consulter** : le suivi nécessite une lecture plus approfondie.
+- **Ready to sign**: the record is prepared for a final check;
+- **Needs review**: the history requires deeper review.
 
-Cette orientation organise le travail. Elle ne constitue pas une décision clinique. Le professionnel vérifie les données et déclenche lui-même toute signature.
+This routing organizes work. It is not a clinical decision. A professional checks the data and explicitly initiates every signature.
 
-## Parcours démontré
+## Demonstrated workflow
 
-1. L’utilisateur se connecte à l’environnement local.
-2. Il lance un import et une analyse explicitement simulés.
-3. Il ouvre le cockpit des dossiers synthétiques.
-4. Il consulte l’historique et l’évolution sérique d’un dossier.
-5. Il ouvre la file des dossiers préparés ou celle des dossiers à approfondir.
-6. Il vérifie les données avant toute signature.
+1. The user signs in to the local environment.
+2. They start an explicitly simulated import and analysis.
+3. They open the synthetic record dashboard.
+4. They review a record's history and serum evolution.
+5. They open either the prepared-record queue or the deeper-review queue.
+6. They check the data before any signature.
 
-## Valeur montrée
+## Demonstrated value
 
-- une lecture longitudinale au lieu de résultats isolés ;
-- une distinction claire entre routine et revue approfondie ;
-- une interface qui expose les données absentes et les limites ;
-- une traçabilité de l’action humaine ;
-- un parcours local et reproductible pour la démonstration.
+- longitudinal review instead of isolated results;
+- a clear distinction between routine preparation and deeper review;
+- an interface that exposes missing data and limitations;
+- traceability of human action;
+- a local, reproducible demonstration workflow.
 
-## Ambition opérationnelle
+## Operational ambition
 
-Le besoin terrain présenté pendant le hackathon correspond à une file accumulée estimée à six mois. Ariane vise à aider l’équipe à revenir vers un mois de file en préparant les dossiers répétitifs et en maintenant les cas à approfondir immédiatement visibles.
+The field need presented during the hackathon described an estimated six-month accumulated backlog. Ariane aims to help the team move toward one month by preparing repetitive records while keeping cases requiring deeper review immediately visible.
 
-Cette trajectoire **6 → 1 mois** est une hypothèse de valeur à mesurer. Elle ne constitue pas un résultat déjà obtenu, une promesse contractuelle ou une performance clinique.
+This **6 → 1 month** trajectory is a value hypothesis to be measured. It is not an achieved result, contractual promise, or clinical performance claim.
 
-## Suite professionnelle possible
+## Potential professional development
 
-La suite du projet demanderait une validation formelle des règles, des contre-exemples et du vocabulaire, puis une évaluation rétrospective sur des données autorisées. Les gains de temps devraient être chronométrés et les erreurs mesurées avant toute expérimentation en situation réelle.
+Further development would require formal validation of rules, counterexamples, and vocabulary, followed by retrospective evaluation using authorized data. Time savings must be timed and errors measured before any real-world evaluation.
 
-Les pistes de développement comprennent :
+Potential developments include:
 
-- protocoles versionnés et relus par des professionnels ;
-- audit plus détaillé des facteurs déclenchés ;
-- mesure du temps de revue ;
-- pilote encadré avec validation locale ;
-- étude d’une intégration, uniquement après documentation et autorisation du système cible.
+- professionally reviewed, versioned protocols;
+- more detailed auditing of triggered factors;
+- review-time measurement;
+- a supervised pilot with local validation;
+- integration studies only after the target system is documented and authorized.
 
-Le protocole proposé pour distinguer la preuve de produit de la preuve d’impact est détaillé dans [Du démonstrateur au pilote](PILOT.md).
+The proposed pathway from product proof to impact proof is detailed in [From Demonstrator to Pilot](PILOT.md).
 
-## Hors périmètre du prototype
+## Outside the prototype scope
 
-- diagnostic ;
-- recommandation thérapeutique ;
-- décision autonome de transplantation ;
-- prédiction clinique du rejet ;
-- interprétation complète et autonome des anticorps anti-HLA ;
-- connexion réelle à LymFIP ;
-- utilisation de données patient réelles.
+- diagnosis;
+- treatment recommendations;
+- autonomous transplant decisions;
+- clinical rejection prediction;
+- complete autonomous interpretation of anti-HLA antibodies;
+- a real LymFIP connection;
+- use of real patient data.

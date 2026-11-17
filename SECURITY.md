@@ -1,27 +1,27 @@
-# Sécurité et signalement
+# Security and Reporting
 
-## Périmètre
+## Scope
 
-Ariane est un démonstrateur local construit avec des données synthétiques. Il n’est pas autorisé à recevoir, stocker ou traiter des données patient réelles.
+Ariane is a local demonstrator built with synthetic data. It is not authorized to receive, store, or process real patient data.
 
-## Signaler un problème
+## Reporting an issue
 
-Ne pas publier dans une issue publique un secret, un identifiant, une donnée de santé, une capture contenant des informations confidentielles ou les détails permettant d’exploiter une vulnérabilité.
+Do not publish secrets, identifiers, health data, screenshots containing confidential information, or exploitable vulnerability details in a public issue.
 
-Utiliser la fonction privée de signalement de vulnérabilité de GitHub lorsqu’elle est disponible sur le dépôt. À défaut, contacter le propriétaire du dépôt par un canal privé avant toute divulgation.
+Use GitHub private vulnerability reporting when it is available for this repository. Otherwise, contact the repository owner through a private channel before disclosure.
 
-Un signalement utile indique :
+A useful report includes:
 
-- la version ou le commit concerné ;
-- le composant et le parcours affectés ;
-- les étapes minimales de reproduction avec des données synthétiques ;
-- l’impact observé ou plausible ;
-- toute mesure temporaire déjà appliquée.
+- the affected version or commit;
+- the affected component and workflow;
+- minimal reproduction steps using synthetic data;
+- the observed or plausible impact;
+- any temporary mitigation already applied.
 
-## Données interdites
+## Prohibited data
 
-Ne jamais joindre de donnée patient réelle, même anonymisée ou partiellement masquée. Utiliser uniquement un exemple synthétique minimal et reproductible.
+Never attach real patient data, even if anonymized or partially redacted. Use only a minimal, reproducible synthetic example.
 
-## Limites
+## Limitations
 
-Le dépôt ne revendique aucune certification de sécurité, conformité réglementaire ou aptitude à un usage clinique. Une version professionnelle demanderait une analyse de risques, une gouvernance des accès, un audit adapté et une validation dans l’environnement cible.
+This repository makes no claim of security certification, regulatory compliance, or fitness for clinical use. A professional version would require risk analysis, access governance, an appropriate audit, and validation in the target environment.
